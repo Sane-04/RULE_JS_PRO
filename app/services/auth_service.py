@@ -1,4 +1,6 @@
 ﻿from datetime import datetime
+
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core.security import verify_password, create_access_token
@@ -12,7 +14,7 @@ def authenticate_admin(db: Session, username: str, password: str) -> str | None:
     if not verify_password(password, admin.password_hash):
         return None
 
-    admin.last_login_at = datetime.utcnow()
+    admin.last_login_at = func.now()
     db.add(admin)
     db.commit()
 

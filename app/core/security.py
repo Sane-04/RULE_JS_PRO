@@ -6,7 +6,6 @@ from passlib.context import CryptContext
 
 from app.core.config import settings
 
-
 _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 

@@ -27,531 +27,257 @@ CORE_TABLES = [
     "attendance",
 ]
 
-TABLE_TITLE_CN = {
-    "college": "学院信息",
-    "major": "专业信息",
-    "class": "班级信息",
-    "student": "学生信息",
-    "teacher": "教师信息",
-    "course": "课程信息",
-    "course_class": "教学班信息",
-    "enroll": "选课记录",
-    "score": "成绩记录",
-    "attendance": "考勤记录",
+# Keep is_deleted for business filtering; remove only pure audit fields.
+AUDIT_FIELDS = {"created_at", "updated_at", "created_by", "updated_by"}
+
+
+TABLE_DESCRIPTIONS = {
+    "college": "学院主数据表。用于学院实体识别与组织归属映射。",
+    "major": "专业主数据表。用于专业实体识别、学院到专业层级映射。",
+    "class": "班级主数据表。用于班级实体识别、年级过滤和班级维度统计。",
+    "student": "学生主档表。用于学生实体识别和学籍状态过滤。",
+    "teacher": "教师主档表。用于教师实体识别和职称/状态过滤。",
+    "course": "课程主数据表。用于课程实体识别与课程维度筛选。",
+    "course_class": "教学班实例表。连接课程、班级、教师和学期，是多表关联桥梁。",
+    "enroll": "选课事实表。记录学生与教学班关系及选课状态。",
+    "score": "成绩事实表。用于成绩查询、均分和通过率等统计。",
+    "attendance": "考勤事实表。用于缺勤率、出勤趋势和考勤预警分析。",
 }
 
-TABLE_INFO_TAGS = {
-    "college": ["学院", "学院名称", "学院编码", "学院说明"],
-    "major": ["专业", "专业名称", "学院", "学位类型"],
-    "class": ["班级", "班级编码", "年级", "班主任"],
-    "student": ["学生", "学号", "姓名", "班级", "年级", "学院"],
-    "teacher": ["教师", "工号", "姓名", "职称", "学院"],
-    "course": ["课程", "课程编码", "学分", "课时", "学院"],
-    "course_class": ["教学班", "课程", "班级", "教师", "学期"],
-    "enroll": ["选课", "学生", "教学班", "状态", "选课时间"],
-    "score": ["成绩", "学生", "课程", "学期", "分数"],
-    "attendance": ["考勤", "学生", "教学班", "日期", "状态"],
-}
 
-TABLE_ALIASES = {
-    "college": ["学院", "学院信息", "院系"],
-    "major": ["专业", "专业信息", "学科"],
-    "class": ["班级", "行政班", "班"],
-    "student": ["学生", "学籍", "学生信息"],
-    "teacher": ["教师", "老师", "教职工"],
-    "course": ["课程", "课", "课程信息"],
-    "course_class": ["教学班", "开课", "授课班"],
-    "enroll": ["选课", "选课记录", "选课状态"],
-    "score": ["成绩", "分数", "考试成绩"],
-    "attendance": ["考勤", "出勤", "缺勤"],
-}
-
-TABLE_RELATED = {
-    "college": [("major", "专业"), ("student", "学生"), ("teacher", "教师"), ("course", "课程")],
-    "major": [("college", "学院"), ("class", "班级"), ("student", "学生")],
-    "class": [("major", "专业"), ("student", "学生"), ("course_class", "教学班")],
-    "student": [("enroll", "选课"), ("score", "成绩"), ("attendance", "考勤")],
-    "teacher": [("course_class", "教学班"), ("course", "课程"), ("class", "班级")],
-    "course": [("course_class", "教学班"), ("score", "成绩"), ("college", "学院")],
-    "course_class": [("course", "课程"), ("class", "班级"), ("teacher", "教师"), ("enroll", "选课"), ("attendance", "考勤")],
-    "enroll": [("student", "学生"), ("course_class", "教学班"), ("course", "课程")],
-    "score": [("student", "学生"), ("course", "课程"), ("course_class", "教学班")],
-    "attendance": [("student", "学生"), ("course_class", "教学班")],
-}
-
-TABLE_BUSINESS_KEYS = {
-    "student": "student_no",
-    "teacher": "teacher_no",
-    "course": "course_code",
-    "class": "class_code",
-    "major": "major_code",
-    "college": "college_code",
-}
-
-FILTER_MAPPINGS = {
-    "student_name": {"table": "student", "column": "real_name", "operator": "like", "description": "按学生姓名检索"},
-    "student_no": {"table": "student", "column": "student_no", "operator": "=", "description": "按学号精确过滤"},
-    "teacher_name": {"table": "teacher", "column": "real_name", "operator": "like", "description": "按教师姓名检索"},
-    "course_name": {"table": "course", "column": "course_name", "operator": "like", "description": "按课程名称检索"},
-    "term": {"table": "score", "column": "term", "operator": "=", "description": "按学期过滤"},
-    "grade_year": {"table": "student", "column": "enroll_year", "operator": "=", "description": "按入学年份过滤"},
-    "college_id": {"table": "student", "column": "college_id", "operator": "=", "description": "按学院过滤"},
-    "major_id": {"table": "student", "column": "major_id", "operator": "=", "description": "按专业过滤"},
-    "class_id": {"table": "student", "column": "class_id", "operator": "=", "description": "按班级过滤"},
-}
-
-INTENT_MAPPINGS = {
-    "chat": {
-        "description": "闲聊或非教务业务查询",
-        "route": "direct_reply",
-        "history_scope": "仅使用最近4条user消息判断是否追问",
-        "output_fields": ["intent", "is_followup", "merged_query", "rewritten_query", "confidence"],
+FIELD_DESCRIPTIONS: dict[str, dict[str, str]] = {
+    "college": {
+        "id": "学院唯一标识。",
+        "college_name": "学院名称，学院实体映射主字段。",
+        "college_code": "学院编码，精确匹配字段。",
+        "description": "学院补充说明。",
+        "is_deleted": "逻辑删除标记（0/1）。",
     },
-    "business_query": {
-        "description": "教务业务查询（成绩、考勤、选课、学籍、课程、教师等）",
-        "route": "task_parse",
-        "history_scope": "仅使用最近4条user消息判断是否追问",
-        "output_fields": ["intent", "is_followup", "merged_query", "rewritten_query", "confidence"],
-        "tables": CORE_TABLES,
+    "major": {
+        "id": "专业唯一标识。",
+        "major_name": "专业名称，专业实体映射主字段。",
+        "major_code": "专业编码，精确匹配字段。",
+        "college_id": "所属学院ID，关联 college.id。",
+        "degree_type": "学历层次（本科/硕士等）。",
+        "description": "专业补充说明。",
+        "is_deleted": "逻辑删除标记（0/1）。",
+    },
+    "class": {
+        "id": "班级唯一标识。",
+        "class_name": "班级名称，班级实体映射主字段。",
+        "class_code": "班级编码，精确匹配字段。",
+        "major_id": "所属专业ID，关联 major.id。",
+        "grade_year": "年级/入学年份（如 2022 级）。",
+        "head_teacher_id": "班主任教师ID，关联 teacher.id。",
+        "student_count": "班级人数快照。",
+        "is_deleted": "逻辑删除标记（0/1）。",
+    },
+    "student": {
+        "id": "学生唯一标识。",
+        "student_no": "学号，学生精确匹配主字段。",
+        "real_name": "学生姓名，学生实体映射主字段。",
+        "gender": "性别（男/女等）。",
+        "id_card": "身份证号（敏感字段）。",
+        "birth_date": "出生日期。",
+        "phone": "手机号。",
+        "email": "邮箱。",
+        "address": "家庭住址。",
+        "class_id": "所属班级ID，关联 class.id。",
+        "major_id": "所属专业ID，关联 major.id。",
+        "college_id": "所属学院ID，关联 college.id。",
+        "enroll_year": "入学年份（常见问法：22级）。",
+        "status": "学籍状态（在读/休学/毕业等）。",
+        "is_deleted": "逻辑删除标记（0/1）。",
+    },
+    "teacher": {
+        "id": "教师唯一标识。",
+        "teacher_no": "工号，教师精确匹配主字段。",
+        "real_name": "教师姓名，教师实体映射主字段。",
+        "gender": "性别。",
+        "id_card": "身份证号（敏感字段）。",
+        "birth_date": "出生日期。",
+        "phone": "手机号。",
+        "email": "邮箱。",
+        "title": "职称（讲师/副教授/教授等）。",
+        "college_id": "所属学院ID，关联 college.id。",
+        "status": "教师状态（在职/离职/退休等）。",
+        "is_deleted": "逻辑删除标记（0/1）。",
+    },
+    "course": {
+        "id": "课程唯一标识。",
+        "course_name": "课程名称，课程实体映射主字段。",
+        "course_code": "课程编码，精确匹配字段。",
+        "credit": "学分。",
+        "hours": "学时。",
+        "course_type": "课程类型（必修/选修等）。",
+        "college_id": "开课学院ID，关联 college.id。",
+        "description": "课程补充说明。",
+        "is_deleted": "逻辑删除标记（0/1）。",
+    },
+    "course_class": {
+        "id": "教学班唯一标识。",
+        "course_id": "课程ID，关联 course.id。",
+        "class_id": "班级ID，关联 class.id。",
+        "teacher_id": "授课教师ID，关联 teacher.id。",
+        "term": "学期（如 2025-2026-1）。",
+        "schedule_info": "排课信息（时间地点）。",
+        "max_students": "教学班容量上限。",
+        "is_deleted": "逻辑删除标记（0/1）。",
+    },
+    "enroll": {
+        "id": "选课记录唯一标识。",
+        "student_id": "学生ID，关联 student.id。",
+        "course_class_id": "教学班ID，关联 course_class.id。",
+        "enroll_time": "选课时间。",
+        "status": "选课状态（已选/退课/候补等）。",
+        "is_deleted": "逻辑删除标记（0/1）。",
+    },
+    "score": {
+        "id": "成绩记录唯一标识。",
+        "student_id": "学生ID，关联 student.id。",
+        "course_id": "课程ID，关联 course.id。",
+        "course_class_id": "教学班ID，关联 course_class.id。",
+        "term": "学期。",
+        "score_value": "成绩分值（常见 0-100）。",
+        "score_level": "成绩等级（优/良/及格/不及格等）。",
+        "is_deleted": "逻辑删除标记（0/1）。",
+    },
+    "attendance": {
+        "id": "考勤记录唯一标识。",
+        "student_id": "学生ID，关联 student.id。",
+        "course_class_id": "教学班ID，关联 course_class.id。",
+        "attend_date": "考勤日期。",
+        "status": "出勤状态（出勤/缺勤/请假等）。",
+        "is_deleted": "逻辑删除标记（0/1）。",
     },
 }
 
-TASK010_WORKFLOW = {
-    "name": "langgraph_task010",
-    "description": "教务问答工作流（分节点编排，失败回跳）",
-    "history_window": {"role": "user", "size": 4},
-    "nodes": [
-        {"name": "intent_recognition", "order": 1, "description": "识别意图并判断追问，输出业务化问题"},
-        {"name": "task_parse", "order": 2, "description": "解析实体/指标/维度/过滤条件"},
-        {"name": "hybrid_retrieval", "order": 3, "description": "BM25+Embedding 混合检索召回候选表"},
-        {"name": "llm_rerank_top5", "order": 4, "description": "LLM 重排候选表并返回 TOP5"},
-        {"name": "hidden_context_discovery", "order": 5, "description": "探索库内真实值（term/status/名称映射）"},
-        {"name": "sql_generate", "order": 6, "description": "基于任务+TOP5表+隐藏上下文生成 SQL（仅 CTE 分解）"},
-        {"name": "sql_validate", "order": 7, "description": "执行验证 SQL 可执行性"},
-        {"name": "result_return", "order": 8, "description": "返回结果数据与简要业务解释"},
-    ],
-    "edges": [
-        {"from": "intent_recognition", "to": "task_parse", "when": "intent=business_query"},
-        {"from": "task_parse", "to": "hybrid_retrieval", "when": "always"},
-        {"from": "hybrid_retrieval", "to": "llm_rerank_top5", "when": "always"},
-        {"from": "llm_rerank_top5", "to": "hidden_context_discovery", "when": "always"},
-        {"from": "hidden_context_discovery", "to": "sql_generate", "when": "always"},
-        {"from": "sql_generate", "to": "sql_validate", "when": "always"},
-        {"from": "sql_validate", "to": "hidden_context_discovery", "when": "validate_failed"},
-        {"from": "sql_validate", "to": "result_return", "when": "validate_success"},
-    ],
-    "retry_policy": {"from_node": "sql_validate", "to_node": "hidden_context_discovery", "max_retry": 2},
+COMMON_FIELD_ALIASES: dict[str, list[str]] = {
+    "id": ["主键", "ID", "唯一标识"],
+    "description": ["说明", "备注", "简介"],
+    "is_deleted": ["删除标记", "逻辑删除", "删除状态"],
+    "real_name": ["姓名", "名字", "名称"],
+    "gender": ["性别"],
+    "id_card": ["身份证", "身份证号码"],
+    "birth_date": ["出生日期", "生日"],
+    "phone": ["手机号", "手机号码", "联系电话"],
+    "email": ["邮箱", "电子邮箱", "邮件"],
+    "status": ["状态"],
+    "term": ["学期", "学年学期"],
+    "title": ["职称"],
 }
 
-RETRIEVAL_POLICY = {
-    "strategy": "bm25_embedding_hybrid",
-    "steps": ["bm25_recall", "embedding_recall", "merge", "llm_rerank_top5"],
-    "top_k": 5,
-    "output_fields": ["tables", "columns", "joins", "score", "source"],
-}
-
-SQL_GENERATION_POLICY = {
-    "mode": "cte_only",
-    "description": "SQL 生成阶段必须使用 CTE 分解（WITH ... AS ...），不允许直接简单查询。",
-    "forbidden_patterns": ["simple_select_no_cte"],
-}
-
-SQL_TEMPLATES = [
-    {
-        "id": "tpl_query_score_by_student_course_term",
-        "intent": "business_query",
-        "scenario": "query_score",
-        "name": "按学生+课程+学期查询成绩",
-        "description": "使用 CTE 分解查询某学生在某学期某课程的成绩明细。",
-        "tables": ["student", "score", "course"],
-        "params": [":student_name", ":course_name", ":term"],
-        "generation_mode": "cte_only",
-        "sql": (
-            "WITH target_student AS (\n"
-            "    SELECT id, student_no, real_name\n"
-            "    FROM student\n"
-            "    WHERE real_name = :student_name\n"
-            "),\n"
-            "target_course AS (\n"
-            "    SELECT id, course_name\n"
-            "    FROM course\n"
-            "    WHERE course_name = :course_name\n"
-            "),\n"
-            "target_scores AS (\n"
-            "    SELECT sc.student_id, sc.course_id, sc.term, sc.score_value\n"
-            "    FROM score sc\n"
-            "    JOIN target_student ts ON sc.student_id = ts.id\n"
-            "    JOIN target_course tc ON sc.course_id = tc.id\n"
-            "    WHERE sc.term = :term\n"
-            ")\n"
-            "SELECT ts.student_no, ts.real_name, tc.course_name, tsc.term, tsc.score_value\n"
-            "FROM target_scores tsc\n"
-            "JOIN target_student ts ON tsc.student_id = ts.id\n"
-            "JOIN target_course tc ON tsc.course_id = tc.id;"
-        ),
+TABLE_FIELD_ALIASES: dict[str, dict[str, list[str]]] = {
+    "college": {
+        "college_name": ["学院名", "院系名称", "院系"],
+        "college_code": ["学院编号", "院系编码", "院系编号"],
     },
-    {
-        "id": "tpl_query_score_avg_by_course_term",
-        "intent": "business_query",
-        "scenario": "query_score",
-        "name": "按课程与学期统计平均分",
-        "description": "使用 CTE 分解统计课程在指定学期的平均分。",
-        "tables": ["score", "course"],
-        "params": [":course_name", ":term"],
-        "generation_mode": "cte_only",
-        "sql": (
-            "WITH target_course AS (\n"
-            "    SELECT id, course_name\n"
-            "    FROM course\n"
-            "    WHERE course_name = :course_name\n"
-            "),\n"
-            "term_scores AS (\n"
-            "    SELECT sc.course_id, sc.term, sc.score_value\n"
-            "    FROM score sc\n"
-            "    JOIN target_course tc ON sc.course_id = tc.id\n"
-            "    WHERE sc.term = :term\n"
-            ")\n"
-            "SELECT tc.course_name, ts.term, AVG(ts.score_value) AS avg_score\n"
-            "FROM term_scores ts\n"
-            "JOIN target_course tc ON ts.course_id = tc.id\n"
-            "GROUP BY tc.course_name, ts.term;"
-        ),
+    "major": {
+        "major_name": ["专业名", "专业名称"],
+        "major_code": ["专业编号", "专业编码"],
+        "college_id": ["学院ID", "所属学院", "院系ID"],
+        "degree_type": ["学历类型", "学位层次"],
     },
-    {
-        "id": "tpl_query_attendance_by_student_term",
-        "intent": "business_query",
-        "scenario": "query_attendance",
-        "name": "按学生与时间范围查询考勤",
-        "description": "使用 CTE 分解查询学生在时间范围内的考勤记录。",
-        "tables": ["attendance", "student", "course_class", "course"],
-        "params": [":student_name", ":start_date", ":end_date"],
-        "generation_mode": "cte_only",
-        "sql": (
-            "WITH target_student AS (\n"
-            "    SELECT id, student_no, real_name\n"
-            "    FROM student\n"
-            "    WHERE real_name = :student_name\n"
-            "),\n"
-            "attendance_scope AS (\n"
-            "    SELECT a.student_id, a.course_class_id, a.attend_date, a.status\n"
-            "    FROM attendance a\n"
-            "    JOIN target_student ts ON a.student_id = ts.id\n"
-            "    WHERE a.attend_date BETWEEN :start_date AND :end_date\n"
-            "),\n"
-            "class_course AS (\n"
-            "    SELECT cc.id AS course_class_id, cc.term, c.course_name\n"
-            "    FROM course_class cc\n"
-            "    JOIN course c ON cc.course_id = c.id\n"
-            ")\n"
-            "SELECT ts.student_no, ts.real_name, cc.term, cc.course_name, a.attend_date, a.status\n"
-            "FROM attendance_scope a\n"
-            "JOIN target_student ts ON a.student_id = ts.id\n"
-            "JOIN class_course cc ON a.course_class_id = cc.course_class_id;"
-        ),
+    "class": {
+        "class_name": ["班级名", "班级名称", "行政班"],
+        "class_code": ["班级编号", "班级编码"],
+        "major_id": ["专业ID", "所属专业"],
+        "grade_year": ["年级", "入学级", "入学年级"],
+        "head_teacher_id": ["班主任ID", "班主任"],
+        "student_count": ["班级人数", "人数"],
     },
-    {
-        "id": "tpl_query_enroll_by_class_term",
-        "intent": "business_query",
-        "scenario": "query_enroll",
-        "name": "按班级与学期查询选课",
-        "description": "使用 CTE 分解查询班级在指定学期的选课记录。",
-        "tables": ["enroll", "student", "class", "course_class", "course"],
-        "params": [":class_name", ":term"],
-        "generation_mode": "cte_only",
-        "sql": (
-            "WITH target_class AS (\n"
-            "    SELECT id, class_name\n"
-            "    FROM class\n"
-            "    WHERE class_name = :class_name\n"
-            "),\n"
-            "class_students AS (\n"
-            "    SELECT s.id, s.student_no, s.real_name, s.class_id\n"
-            "    FROM student s\n"
-            "    JOIN target_class tc ON s.class_id = tc.id\n"
-            "),\n"
-            "term_course_class AS (\n"
-            "    SELECT cc.id AS course_class_id, cc.term, c.course_name\n"
-            "    FROM course_class cc\n"
-            "    JOIN course c ON cc.course_id = c.id\n"
-            "    WHERE cc.term = :term\n"
-            "),\n"
-            "enroll_scope AS (\n"
-            "    SELECT e.student_id, e.course_class_id, e.status\n"
-            "    FROM enroll e\n"
-            ")\n"
-            "SELECT tc.class_name, cs.student_no, cs.real_name, tcc.course_name, tcc.term, es.status\n"
-            "FROM enroll_scope es\n"
-            "JOIN class_students cs ON es.student_id = cs.id\n"
-            "JOIN term_course_class tcc ON es.course_class_id = tcc.course_class_id\n"
-            "JOIN target_class tc ON cs.class_id = tc.id;"
-        ),
+    "student": {
+        "student_no": ["学号", "学生编号", "学生ID号"],
+        "real_name": ["学生姓名", "姓名"],
+        "address": ["住址", "家庭地址"],
+        "class_id": ["班级ID", "所属班级"],
+        "major_id": ["专业ID", "所属专业"],
+        "college_id": ["学院ID", "所属学院"],
+        "enroll_year": ["入学年份", "入学年", "年级"],
+        "status": ["学籍状态", "在读状态"],
     },
-]
-
-FIELD_LABELS = {
-    "id": "主键ID",
-    "student_no": "学号",
-    "teacher_no": "工号",
-    "real_name": "姓名",
-    "gender": "性别",
-    "id_card": "身份证号",
-    "birth_date": "出生日期",
-    "phone": "手机号",
-    "email": "邮箱",
-    "address": "家庭住址",
-    "class_id": "班级ID",
-    "major_id": "专业ID",
-    "college_id": "学院ID",
-    "enroll_year": "入学年份",
-    "status": "状态",
-    "class_name": "班级名称",
-    "class_code": "班级编码",
-    "grade_year": "年级",
-    "head_teacher_id": "班主任教师ID",
-    "student_count": "班级人数",
-    "major_name": "专业名称",
-    "major_code": "专业编码",
-    "degree_type": "学位类型",
-    "description": "说明",
-    "college_name": "学院名称",
-    "college_code": "学院编码",
-    "title": "职称",
-    "course_name": "课程名称",
-    "course_code": "课程编码",
-    "credit": "学分",
-    "hours": "学时",
-    "course_type": "课程类型",
-    "course_id": "课程ID",
-    "teacher_id": "教师ID",
-    "term": "学期",
-    "schedule_info": "排课信息",
-    "max_students": "最大人数",
-    "course_class_id": "教学班ID",
-    "enroll_time": "选课时间",
-    "score_value": "成绩值",
-    "score_level": "成绩等级",
-    "attend_date": "考勤日期",
-    "building": "教学楼",
-    "room_no": "教室编号",
-    "capacity": "容量",
-    "created_at": "创建时间",
-    "updated_at": "更新时间",
-    "created_by": "创建人",
-    "updated_by": "更新人",
-    "is_deleted": "逻辑删除标记",
-}
-
-FIELD_EXAMPLES = {
-    "id": "1",
-    "student_no": "S00001",
-    "teacher_no": "T00001",
-    "real_name": "张三",
-    "gender": "男",
-    "id_card": "42010620040816725X",
-    "birth_date": "2004-08-16",
-    "phone": "13800138000",
-    "email": "zhangsan@student.mock.edu.cn",
-    "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
-    "class_id": "1",
-    "major_id": "1",
-    "college_id": "1",
-    "enroll_year": "2024",
-    "class_name": "2024级计算机科学与技术1班",
-    "class_code": "CLS2024CS01",
-    "grade_year": "2024",
-    "head_teacher_id": "1",
-    "student_count": "45",
-    "major_name": "计算机科学与技术",
-    "major_code": "CS001",
-    "degree_type": "本科",
-    "description": "示例说明",
-    "college_name": "三峡科技MOCK大学信息工程学院",
-    "college_code": "COL001",
-    "title": "副教授",
-    "course_name": "高等数学A",
-    "course_code": "MATH101",
-    "credit": "4.0",
-    "hours": "64",
-    "course_type": "必修",
-    "course_id": "1",
-    "teacher_id": "1",
-    "term": "2025-2026-1",
-    "schedule_info": "周一1-2节/教一101",
-    "max_students": "120",
-    "course_class_id": "1",
-    "enroll_time": "2026-02-01 09:00:00",
-    "score_value": "86.5",
-    "score_level": "良好",
-    "attend_date": "2026-02-06",
-    "building": "教一楼",
-    "room_no": "101",
-    "capacity": "120",
-    "created_at": "2026-02-06 10:00:00",
-    "updated_at": "2026-02-06 10:00:00",
-    "created_by": "1",
-    "updated_by": "1",
-    "is_deleted": "false",
-}
-
-STATUS_EXAMPLES = {
-    "student": "在读",
-    "teacher": "active",
-    "enroll": "selected",
-    "attendance": "出勤",
-    "course_class": "active",
-    "class": "active",
-    "course": "active",
-    "major": "active",
-    "college": "active",
+    "teacher": {
+        "teacher_no": ["工号", "教师编号", "教工号"],
+        "real_name": ["教师姓名", "姓名"],
+        "college_id": ["学院ID", "所属学院"],
+        "status": ["任职状态", "在职状态"],
+    },
+    "course": {
+        "course_name": ["课程名", "课程名称"],
+        "course_code": ["课程编号", "课程编码"],
+        "credit": ["学分数", "课程学分"],
+        "hours": ["学时数", "课时"],
+        "course_type": ["课程类别", "课程性质"],
+        "college_id": ["开课学院ID", "所属学院"],
+    },
+    "course_class": {
+        "course_id": ["课程ID", "课程"],
+        "class_id": ["班级ID", "班级"],
+        "teacher_id": ["教师ID", "授课教师"],
+        "schedule_info": ["排课信息", "上课安排", "课表信息"],
+        "max_students": ["容量", "人数上限", "最大人数"],
+    },
+    "enroll": {
+        "student_id": ["学生ID", "学生"],
+        "course_class_id": ["教学班ID", "教学班", "开课班ID"],
+        "enroll_time": ["选课时间", "选课日期"],
+        "status": ["选课状态", "选课结果"],
+    },
+    "score": {
+        "student_id": ["学生ID", "学生"],
+        "course_id": ["课程ID", "课程"],
+        "course_class_id": ["教学班ID", "教学班"],
+        "score_value": ["分数", "成绩", "成绩分值"],
+        "score_level": ["成绩等级", "成绩档位", "等级"],
+    },
+    "attendance": {
+        "student_id": ["学生ID", "学生"],
+        "course_class_id": ["教学班ID", "教学班"],
+        "attend_date": ["考勤日期", "上课日期", "日期"],
+        "status": ["出勤状态", "考勤状态"],
+    },
 }
 
 
-def base_column_description(column_name: str, raw_comment: str | None) -> str:
-    """优先使用模型注释，缺失时用中文字段词典兜底。"""
-    if raw_comment and raw_comment.strip():
-        return raw_comment.strip()
-    if column_name in FIELD_LABELS:
-        return FIELD_LABELS[column_name]
-    return f"{column_name} 字段"
+def table_description(table_name: str) -> str:
+    return TABLE_DESCRIPTIONS.get(table_name, f"{table_name} 核心业务表。")
 
 
-def column_example_value(table_name: str, column_name: str, col_type: str) -> str:
-    if column_name == "status":
-        return STATUS_EXAMPLES.get(table_name, "active")
-    if column_name in FIELD_EXAMPLES:
-        return FIELD_EXAMPLES[column_name]
-    lower = col_type.lower()
-    if "int" in lower:
-        return "1"
-    if "float" in lower or "double" in lower or "decimal" in lower:
-        return "1.0"
-    if "date" in lower and "time" in lower:
-        return "2026-02-06 10:00:00"
-    if "date" in lower:
-        return "2026-02-06"
-    if "bool" in lower:
-        return "false"
-    return "示例值"
+def field_description(table_name: str, field_name: str) -> str:
+    return FIELD_DESCRIPTIONS.get(table_name, {}).get(field_name, f"{field_name} 字段。")
 
 
-def column_description(table_name: str, column_name: str, raw_comment: str | None, col_type: str) -> str:
-    desc = base_column_description(column_name, raw_comment)
-    example = column_example_value(table_name, column_name, col_type)
-    return f"{desc}（示例值：{example}）"
-
-
-def is_indexed(table, column_name: str) -> bool:
-    for idx in table.indexes:
-        if any(col.name == column_name for col in idx.columns):
-            return True
-    col = table.columns[column_name]
-    return bool(getattr(col, "index", False))
-
-
-def is_unique(table, column_name: str) -> bool:
-    col = table.columns[column_name]
-    if getattr(col, "unique", False):
-        return True
-    for constraint in table.constraints:
-        if constraint.__class__.__name__ == "UniqueConstraint":
-            names = [c.name for c in constraint.columns]
-            if len(names) == 1 and names[0] == column_name:
-                return True
-    return False
-
-
-def table_description(table_name: str, table) -> str:
-    """按指定风格输出单行描述：表+信息范围+主键+相关表。"""
-    title = TABLE_TITLE_CN.get(table_name, "业务信息")
-    tags = TABLE_INFO_TAGS.get(table_name, [title])
-    pk_cols = [col for col in table.columns if col.primary_key]
-    if pk_cols:
-        pk_col = pk_cols[0]
-        pk_desc = column_description(table_name, pk_col.name, pk_col.comment, str(pk_col.type))
-        pk_text = f"主键 {pk_col.name}({pk_desc})"
-    else:
-        pk_text = "主键 无"
-
-    business_key_text = ""
-    business_key = TABLE_BUSINESS_KEYS.get(table_name)
-    if business_key and business_key in table.columns:
-        col = table.columns[business_key]
-        business_key_text = f"；业务键 {business_key}({column_description(table_name, col.name, col.comment, str(col.type))})"
-
-    related_items = TABLE_RELATED.get(table_name, [])
-    if related_items:
-        related = ", ".join([f"{tb}({cn})" for tb, cn in related_items])
-        related_text = f"相关: {related}"
-    else:
-        related_text = "相关: 无"
-
-    return f"表 {table_name} {title}; {'/'.join(tags)}; {pk_text}{business_key_text}; {related_text}"
+def field_aliases(table_name: str, field_name: str) -> list[str]:
+    values: list[str] = []
+    values.extend(COMMON_FIELD_ALIASES.get(field_name, []))
+    values.extend(TABLE_FIELD_ALIASES.get(table_name, {}).get(field_name, []))
+    # Deduplicate while preserving order.
+    return list(dict.fromkeys([v.strip() for v in values if v and v.strip()]))
 
 
 def build_tables(meta_tables: dict[str, Any]) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     for table_name in CORE_TABLES:
         table = meta_tables[table_name]
-        cols: list[dict[str, Any]] = []
+        columns = []
         for col in table.columns:
-            fk_refs = []
-            for fk in col.foreign_keys:
-                target_col = fk.column
-                fk_refs.append(
-                    {
-                        "table": target_col.table.name,
-                        "column": target_col.name,
-                    }
-                )
-            cols.append(
+            if col.name in AUDIT_FIELDS:
+                continue
+            columns.append(
                 {
                     "name": col.name,
-                    "type": str(col.type),
-                    "nullable": bool(col.nullable),
-                    "is_pk": bool(col.primary_key),
-                    "is_indexed": is_indexed(table, col.name),
-                    "is_unique": is_unique(table, col.name),
-                    "description": column_description(table_name, col.name, col.comment, str(col.type)),
-                    "fk_refs": fk_refs,
+                    "description": field_description(table_name, col.name),
+                    "aliases": field_aliases(table_name, col.name),
                 }
             )
-
         items.append(
             {
                 "name": table_name,
-                "description": table_description(table_name, table),
-                "aliases": TABLE_ALIASES.get(table_name, []),
-                "columns": cols,
+                "description": table_description(table_name),
+                "columns": columns,
             }
         )
     return items
-
-
-def build_joins(meta_tables: dict[str, Any]) -> list[dict[str, Any]]:
-    joins: list[dict[str, Any]] = []
-    seen = set()
-    for table_name in CORE_TABLES:
-        table = meta_tables[table_name]
-        for col in table.columns:
-            for fk in col.foreign_keys:
-                target_col = fk.column
-                right_table = target_col.table.name
-                if right_table not in CORE_TABLES:
-                    continue
-                key = (table_name, col.name, right_table, target_col.name)
-                if key in seen:
-                    continue
-                seen.add(key)
-                joins.append(
-                    {
-                        "left_table": table_name,
-                        "left_column": col.name,
-                        "right_table": right_table,
-                        "right_column": target_col.name,
-                        "expression": f"{table_name}.{col.name} = {right_table}.{target_col.name}",
-                    }
-                )
-    return joins
 
 
 def build_kb() -> dict[str, Any]:
@@ -563,33 +289,29 @@ def build_kb() -> dict[str, Any]:
     return {
         "meta": {
             "name": "edu_schema_kb_core",
-            "version": "1.1.0",
+            "version": "2.1.0",
             "generated_at": datetime.now().isoformat(timespec="seconds"),
-            "source": ["app.models", "manual_templates"],
-            "scope": "core_business_tables",
+            "scope": "core_table_and_field_descriptions_only",
+            "note": "仅保留核心表与字段描述，保留 is_deleted 供逻辑删除过滤使用。",
         },
         "tables": build_tables(meta_tables),
-        "joins": build_joins(meta_tables),
-        "filters": FILTER_MAPPINGS,
-        "intents": INTENT_MAPPINGS,
-        "workflow_task010": TASK010_WORKFLOW,
-        "retrieval_policy": RETRIEVAL_POLICY,
-        "sql_generation_policy": SQL_GENERATION_POLICY,
-        "sql_templates": SQL_TEMPLATES,
     }
 
 
 def validate_kb(kb: dict[str, Any]) -> None:
-    for table in kb["tables"]:
+    tables = kb.get("tables", [])
+    if not tables:
+        raise RuntimeError("知识库缺少 tables。")
+    for table in tables:
         if not table.get("description"):
-            raise RuntimeError(f"表描述为空：{table['name']}")
-        for col in table["columns"]:
+            raise RuntimeError(f"表描述为空：{table.get('name')}")
+        for col in table.get("columns", []):
             if not col.get("description"):
-                raise RuntimeError(f"列描述为空：{table['name']}.{col['name']}")
+                raise RuntimeError(f"字段描述为空：{table.get('name')}.{col.get('name')}")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="构建核心业务表 Schema 知识库")
+    parser = argparse.ArgumentParser(description="生成核心表与字段描述知识库")
     parser.add_argument(
         "--out",
         default="app/knowledge/schema_kb_core.json",
@@ -604,7 +326,7 @@ def main() -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(kb, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Schema KB generated: {out_path}")
-    print(f"tables={len(kb['tables'])} joins={len(kb['joins'])} templates={len(kb['sql_templates'])}")
+    print(f"tables={len(kb['tables'])}")
 
 
 if __name__ == "__main__":

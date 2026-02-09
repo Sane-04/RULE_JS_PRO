@@ -461,7 +461,7 @@
 ## 7. 多 Agents 工作流设计
 
 ### 7.1 工作流总览
-意图识别 → 任务解析 → BM25+Embedding 混合检索 → LLM 重排（TOP5）→ 隐藏上下文探索 → SQL 生成 → SQL 验证 → 结果返回
+意图识别 → 任务解析 → SQL 生成（CTE-only）→ SQL 验证 → 结果返回
 
 失败回跳规则：`SQL 验证失败 -> 隐藏上下文探索 -> SQL 生成 -> SQL 验证`（受最大重试次数控制）。
 
@@ -513,60 +513,28 @@
 }
 ```
 
-#### 7.2.4 BM25 + Embedding 混合检索节点
+#### 7.2.4 SQL 生成节点
+- 规则：
+  - 只允许 CTE 分解生成（`WITH ... AS ...`），不允许直接简单查询；
+  - SQL 中字段必须使用带表名前缀的形式（例如 `score.score_value`）；
+  - 字段映射必须由“任务解析实体 + 知识库表/字段描述”驱动；
+  - 映射后的字段必须存在于知识库白名单字段中。
 - 输出：
 ```json
 {
-  "query": "任务解析后的检索语义",
-  "candidates": [
-    {"table": "score", "score": 0.81, "source": "bm25"},
-    {"table": "course", "score": 0.77, "source": "embedding"}
-  ],
-  "joins": ["score.course_id = course.id"]
-}
-```
-
-#### 7.2.5 LLM 重排节点（TOP5）
-- 输出结构示例：
-```json
-{
-  "top_tables": [
-    {"table": "score", "rank": 1, "reason": "包含成绩值与学期字段"},
-    {"table": "course", "rank": 2, "reason": "包含课程名称与课程编码"},
-    {"table": "student", "rank": 3, "reason": "支持学号与姓名过滤"},
-    {"table": "course_class", "rank": 4, "reason": "连接课程与班级关系"},
-    {"table": "class", "rank": 5, "reason": "支持班级维度聚合"}
+  "sql": "WITH ... AS (...) SELECT score.score_value FROM score ...",
+  "params": {"term": "2025-2026-1"},
+  "generation_mode": "cte_only",
+  "used_tables": ["score", "course", "student"],
+  "used_fields": ["score.score_value", "course.course_name", "student.real_name"],
+  "field_mapping": [
+    {"entity": "成绩", "mapped_field": "score.score_value"},
+    {"entity": "课程", "mapped_field": "course.course_name"}
   ]
 }
 ```
 
-#### 7.2.6 隐藏上下文探索节点
-- 输出：
-```json
-{
-  "value_mapping": {
-    "term": ["2025-2026-1"],
-    "student_status": ["在读", "休学"],
-    "course_name": ["高等数学A", "大学英语"]
-  },
-  "hints": ["term 字段使用 score.term", "status 值需与库内枚举一致"]
-}
-```
-
-#### 7.2.7 SQL 生成节点
-- 规则：只允许 CTE 分解生成（`WITH ... AS ...`），不允许直接简单查询
-- 输出：
-```json
-{
-  "sql": "WITH ... AS (...) SELECT ...",
-  "params": {"term": "2025-2026-1"},
-  "generation_mode": "cte_only",
-  "used_tables": ["score", "course", "student"],
-  "used_fields": ["score.score_value", "course.course_name", "student.real_name"]
-}
-```
-
-#### 7.2.8 SQL 验证节点
+#### 7.2.5 SQL 验证节点
 - 规则：不使用 LLM，仅执行 SQL 做可执行性验证
 - 输出：
 ```json
@@ -579,7 +547,20 @@
 }
 ```
 
-#### 7.2.9 结果返回节点
+#### 7.2.6 隐藏上下文探索节点（仅失败回跳触发）
+- 输出：
+```json
+{
+  "value_mapping": {
+    "term": ["2025-2026-1"],
+    "student_status": ["在读", "休学"],
+    "course_name": ["高等数学A", "大学英语"]
+  },
+  "hints": ["term 字段使用 score.term", "status 值需与库内枚举一致"]
+}
+```
+
+#### 7.2.7 结果返回节点
 - 输出：
 ```json
 {
@@ -601,7 +582,7 @@
 ```json
 {
   "session_id": "...",
-  "step": "intent|task_parse|hybrid_retrieval|rerank|hidden_context|sql_gen|sql_validate|result",
+  "step": "intent|task_parse|sql_gen|sql_validate|hidden_context|result",
   "status": "start|end|error",
   "message": "...",
   "timestamp": "2026-01-23T12:00:00Z"

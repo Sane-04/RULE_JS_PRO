@@ -1,1875 +1,789 @@
 {
   "meta": {
     "name": "edu_schema_kb_core",
-    "version": "1.1.0",
-    "generated_at": "2026-02-06T17:10:09",
-    "source": [
-      "app.models",
-      "manual_templates"
-    ],
-    "scope": "core_business_tables"
+    "version": "2.1.0",
+    "generated_at": "2026-02-09T16:10:32",
+    "scope": "core_table_and_field_descriptions_only",
+    "note": "仅保留核心表与字段描述，保留 is_deleted 供逻辑删除过滤使用。"
   },
   "tables": [
     {
       "name": "college",
-      "description": "表 college 学院信息; 学院/学院名称/学院编码/学院说明; 主键 id(主键（示例值：1）)；业务键 college_code(学院编码（示例值：COL001）); 相关: major(专业), student(学生), teacher(教师), course(课程)",
-      "aliases": [
-        "学院",
-        "学院信息",
-        "院系"
-      ],
+      "description": "学院主数据表。用于学院实体识别与组织归属映射。",
       "columns": [
         {
           "name": "id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": true,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "主键（示例值：1）",
-          "fk_refs": []
+          "description": "学院唯一标识。",
+          "aliases": [
+            "主键",
+            "ID",
+            "唯一标识"
+          ]
         },
         {
           "name": "college_name",
-          "type": "VARCHAR(128)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "学院名称（示例值：三峡科技MOCK大学信息工程学院）",
-          "fk_refs": []
+          "description": "学院名称，学院实体映射主字段。",
+          "aliases": [
+            "学院名",
+            "院系名称",
+            "院系"
+          ]
         },
         {
           "name": "college_code",
-          "type": "VARCHAR(64)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": true,
-          "description": "学院编码（示例值：COL001）",
-          "fk_refs": []
+          "description": "学院编码，精确匹配字段。",
+          "aliases": [
+            "学院编号",
+            "院系编码",
+            "院系编号"
+          ]
         },
         {
           "name": "description",
-          "type": "TEXT",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "描述（示例值：示例说明）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建人（示例值：1）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新人（示例值：1）",
-          "fk_refs": []
+          "description": "学院补充说明。",
+          "aliases": [
+            "说明",
+            "备注",
+            "简介"
+          ]
         },
         {
           "name": "is_deleted",
-          "type": "BOOLEAN",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "逻辑删除（示例值：false）",
-          "fk_refs": []
+          "description": "逻辑删除标记（0/1）。",
+          "aliases": [
+            "删除标记",
+            "逻辑删除",
+            "删除状态"
+          ]
         }
       ]
     },
     {
       "name": "major",
-      "description": "表 major 专业信息; 专业/专业名称/学院/学位类型; 主键 id(主键（示例值：1）)；业务键 major_code(专业编码（示例值：CS001）); 相关: college(学院), class(班级), student(学生)",
-      "aliases": [
-        "专业",
-        "专业信息",
-        "学科"
-      ],
+      "description": "专业主数据表。用于专业实体识别、学院到专业层级映射。",
       "columns": [
         {
           "name": "id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": true,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "主键（示例值：1）",
-          "fk_refs": []
+          "description": "专业唯一标识。",
+          "aliases": [
+            "主键",
+            "ID",
+            "唯一标识"
+          ]
         },
         {
           "name": "major_name",
-          "type": "VARCHAR(128)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "专业名称（示例值：计算机科学与技术）",
-          "fk_refs": []
+          "description": "专业名称，专业实体映射主字段。",
+          "aliases": [
+            "专业名",
+            "专业名称"
+          ]
         },
         {
           "name": "major_code",
-          "type": "VARCHAR(64)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": true,
-          "description": "专业编码（示例值：CS001）",
-          "fk_refs": []
+          "description": "专业编码，精确匹配字段。",
+          "aliases": [
+            "专业编号",
+            "专业编码"
+          ]
         },
         {
           "name": "college_id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "所属学院ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "college",
-              "column": "id"
-            }
+          "description": "所属学院ID，关联 college.id。",
+          "aliases": [
+            "学院ID",
+            "所属学院",
+            "院系ID"
           ]
         },
         {
           "name": "degree_type",
-          "type": "VARCHAR(32)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "学历类型（示例值：本科）",
-          "fk_refs": []
+          "description": "学历层次（本科/硕士等）。",
+          "aliases": [
+            "学历类型",
+            "学位层次"
+          ]
         },
         {
           "name": "description",
-          "type": "TEXT",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "描述（示例值：示例说明）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建人（示例值：1）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新人（示例值：1）",
-          "fk_refs": []
+          "description": "专业补充说明。",
+          "aliases": [
+            "说明",
+            "备注",
+            "简介"
+          ]
         },
         {
           "name": "is_deleted",
-          "type": "BOOLEAN",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "逻辑删除（示例值：false）",
-          "fk_refs": []
+          "description": "逻辑删除标记（0/1）。",
+          "aliases": [
+            "删除标记",
+            "逻辑删除",
+            "删除状态"
+          ]
         }
       ]
     },
     {
       "name": "class",
-      "description": "表 class 班级信息; 班级/班级编码/年级/班主任; 主键 id(主键（示例值：1）)；业务键 class_code(班级编码（示例值：CLS2024CS01）); 相关: major(专业), student(学生), course_class(教学班)",
-      "aliases": [
-        "班级",
-        "行政班",
-        "班"
-      ],
+      "description": "班级主数据表。用于班级实体识别、年级过滤和班级维度统计。",
       "columns": [
         {
           "name": "id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": true,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "主键（示例值：1）",
-          "fk_refs": []
+          "description": "班级唯一标识。",
+          "aliases": [
+            "主键",
+            "ID",
+            "唯一标识"
+          ]
         },
         {
           "name": "class_name",
-          "type": "VARCHAR(128)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "班级名称（示例值：2024级计算机科学与技术1班）",
-          "fk_refs": []
+          "description": "班级名称，班级实体映射主字段。",
+          "aliases": [
+            "班级名",
+            "班级名称",
+            "行政班"
+          ]
         },
         {
           "name": "class_code",
-          "type": "VARCHAR(64)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": true,
-          "description": "班级编码（示例值：CLS2024CS01）",
-          "fk_refs": []
+          "description": "班级编码，精确匹配字段。",
+          "aliases": [
+            "班级编号",
+            "班级编码"
+          ]
         },
         {
           "name": "major_id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "所属专业ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "major",
-              "column": "id"
-            }
+          "description": "所属专业ID，关联 major.id。",
+          "aliases": [
+            "专业ID",
+            "所属专业"
           ]
         },
         {
           "name": "grade_year",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "入学年份（示例值：2024）",
-          "fk_refs": []
+          "description": "年级/入学年份（如 2022 级）。",
+          "aliases": [
+            "年级",
+            "入学级",
+            "入学年级"
+          ]
         },
         {
           "name": "head_teacher_id",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "教师ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "teacher",
-              "column": "id"
-            }
+          "description": "班主任教师ID，关联 teacher.id。",
+          "aliases": [
+            "班主任ID",
+            "班主任"
           ]
         },
         {
           "name": "student_count",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "班级人数（示例值：45）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建人（示例值：1）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新人（示例值：1）",
-          "fk_refs": []
+          "description": "班级人数快照。",
+          "aliases": [
+            "班级人数",
+            "人数"
+          ]
         },
         {
           "name": "is_deleted",
-          "type": "BOOLEAN",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "逻辑删除（示例值：false）",
-          "fk_refs": []
+          "description": "逻辑删除标记（0/1）。",
+          "aliases": [
+            "删除标记",
+            "逻辑删除",
+            "删除状态"
+          ]
         }
       ]
     },
     {
       "name": "student",
-      "description": "表 student 学生信息; 学生/学号/姓名/班级/年级/学院; 主键 id(主键（示例值：1）)；业务键 student_no(学号（示例值：S00001）); 相关: enroll(选课), score(成绩), attendance(考勤)",
-      "aliases": [
-        "学生",
-        "学籍",
-        "学生信息"
-      ],
+      "description": "学生主档表。用于学生实体识别和学籍状态过滤。",
       "columns": [
         {
           "name": "id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": true,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "主键（示例值：1）",
-          "fk_refs": []
+          "description": "学生唯一标识。",
+          "aliases": [
+            "主键",
+            "ID",
+            "唯一标识"
+          ]
         },
         {
           "name": "student_no",
-          "type": "VARCHAR(64)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": true,
-          "description": "学号（示例值：S00001）",
-          "fk_refs": []
+          "description": "学号，学生精确匹配主字段。",
+          "aliases": [
+            "学号",
+            "学生编号",
+            "学生ID号"
+          ]
         },
         {
           "name": "real_name",
-          "type": "VARCHAR(64)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "姓名（示例值：张三）",
-          "fk_refs": []
+          "description": "学生姓名，学生实体映射主字段。",
+          "aliases": [
+            "姓名",
+            "名字",
+            "名称",
+            "学生姓名"
+          ]
         },
         {
           "name": "gender",
-          "type": "VARCHAR(16)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "性别（示例值：男）",
-          "fk_refs": []
+          "description": "性别（男/女等）。",
+          "aliases": [
+            "性别"
+          ]
         },
         {
           "name": "id_card",
-          "type": "VARCHAR(32)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "身份证号（示例值：42010620040816725X）",
-          "fk_refs": []
+          "description": "身份证号（敏感字段）。",
+          "aliases": [
+            "身份证",
+            "身份证号码"
+          ]
         },
         {
           "name": "birth_date",
-          "type": "DATE",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "出生日期（示例值：2004-08-16）",
-          "fk_refs": []
+          "description": "出生日期。",
+          "aliases": [
+            "出生日期",
+            "生日"
+          ]
         },
         {
           "name": "phone",
-          "type": "VARCHAR(32)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "手机号（示例值：13800138000）",
-          "fk_refs": []
+          "description": "手机号。",
+          "aliases": [
+            "手机号",
+            "手机号码",
+            "联系电话"
+          ]
         },
         {
           "name": "email",
-          "type": "VARCHAR(128)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "邮箱（示例值：zhangsan@student.mock.edu.cn）",
-          "fk_refs": []
+          "description": "邮箱。",
+          "aliases": [
+            "邮箱",
+            "电子邮箱",
+            "邮件"
+          ]
         },
         {
           "name": "address",
-          "type": "VARCHAR(255)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "家庭住址（示例值：湖北省宜昌市西陵区三峡科技MOCK大学）",
-          "fk_refs": []
+          "description": "家庭住址。",
+          "aliases": [
+            "住址",
+            "家庭地址"
+          ]
         },
         {
           "name": "class_id",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "所属班级ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "class",
-              "column": "id"
-            }
+          "description": "所属班级ID，关联 class.id。",
+          "aliases": [
+            "班级ID",
+            "所属班级"
           ]
         },
         {
           "name": "major_id",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "所属专业ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "major",
-              "column": "id"
-            }
+          "description": "所属专业ID，关联 major.id。",
+          "aliases": [
+            "专业ID",
+            "所属专业"
           ]
         },
         {
           "name": "college_id",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "所属学院ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "college",
-              "column": "id"
-            }
+          "description": "所属学院ID，关联 college.id。",
+          "aliases": [
+            "学院ID",
+            "所属学院"
           ]
         },
         {
           "name": "enroll_year",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "入学年份（示例值：2024）",
-          "fk_refs": []
+          "description": "入学年份（常见问法：22级）。",
+          "aliases": [
+            "入学年份",
+            "入学年",
+            "年级"
+          ]
         },
         {
           "name": "status",
-          "type": "VARCHAR(32)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "学籍状态（示例值：在读）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建人（示例值：1）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新人（示例值：1）",
-          "fk_refs": []
+          "description": "学籍状态（在读/休学/毕业等）。",
+          "aliases": [
+            "状态",
+            "学籍状态",
+            "在读状态"
+          ]
         },
         {
           "name": "is_deleted",
-          "type": "BOOLEAN",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "逻辑删除（示例值：false）",
-          "fk_refs": []
+          "description": "逻辑删除标记（0/1）。",
+          "aliases": [
+            "删除标记",
+            "逻辑删除",
+            "删除状态"
+          ]
         }
       ]
     },
     {
       "name": "teacher",
-      "description": "表 teacher 教师信息; 教师/工号/姓名/职称/学院; 主键 id(主键（示例值：1）)；业务键 teacher_no(工号（示例值：T00001）); 相关: course_class(教学班), course(课程), class(班级)",
-      "aliases": [
-        "教师",
-        "老师",
-        "教职工"
-      ],
+      "description": "教师主档表。用于教师实体识别和职称/状态过滤。",
       "columns": [
         {
           "name": "id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": true,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "主键（示例值：1）",
-          "fk_refs": []
+          "description": "教师唯一标识。",
+          "aliases": [
+            "主键",
+            "ID",
+            "唯一标识"
+          ]
         },
         {
           "name": "teacher_no",
-          "type": "VARCHAR(64)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": true,
-          "description": "工号（示例值：T00001）",
-          "fk_refs": []
+          "description": "工号，教师精确匹配主字段。",
+          "aliases": [
+            "工号",
+            "教师编号",
+            "教工号"
+          ]
         },
         {
           "name": "real_name",
-          "type": "VARCHAR(64)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "姓名（示例值：张三）",
-          "fk_refs": []
+          "description": "教师姓名，教师实体映射主字段。",
+          "aliases": [
+            "姓名",
+            "名字",
+            "名称",
+            "教师姓名"
+          ]
         },
         {
           "name": "gender",
-          "type": "VARCHAR(16)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "性别（示例值：男）",
-          "fk_refs": []
+          "description": "性别。",
+          "aliases": [
+            "性别"
+          ]
         },
         {
           "name": "id_card",
-          "type": "VARCHAR(32)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "身份证号（示例值：42010620040816725X）",
-          "fk_refs": []
+          "description": "身份证号（敏感字段）。",
+          "aliases": [
+            "身份证",
+            "身份证号码"
+          ]
         },
         {
           "name": "birth_date",
-          "type": "DATE",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "出生日期（示例值：2004-08-16）",
-          "fk_refs": []
+          "description": "出生日期。",
+          "aliases": [
+            "出生日期",
+            "生日"
+          ]
         },
         {
           "name": "phone",
-          "type": "VARCHAR(32)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "手机号（示例值：13800138000）",
-          "fk_refs": []
+          "description": "手机号。",
+          "aliases": [
+            "手机号",
+            "手机号码",
+            "联系电话"
+          ]
         },
         {
           "name": "email",
-          "type": "VARCHAR(128)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "邮箱（示例值：zhangsan@student.mock.edu.cn）",
-          "fk_refs": []
+          "description": "邮箱。",
+          "aliases": [
+            "邮箱",
+            "电子邮箱",
+            "邮件"
+          ]
         },
         {
           "name": "title",
-          "type": "VARCHAR(64)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "职称（示例值：副教授）",
-          "fk_refs": []
+          "description": "职称（讲师/副教授/教授等）。",
+          "aliases": [
+            "职称"
+          ]
         },
         {
           "name": "college_id",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "所属学院ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "college",
-              "column": "id"
-            }
+          "description": "所属学院ID，关联 college.id。",
+          "aliases": [
+            "学院ID",
+            "所属学院"
           ]
         },
         {
           "name": "status",
-          "type": "VARCHAR(32)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "状态（示例值：active）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建人（示例值：1）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新人（示例值：1）",
-          "fk_refs": []
+          "description": "教师状态（在职/离职/退休等）。",
+          "aliases": [
+            "状态",
+            "任职状态",
+            "在职状态"
+          ]
         },
         {
           "name": "is_deleted",
-          "type": "BOOLEAN",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "逻辑删除（示例值：false）",
-          "fk_refs": []
+          "description": "逻辑删除标记（0/1）。",
+          "aliases": [
+            "删除标记",
+            "逻辑删除",
+            "删除状态"
+          ]
         }
       ]
     },
     {
       "name": "course",
-      "description": "表 course 课程信息; 课程/课程编码/学分/课时/学院; 主键 id(主键（示例值：1）)；业务键 course_code(课程编码（示例值：MATH101）); 相关: course_class(教学班), score(成绩), college(学院)",
-      "aliases": [
-        "课程",
-        "课",
-        "课程信息"
-      ],
+      "description": "课程主数据表。用于课程实体识别与课程维度筛选。",
       "columns": [
         {
           "name": "id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": true,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "主键（示例值：1）",
-          "fk_refs": []
+          "description": "课程唯一标识。",
+          "aliases": [
+            "主键",
+            "ID",
+            "唯一标识"
+          ]
         },
         {
           "name": "course_name",
-          "type": "VARCHAR(128)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "课程名称（示例值：高等数学A）",
-          "fk_refs": []
+          "description": "课程名称，课程实体映射主字段。",
+          "aliases": [
+            "课程名",
+            "课程名称"
+          ]
         },
         {
           "name": "course_code",
-          "type": "VARCHAR(64)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": true,
-          "description": "课程编码（示例值：MATH101）",
-          "fk_refs": []
+          "description": "课程编码，精确匹配字段。",
+          "aliases": [
+            "课程编号",
+            "课程编码"
+          ]
         },
         {
           "name": "credit",
-          "type": "FLOAT",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "学分（示例值：4.0）",
-          "fk_refs": []
+          "description": "学分。",
+          "aliases": [
+            "学分数",
+            "课程学分"
+          ]
         },
         {
           "name": "hours",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "学时（示例值：64）",
-          "fk_refs": []
+          "description": "学时。",
+          "aliases": [
+            "学时数",
+            "课时"
+          ]
         },
         {
           "name": "course_type",
-          "type": "VARCHAR(32)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "课程类型（示例值：必修）",
-          "fk_refs": []
+          "description": "课程类型（必修/选修等）。",
+          "aliases": [
+            "课程类别",
+            "课程性质"
+          ]
         },
         {
           "name": "college_id",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "所属学院ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "college",
-              "column": "id"
-            }
+          "description": "开课学院ID，关联 college.id。",
+          "aliases": [
+            "开课学院ID",
+            "所属学院"
           ]
         },
         {
           "name": "description",
-          "type": "TEXT",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "描述（示例值：示例说明）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建人（示例值：1）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新人（示例值：1）",
-          "fk_refs": []
+          "description": "课程补充说明。",
+          "aliases": [
+            "说明",
+            "备注",
+            "简介"
+          ]
         },
         {
           "name": "is_deleted",
-          "type": "BOOLEAN",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "逻辑删除（示例值：false）",
-          "fk_refs": []
+          "description": "逻辑删除标记（0/1）。",
+          "aliases": [
+            "删除标记",
+            "逻辑删除",
+            "删除状态"
+          ]
         }
       ]
     },
     {
       "name": "course_class",
-      "description": "表 course_class 教学班信息; 教学班/课程/班级/教师/学期; 主键 id(主键（示例值：1）); 相关: course(课程), class(班级), teacher(教师), enroll(选课), attendance(考勤)",
-      "aliases": [
-        "教学班",
-        "开课",
-        "授课班"
-      ],
+      "description": "教学班实例表。连接课程、班级、教师和学期，是多表关联桥梁。",
       "columns": [
         {
           "name": "id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": true,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "主键（示例值：1）",
-          "fk_refs": []
+          "description": "教学班唯一标识。",
+          "aliases": [
+            "主键",
+            "ID",
+            "唯一标识"
+          ]
         },
         {
           "name": "course_id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "课程ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "course",
-              "column": "id"
-            }
+          "description": "课程ID，关联 course.id。",
+          "aliases": [
+            "课程ID",
+            "课程"
           ]
         },
         {
           "name": "class_id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "所属班级ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "class",
-              "column": "id"
-            }
+          "description": "班级ID，关联 class.id。",
+          "aliases": [
+            "班级ID",
+            "班级"
           ]
         },
         {
           "name": "teacher_id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "教师ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "teacher",
-              "column": "id"
-            }
+          "description": "授课教师ID，关联 teacher.id。",
+          "aliases": [
+            "教师ID",
+            "授课教师"
           ]
         },
         {
           "name": "term",
-          "type": "VARCHAR(32)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "学期（示例值：2025-2026-1）",
-          "fk_refs": []
+          "description": "学期（如 2025-2026-1）。",
+          "aliases": [
+            "学期",
+            "学年学期"
+          ]
         },
         {
           "name": "schedule_info",
-          "type": "TEXT",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "上课时间地点（示例值：周一1-2节/教一101）",
-          "fk_refs": []
+          "description": "排课信息（时间地点）。",
+          "aliases": [
+            "排课信息",
+            "上课安排",
+            "课表信息"
+          ]
         },
         {
           "name": "max_students",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "最大人数（示例值：120）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建人（示例值：1）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新人（示例值：1）",
-          "fk_refs": []
+          "description": "教学班容量上限。",
+          "aliases": [
+            "容量",
+            "人数上限",
+            "最大人数"
+          ]
         },
         {
           "name": "is_deleted",
-          "type": "BOOLEAN",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "逻辑删除（示例值：false）",
-          "fk_refs": []
+          "description": "逻辑删除标记（0/1）。",
+          "aliases": [
+            "删除标记",
+            "逻辑删除",
+            "删除状态"
+          ]
         }
       ]
     },
     {
       "name": "enroll",
-      "description": "表 enroll 选课记录; 选课/学生/教学班/状态/选课时间; 主键 id(主键（示例值：1）); 相关: student(学生), course_class(教学班), course(课程)",
-      "aliases": [
-        "选课",
-        "选课记录",
-        "选课状态"
-      ],
+      "description": "选课事实表。记录学生与教学班关系及选课状态。",
       "columns": [
         {
           "name": "id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": true,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "主键（示例值：1）",
-          "fk_refs": []
+          "description": "选课记录唯一标识。",
+          "aliases": [
+            "主键",
+            "ID",
+            "唯一标识"
+          ]
         },
         {
           "name": "student_id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "学生ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "student",
-              "column": "id"
-            }
+          "description": "学生ID，关联 student.id。",
+          "aliases": [
+            "学生ID",
+            "学生"
           ]
         },
         {
           "name": "course_class_id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "教学班ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "course_class",
-              "column": "id"
-            }
+          "description": "教学班ID，关联 course_class.id。",
+          "aliases": [
+            "教学班ID",
+            "教学班",
+            "开课班ID"
           ]
         },
         {
           "name": "enroll_time",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "选课时间（示例值：2026-02-01 09:00:00）",
-          "fk_refs": []
+          "description": "选课时间。",
+          "aliases": [
+            "选课时间",
+            "选课日期"
+          ]
         },
         {
           "name": "status",
-          "type": "VARCHAR(32)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "选课状态（示例值：selected）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建人（示例值：1）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新人（示例值：1）",
-          "fk_refs": []
+          "description": "选课状态（已选/退课/候补等）。",
+          "aliases": [
+            "状态",
+            "选课状态",
+            "选课结果"
+          ]
         },
         {
           "name": "is_deleted",
-          "type": "BOOLEAN",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "逻辑删除（示例值：false）",
-          "fk_refs": []
+          "description": "逻辑删除标记（0/1）。",
+          "aliases": [
+            "删除标记",
+            "逻辑删除",
+            "删除状态"
+          ]
         }
       ]
     },
     {
       "name": "score",
-      "description": "表 score 成绩记录; 成绩/学生/课程/学期/分数; 主键 id(主键（示例值：1）); 相关: student(学生), course(课程), course_class(教学班)",
-      "aliases": [
-        "成绩",
-        "分数",
-        "考试成绩"
-      ],
+      "description": "成绩事实表。用于成绩查询、均分和通过率等统计。",
       "columns": [
         {
           "name": "id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": true,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "主键（示例值：1）",
-          "fk_refs": []
+          "description": "成绩记录唯一标识。",
+          "aliases": [
+            "主键",
+            "ID",
+            "唯一标识"
+          ]
         },
         {
           "name": "student_id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "学生ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "student",
-              "column": "id"
-            }
+          "description": "学生ID，关联 student.id。",
+          "aliases": [
+            "学生ID",
+            "学生"
           ]
         },
         {
           "name": "course_id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "课程ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "course",
-              "column": "id"
-            }
+          "description": "课程ID，关联 course.id。",
+          "aliases": [
+            "课程ID",
+            "课程"
           ]
         },
         {
           "name": "course_class_id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "教学班ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "course_class",
-              "column": "id"
-            }
+          "description": "教学班ID，关联 course_class.id。",
+          "aliases": [
+            "教学班ID",
+            "教学班"
           ]
         },
         {
           "name": "term",
-          "type": "VARCHAR(32)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "学期（示例值：2025-2026-1）",
-          "fk_refs": []
+          "description": "学期。",
+          "aliases": [
+            "学期",
+            "学年学期"
+          ]
         },
         {
           "name": "score_value",
-          "type": "FLOAT",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "成绩（示例值：86.5）",
-          "fk_refs": []
+          "description": "成绩分值（常见 0-100）。",
+          "aliases": [
+            "分数",
+            "成绩",
+            "成绩分值"
+          ]
         },
         {
           "name": "score_level",
-          "type": "VARCHAR(32)",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "成绩等级（示例值：良好）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建人（示例值：1）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新人（示例值：1）",
-          "fk_refs": []
+          "description": "成绩等级（优/良/及格/不及格等）。",
+          "aliases": [
+            "成绩等级",
+            "成绩档位",
+            "等级"
+          ]
         },
         {
           "name": "is_deleted",
-          "type": "BOOLEAN",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "逻辑删除（示例值：false）",
-          "fk_refs": []
+          "description": "逻辑删除标记（0/1）。",
+          "aliases": [
+            "删除标记",
+            "逻辑删除",
+            "删除状态"
+          ]
         }
       ]
     },
     {
       "name": "attendance",
-      "description": "表 attendance 考勤记录; 考勤/学生/教学班/日期/状态; 主键 id(主键（示例值：1）); 相关: student(学生), course_class(教学班)",
-      "aliases": [
-        "考勤",
-        "出勤",
-        "缺勤"
-      ],
+      "description": "考勤事实表。用于缺勤率、出勤趋势和考勤预警分析。",
       "columns": [
         {
           "name": "id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": true,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "主键（示例值：1）",
-          "fk_refs": []
+          "description": "考勤记录唯一标识。",
+          "aliases": [
+            "主键",
+            "ID",
+            "唯一标识"
+          ]
         },
         {
           "name": "student_id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "学生ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "student",
-              "column": "id"
-            }
+          "description": "学生ID，关联 student.id。",
+          "aliases": [
+            "学生ID",
+            "学生"
           ]
         },
         {
           "name": "course_class_id",
-          "type": "INTEGER",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "教学班ID（示例值：1）",
-          "fk_refs": [
-            {
-              "table": "course_class",
-              "column": "id"
-            }
+          "description": "教学班ID，关联 course_class.id。",
+          "aliases": [
+            "教学班ID",
+            "教学班"
           ]
         },
         {
           "name": "attend_date",
-          "type": "DATE",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": true,
-          "is_unique": false,
-          "description": "考勤日期（示例值：2026-02-06）",
-          "fk_refs": []
+          "description": "考勤日期。",
+          "aliases": [
+            "考勤日期",
+            "上课日期",
+            "日期"
+          ]
         },
         {
           "name": "status",
-          "type": "VARCHAR(32)",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "出勤状态（示例值：出勤）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_at",
-          "type": "DATETIME",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新时间（示例值：2026-02-06 10:00:00）",
-          "fk_refs": []
-        },
-        {
-          "name": "created_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "创建人（示例值：1）",
-          "fk_refs": []
-        },
-        {
-          "name": "updated_by",
-          "type": "INTEGER",
-          "nullable": true,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "更新人（示例值：1）",
-          "fk_refs": []
+          "description": "出勤状态（出勤/缺勤/请假等）。",
+          "aliases": [
+            "状态",
+            "出勤状态",
+            "考勤状态"
+          ]
         },
         {
           "name": "is_deleted",
-          "type": "BOOLEAN",
-          "nullable": false,
-          "is_pk": false,
-          "is_indexed": false,
-          "is_unique": false,
-          "description": "逻辑删除（示例值：false）",
-          "fk_refs": []
+          "description": "逻辑删除标记（0/1）。",
+          "aliases": [
+            "删除标记",
+            "逻辑删除",
+            "删除状态"
+          ]
         }
       ]
-    }
-  ],
-  "joins": [
-    {
-      "left_table": "major",
-      "left_column": "college_id",
-      "right_table": "college",
-      "right_column": "id",
-      "expression": "major.college_id = college.id"
-    },
-    {
-      "left_table": "class",
-      "left_column": "major_id",
-      "right_table": "major",
-      "right_column": "id",
-      "expression": "class.major_id = major.id"
-    },
-    {
-      "left_table": "class",
-      "left_column": "head_teacher_id",
-      "right_table": "teacher",
-      "right_column": "id",
-      "expression": "class.head_teacher_id = teacher.id"
-    },
-    {
-      "left_table": "student",
-      "left_column": "class_id",
-      "right_table": "class",
-      "right_column": "id",
-      "expression": "student.class_id = class.id"
-    },
-    {
-      "left_table": "student",
-      "left_column": "major_id",
-      "right_table": "major",
-      "right_column": "id",
-      "expression": "student.major_id = major.id"
-    },
-    {
-      "left_table": "student",
-      "left_column": "college_id",
-      "right_table": "college",
-      "right_column": "id",
-      "expression": "student.college_id = college.id"
-    },
-    {
-      "left_table": "teacher",
-      "left_column": "college_id",
-      "right_table": "college",
-      "right_column": "id",
-      "expression": "teacher.college_id = college.id"
-    },
-    {
-      "left_table": "course",
-      "left_column": "college_id",
-      "right_table": "college",
-      "right_column": "id",
-      "expression": "course.college_id = college.id"
-    },
-    {
-      "left_table": "course_class",
-      "left_column": "course_id",
-      "right_table": "course",
-      "right_column": "id",
-      "expression": "course_class.course_id = course.id"
-    },
-    {
-      "left_table": "course_class",
-      "left_column": "class_id",
-      "right_table": "class",
-      "right_column": "id",
-      "expression": "course_class.class_id = class.id"
-    },
-    {
-      "left_table": "course_class",
-      "left_column": "teacher_id",
-      "right_table": "teacher",
-      "right_column": "id",
-      "expression": "course_class.teacher_id = teacher.id"
-    },
-    {
-      "left_table": "enroll",
-      "left_column": "student_id",
-      "right_table": "student",
-      "right_column": "id",
-      "expression": "enroll.student_id = student.id"
-    },
-    {
-      "left_table": "enroll",
-      "left_column": "course_class_id",
-      "right_table": "course_class",
-      "right_column": "id",
-      "expression": "enroll.course_class_id = course_class.id"
-    },
-    {
-      "left_table": "score",
-      "left_column": "student_id",
-      "right_table": "student",
-      "right_column": "id",
-      "expression": "score.student_id = student.id"
-    },
-    {
-      "left_table": "score",
-      "left_column": "course_id",
-      "right_table": "course",
-      "right_column": "id",
-      "expression": "score.course_id = course.id"
-    },
-    {
-      "left_table": "score",
-      "left_column": "course_class_id",
-      "right_table": "course_class",
-      "right_column": "id",
-      "expression": "score.course_class_id = course_class.id"
-    },
-    {
-      "left_table": "attendance",
-      "left_column": "student_id",
-      "right_table": "student",
-      "right_column": "id",
-      "expression": "attendance.student_id = student.id"
-    },
-    {
-      "left_table": "attendance",
-      "left_column": "course_class_id",
-      "right_table": "course_class",
-      "right_column": "id",
-      "expression": "attendance.course_class_id = course_class.id"
-    }
-  ],
-  "filters": {
-    "student_name": {
-      "table": "student",
-      "column": "real_name",
-      "operator": "like",
-      "description": "按学生姓名检索"
-    },
-    "student_no": {
-      "table": "student",
-      "column": "student_no",
-      "operator": "=",
-      "description": "按学号精确过滤"
-    },
-    "teacher_name": {
-      "table": "teacher",
-      "column": "real_name",
-      "operator": "like",
-      "description": "按教师姓名检索"
-    },
-    "course_name": {
-      "table": "course",
-      "column": "course_name",
-      "operator": "like",
-      "description": "按课程名称检索"
-    },
-    "term": {
-      "table": "score",
-      "column": "term",
-      "operator": "=",
-      "description": "按学期过滤"
-    },
-    "grade_year": {
-      "table": "student",
-      "column": "enroll_year",
-      "operator": "=",
-      "description": "按入学年份过滤"
-    },
-    "college_id": {
-      "table": "student",
-      "column": "college_id",
-      "operator": "=",
-      "description": "按学院过滤"
-    },
-    "major_id": {
-      "table": "student",
-      "column": "major_id",
-      "operator": "=",
-      "description": "按专业过滤"
-    },
-    "class_id": {
-      "table": "student",
-      "column": "class_id",
-      "operator": "=",
-      "description": "按班级过滤"
-    }
-  },
-  "intents": {
-    "chat": {
-      "description": "闲聊或非教务业务查询",
-      "route": "direct_reply",
-      "history_scope": "仅使用最近4条user消息判断是否追问",
-      "output_fields": [
-        "intent",
-        "is_followup",
-        "merged_query",
-        "rewritten_query",
-        "confidence"
-      ]
-    },
-    "business_query": {
-      "description": "教务业务查询（成绩、考勤、选课、学籍、课程、教师等）",
-      "route": "task_parse",
-      "history_scope": "仅使用最近4条user消息判断是否追问",
-      "output_fields": [
-        "intent",
-        "is_followup",
-        "merged_query",
-        "rewritten_query",
-        "confidence"
-      ],
-      "tables": [
-        "college",
-        "major",
-        "class",
-        "student",
-        "teacher",
-        "course",
-        "course_class",
-        "enroll",
-        "score",
-        "attendance"
-      ]
-    }
-  },
-  "workflow_task010": {
-    "name": "langgraph_task010",
-    "description": "教务问答工作流（分节点编排，失败回跳）",
-    "history_window": {
-      "role": "user",
-      "size": 4
-    },
-    "nodes": [
-      {
-        "name": "intent_recognition",
-        "order": 1,
-        "description": "识别意图并判断追问，输出业务化问题"
-      },
-      {
-        "name": "task_parse",
-        "order": 2,
-        "description": "解析实体/指标/维度/过滤条件"
-      },
-      {
-        "name": "hybrid_retrieval",
-        "order": 3,
-        "description": "BM25+Embedding 混合检索召回候选表"
-      },
-      {
-        "name": "llm_rerank_top5",
-        "order": 4,
-        "description": "LLM 重排候选表并返回 TOP5"
-      },
-      {
-        "name": "hidden_context_discovery",
-        "order": 5,
-        "description": "探索库内真实值（term/status/名称映射）"
-      },
-      {
-        "name": "sql_generate",
-        "order": 6,
-        "description": "基于任务+TOP5表+隐藏上下文生成 SQL（仅 CTE 分解）"
-      },
-      {
-        "name": "sql_validate",
-        "order": 7,
-        "description": "执行验证 SQL 可执行性"
-      },
-      {
-        "name": "result_return",
-        "order": 8,
-        "description": "返回结果数据与简要业务解释"
-      }
-    ],
-    "edges": [
-      {
-        "from": "intent_recognition",
-        "to": "task_parse",
-        "when": "intent=business_query"
-      },
-      {
-        "from": "task_parse",
-        "to": "hybrid_retrieval",
-        "when": "always"
-      },
-      {
-        "from": "hybrid_retrieval",
-        "to": "llm_rerank_top5",
-        "when": "always"
-      },
-      {
-        "from": "llm_rerank_top5",
-        "to": "hidden_context_discovery",
-        "when": "always"
-      },
-      {
-        "from": "hidden_context_discovery",
-        "to": "sql_generate",
-        "when": "always"
-      },
-      {
-        "from": "sql_generate",
-        "to": "sql_validate",
-        "when": "always"
-      },
-      {
-        "from": "sql_validate",
-        "to": "hidden_context_discovery",
-        "when": "validate_failed"
-      },
-      {
-        "from": "sql_validate",
-        "to": "result_return",
-        "when": "validate_success"
-      }
-    ],
-    "retry_policy": {
-      "from_node": "sql_validate",
-      "to_node": "hidden_context_discovery",
-      "max_retry": 2
-    }
-  },
-  "retrieval_policy": {
-    "strategy": "bm25_embedding_hybrid",
-    "steps": [
-      "bm25_recall",
-      "embedding_recall",
-      "merge",
-      "llm_rerank_top5"
-    ],
-    "top_k": 5,
-    "output_fields": [
-      "tables",
-      "columns",
-      "joins",
-      "score",
-      "source"
-    ]
-  },
-  "sql_generation_policy": {
-    "mode": "cte_only",
-    "description": "SQL 生成阶段必须使用 CTE 分解（WITH ... AS ...），不允许直接简单查询。",
-    "forbidden_patterns": [
-      "simple_select_no_cte"
-    ]
-  },
-  "sql_templates": [
-    {
-      "id": "tpl_query_score_by_student_course_term",
-      "intent": "business_query",
-      "scenario": "query_score",
-      "name": "按学生+课程+学期查询成绩",
-      "description": "使用 CTE 分解查询某学生在某学期某课程的成绩明细。",
-      "tables": [
-        "student",
-        "score",
-        "course"
-      ],
-      "params": [
-        ":student_name",
-        ":course_name",
-        ":term"
-      ],
-      "generation_mode": "cte_only",
-      "sql": "WITH target_student AS (\n    SELECT id, student_no, real_name\n    FROM student\n    WHERE real_name = :student_name\n),\ntarget_course AS (\n    SELECT id, course_name\n    FROM course\n    WHERE course_name = :course_name\n),\ntarget_scores AS (\n    SELECT sc.student_id, sc.course_id, sc.term, sc.score_value\n    FROM score sc\n    JOIN target_student ts ON sc.student_id = ts.id\n    JOIN target_course tc ON sc.course_id = tc.id\n    WHERE sc.term = :term\n)\nSELECT ts.student_no, ts.real_name, tc.course_name, tsc.term, tsc.score_value\nFROM target_scores tsc\nJOIN target_student ts ON tsc.student_id = ts.id\nJOIN target_course tc ON tsc.course_id = tc.id;"
-    },
-    {
-      "id": "tpl_query_score_avg_by_course_term",
-      "intent": "business_query",
-      "scenario": "query_score",
-      "name": "按课程与学期统计平均分",
-      "description": "使用 CTE 分解统计课程在指定学期的平均分。",
-      "tables": [
-        "score",
-        "course"
-      ],
-      "params": [
-        ":course_name",
-        ":term"
-      ],
-      "generation_mode": "cte_only",
-      "sql": "WITH target_course AS (\n    SELECT id, course_name\n    FROM course\n    WHERE course_name = :course_name\n),\nterm_scores AS (\n    SELECT sc.course_id, sc.term, sc.score_value\n    FROM score sc\n    JOIN target_course tc ON sc.course_id = tc.id\n    WHERE sc.term = :term\n)\nSELECT tc.course_name, ts.term, AVG(ts.score_value) AS avg_score\nFROM term_scores ts\nJOIN target_course tc ON ts.course_id = tc.id\nGROUP BY tc.course_name, ts.term;"
-    },
-    {
-      "id": "tpl_query_attendance_by_student_term",
-      "intent": "business_query",
-      "scenario": "query_attendance",
-      "name": "按学生与时间范围查询考勤",
-      "description": "使用 CTE 分解查询学生在时间范围内的考勤记录。",
-      "tables": [
-        "attendance",
-        "student",
-        "course_class",
-        "course"
-      ],
-      "params": [
-        ":student_name",
-        ":start_date",
-        ":end_date"
-      ],
-      "generation_mode": "cte_only",
-      "sql": "WITH target_student AS (\n    SELECT id, student_no, real_name\n    FROM student\n    WHERE real_name = :student_name\n),\nattendance_scope AS (\n    SELECT a.student_id, a.course_class_id, a.attend_date, a.status\n    FROM attendance a\n    JOIN target_student ts ON a.student_id = ts.id\n    WHERE a.attend_date BETWEEN :start_date AND :end_date\n),\nclass_course AS (\n    SELECT cc.id AS course_class_id, cc.term, c.course_name\n    FROM course_class cc\n    JOIN course c ON cc.course_id = c.id\n)\nSELECT ts.student_no, ts.real_name, cc.term, cc.course_name, a.attend_date, a.status\nFROM attendance_scope a\nJOIN target_student ts ON a.student_id = ts.id\nJOIN class_course cc ON a.course_class_id = cc.course_class_id;"
-    },
-    {
-      "id": "tpl_query_enroll_by_class_term",
-      "intent": "business_query",
-      "scenario": "query_enroll",
-      "name": "按班级与学期查询选课",
-      "description": "使用 CTE 分解查询班级在指定学期的选课记录。",
-      "tables": [
-        "enroll",
-        "student",
-        "class",
-        "course_class",
-        "course"
-      ],
-      "params": [
-        ":class_name",
-        ":term"
-      ],
-      "generation_mode": "cte_only",
-      "sql": "WITH target_class AS (\n    SELECT id, class_name\n    FROM class\n    WHERE class_name = :class_name\n),\nclass_students AS (\n    SELECT s.id, s.student_no, s.real_name, s.class_id\n    FROM student s\n    JOIN target_class tc ON s.class_id = tc.id\n),\nterm_course_class AS (\n    SELECT cc.id AS course_class_id, cc.term, c.course_name\n    FROM course_class cc\n    JOIN course c ON cc.course_id = c.id\n    WHERE cc.term = :term\n),\nenroll_scope AS (\n    SELECT e.student_id, e.course_class_id, e.status\n    FROM enroll e\n)\nSELECT tc.class_name, cs.student_no, cs.real_name, tcc.course_name, tcc.term, es.status\nFROM enroll_scope es\nJOIN class_students cs ON es.student_id = cs.id\nJOIN term_course_class tcc ON es.course_class_id = tcc.course_class_id\nJOIN target_class tc ON cs.class_id = tc.id;"
     }
   ]
 }

@@ -1,0 +1,24 @@
+{
+  "session_id": "1666767cc9b74f4a",
+  "admin_id": 1,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-10T15:22:46",
+  "input": {
+    "message": "查询22级学生总人数",
+    "history_user_messages": [
+      "查询22级学生人数"
+    ],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "business_query",
+    "is_followup": true,
+    "confidence": 0.95,
+    "merged_query": "查询22级学生总人数",
+    "rewritten_query": "查询22级学生总人数",
+    "threshold": 0.7
+  }
+}

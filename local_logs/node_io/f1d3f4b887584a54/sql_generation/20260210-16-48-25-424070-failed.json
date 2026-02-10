@@ -1,0 +1,46 @@
+{
+  "session_id": "f1d3f4b887584a54",
+  "admin_id": 1,
+  "step_name": "sql_generation",
+  "status": "failed",
+  "error_message": "SQL 包含非白名单字段: ['base.course_name', 'base.real_name']",
+  "timestamp": "2026-02-10T16:48:25",
+  "input": {
+    "rewritten_query": "查询2025-2026-1学期各课程的授课教师姓名和选课人数",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "term",
+          "value": "2025-2026-1"
+        }
+      ],
+      "dimensions": [
+        "course.course_name",
+        "teacher.real_name"
+      ],
+      "metrics": [
+        "count"
+      ],
+      "filters": [
+        {
+          "field": "course_class.term",
+          "op": "=",
+          "value": "2025-2026-1"
+        },
+        {
+          "field": "enroll.status",
+          "op": "=",
+          "value": "已选中"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.95
+    }
+  },
+  "output": null
+}

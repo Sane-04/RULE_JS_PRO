@@ -1,0 +1,53 @@
+{
+  "session_id": "5d9f7dfd17624817",
+  "admin_id": 1,
+  "step_name": "task_parse",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-10T16:32:53",
+  "input": {
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": false,
+      "confidence": 0.95,
+      "merged_query": "查询22级男生总数",
+      "rewritten_query": "查询22级男生总数",
+      "threshold": 0.7
+    }
+  },
+  "output": {
+    "intent": "business_query",
+    "entities": [
+      {
+        "type": "grade",
+        "value": "22级"
+      },
+      {
+        "type": "gender",
+        "value": "男生"
+      }
+    ],
+    "dimensions": [],
+    "metrics": [
+      "count"
+    ],
+    "filters": [
+      {
+        "field": "student.enroll_year",
+        "op": "=",
+        "value": 2022
+      },
+      {
+        "field": "student.gender",
+        "op": "=",
+        "value": "男"
+      }
+    ],
+    "time_range": {
+      "start": null,
+      "end": null
+    },
+    "operation": "aggregate",
+    "confidence": 0.95
+  }
+}

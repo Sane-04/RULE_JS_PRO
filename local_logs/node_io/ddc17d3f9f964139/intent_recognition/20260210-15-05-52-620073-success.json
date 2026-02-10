@@ -1,0 +1,22 @@
+{
+  "session_id": "ddc17d3f9f964139",
+  "admin_id": 1,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-10T15:05:52",
+  "input": {
+    "message": "你好",
+    "history_user_messages": [],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "chat",
+    "is_followup": false,
+    "confidence": 0.95,
+    "merged_query": "你好",
+    "rewritten_query": "你好",
+    "threshold": 0.7
+  }
+}

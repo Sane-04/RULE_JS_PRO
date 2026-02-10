@@ -306,7 +306,7 @@
 
 ### TASK010 LangGraph-意图识别节点
 - 版本：2.0
-- 状态：计划中
+- 状态：已完成
 - 子任务：
   - 使用 LLM 识别用户意图：`chat` / `business_query`
   - 基于最近 4 段用户问题判断：补充追问 / 新对话
@@ -356,6 +356,14 @@
     - 原因：修复“女生呢”场景误判和日志输入异常
     - 阻碍因素：无
     - 状态：未确认
+  - [2026-02-10 11:20:00]
+    - 已修改：app/services/chat_graph.py、app/routers/chat.py、app/schemas/chat.py、frontend/src/api/chat.ts、frontend/src/views/ChatView.vue、README.md、DEV_PLAN.md
+    - 更改：工作流统一为单入口 `/api/chat`；前端不再传 `history`，上下文统一从数据库读取最近 4 条 user 消息；TASK010/TASK011 合并在同一张图中执行（intent_recognition -> task_parse 条件边）；移除兜底逻辑，未配置 LLM 或模型输出非法时直接抛错；前端与返回结构（skipped/reason/task）完成对齐
+    - 原因：对齐当前代码实现与接口契约，避免文档与实际行为不一致
+    - 阻碍因素：无
+    - 状态：成功
+- 当前口径说明：
+  - 历史进度中出现的 `/api/chat/intent`、前端传 `history` 仅代表当时阶段方案，当前已统一为 `/api/chat` + 后端数据库读取上下文。
 
 ### TASK011 LangGraph-任务解析节点
 - 版本：2.0
@@ -371,6 +379,13 @@
 - 注意事项：
   - 与 SQL 生成节点字段映射结构保持一致
   - intent=chat 时直接结束，不进入 task_parse 节点
+- 任务进度：
+  - [2026-02-10 11:25:00]
+    - 已修改：app/services/chat_graph.py、app/prompts/task_parse_prompts.py、app/knowledge/schema_kb_core.json、README.md、DEV_PLAN.md
+    - 更改：任务解析输出结构固定为 entities/dimensions/metrics/filters/time_range/operation/confidence；`filters.field` 严格校验知识库白名单；`alias_hints` 升级为“字段->多别名列表”；提示词补充 alias 映射规则与完整输出示例；task_parse 在 intent=chat 时跳过
+    - 原因：确保 TASK011 输出可稳定供后续 SQL 生成节点消费，并与知识库映射策略一致
+    - 阻碍因素：无
+    - 状态：成功
 
 ### TASK012 LangGraph-混合检索节点（暂缓）
 - 版本：2.0
@@ -414,10 +429,10 @@
 
 ### TASK015 LangGraph-SQL 生成节点
 - 版本：2.0
-- 状态：计划中
+- 状态：已完成
 - 子任务：
   - 基于任务解析结果与知识库（表/字段描述+字段别名）生成 SQL
-  - 统一输出 SQL 与参数（如有）
+  - 统一输出 `sql_result`（sql + entity_mappings + sql_fields）
   - 记录实体到 SQL 字段映射依据
 - AI 编程助手提示词：
   "你是教务 SQL 生成助手。请用 LangGraph 实现 SQL 生成节点，基于任务解析与知识库字段描述完成实体到字段映射，生成可执行 SQL。"
@@ -427,6 +442,13 @@
   - 生成字段必须来自知识库白名单字段
 - 注意事项：
   - 映射失败字段不得进入 SQL 结果
+- 任务进度：
+  - [2026-02-10 12:15:00]
+    - 已修改：app/prompts/sql_generation_prompts.py、app/services/chat_graph.py、app/schemas/chat.py、frontend/src/api/chat.ts、frontend/src/views/ChatView.vue、README.md、DEV_PLAN.md
+    - 更改：在统一 LangGraph 中新增 `sql_generation` 节点（链路为 intent_recognition -> task_parse -> sql_generation）；State 新增 `sql_result` 字段并由 SQL 节点增量更新（结构为 sql + entity_mappings + sql_fields）；SQL 生成使用 MySQL 8 + WITH 约束；输入增加 `kb_schema_hints`（表描述+字段描述）；新增静态自检（WITH 校验、真实表字段白名单校验、CTE 名字段跳过白名单、entities 全量映射校验）；关键实体映射失败直接抛错；接口与前端展示补充 `sql_result`
+    - 原因：完成 TASK015，并与“单图多节点 + 严格字段白名单 + 关键实体强约束”口径保持一致
+    - 阻碍因素：无
+    - 状态：成功
 
 ### TASK016 LangGraph-SQL 验证与失败回跳节点
 - 版本：2.0

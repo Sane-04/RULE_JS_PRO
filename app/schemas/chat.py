@@ -5,15 +5,9 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 
-class HistoryMessage(BaseModel):
-    role: str = Field(..., description="消息角色")
-    content: str = Field(..., description="消息内容")
-
-
 class ChatIntentRequest(BaseModel):
     session_id: str | None = Field(default=None, description="会话ID，首次可为空")
     message: str = Field(..., min_length=1, description="当前用户问题")
-    history: list[HistoryMessage] | None = Field(default=None, description="可选历史消息")
     model_name: str | None = Field(default=None, description="可选模型名覆盖")
 
 
@@ -40,7 +34,7 @@ class TaskEntity(BaseModel):
 
 class TaskFilter(BaseModel):
     field: str = Field(..., description="过滤字段，必须是 table.field")
-    op: str = Field(..., description="操作符，如 =, >, <, like")
+    op: str = Field(..., description="操作符，例如 =, >, <, like")
     value: Any = Field(..., description="过滤值")
 
 
@@ -69,10 +63,10 @@ class ChatParseData(BaseModel):
     skipped: bool = Field(..., description="是否跳过任务解析（intent=chat 时为 true）")
     reason: str | None = Field(default=None, description="跳过原因")
     task: TaskParseResult | None = Field(default=None, description="结构化任务结果")
+    sql_result: dict[str, Any] | None = Field(default=None, description="SQL 生成节点输出（含 SQL 与映射详情）")
 
 
 class ChatParseResponse(BaseModel):
     code: int = 0
     message: str = "ok"
     data: ChatParseData
-

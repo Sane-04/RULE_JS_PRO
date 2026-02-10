@@ -4,13 +4,11 @@
       <header class="page-header">
         <div>
           <h2>智能问答</h2>
-          <p>TASK010 意图识别节点（最近4条user消息）</p>
+          <p>统一工作流（意图识别 + 任务解析）</p>
         </div>
         <div class="header-actions">
           <span class="chat-session">会话: {{ sessionId || "未创建" }}</span>
-          <button class="btn ghost" type="button" @click="resetSession" :disabled="loading">
-            新会话
-          </button>
+          <button class="btn ghost" type="button" @click="resetSession" :disabled="loading">新会话</button>
         </div>
       </header>
 
@@ -20,11 +18,11 @@
           id="chat-message"
           v-model="message"
           class="chat-textarea"
-          placeholder="例如：帮我查一下2025-2026-1高等数学A的平均分"
+          placeholder="例如：查询22级软件工程男生人数，按班级从高到低"
         />
         <div class="chat-actions">
           <button class="btn primary" type="button" @click="submitMessage" :disabled="loading || !message.trim()">
-            {{ loading ? "识别中..." : "执行意图识别" }}
+            {{ loading ? "执行中..." : "执行工作流" }}
           </button>
         </div>
         <p v-if="error" class="error-text">{{ error }}</p>
@@ -41,12 +39,12 @@
             <span class="chat-kv-value">{{ result.is_followup ? "true" : "false" }}</span>
           </div>
           <div class="chat-kv">
-            <span class="chat-kv-label">confidence</span>
-            <span class="chat-kv-value">{{ formatPercent(result.confidence) }}</span>
+            <span class="chat-kv-label">skipped</span>
+            <span class="chat-kv-value">{{ result.skipped ? "true" : "false" }}</span>
           </div>
           <div class="chat-kv">
-            <span class="chat-kv-label">threshold</span>
-            <span class="chat-kv-value">{{ formatPercent(result.threshold) }}</span>
+            <span class="chat-kv-label">reason</span>
+            <span class="chat-kv-value">{{ result.reason || "-" }}</span>
           </div>
         </div>
 
@@ -58,13 +56,21 @@
           <p class="chat-block-title">rewritten_query</p>
           <p class="chat-block-content">{{ result.rewritten_query }}</p>
         </div>
+        <div class="chat-block">
+          <p class="chat-block-title">task</p>
+          <pre class="chat-json">{{ formatJson(result.task) }}</pre>
+        </div>
+        <div class="chat-block">
+          <p class="chat-block-title">sql_result</p>
+          <pre class="chat-json">{{ formatJson(result.sql_result) }}</pre>
+        </div>
       </section>
 
       <section class="card chat-history-card" v-if="timeline.length">
         <div class="table-meta">
           <div>
             <p class="table-title">本地对话记录</p>
-            <p class="table-sub">用于给后端传递最近4条user消息</p>
+            <p class="table-sub">仅用于页面展示，后端上下文统一从数据库读取</p>
           </div>
         </div>
         <ul class="chat-history-list">
@@ -84,14 +90,19 @@
 import { ref } from "vue";
 
 import AppLayout from "../layouts/AppLayout.vue";
-import { postChatIntent, type ChatIntentData, type HistoryMessage } from "../api/chat";
+import { postChat, type ChatData } from "../api/chat";
+
+type TimelineMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
 
 const loading = ref(false);
 const error = ref("");
 const message = ref("");
 const sessionId = ref("");
-const result = ref<ChatIntentData | null>(null);
-const timeline = ref<HistoryMessage[]>([]);
+const result = ref<ChatData | null>(null);
+const timeline = ref<TimelineMessage[]>([]);
 
 const submitMessage = async () => {
   const text = message.value.trim();
@@ -99,11 +110,9 @@ const submitMessage = async () => {
   loading.value = true;
   error.value = "";
   try {
-    const userHistory = timeline.value.filter((item) => item.role === "user").slice(-4);
-    const resp = await postChatIntent({
+    const resp = await postChat({
       session_id: sessionId.value || undefined,
       message: text,
-      history: userHistory,
     });
     result.value = resp.data;
     sessionId.value = resp.data.session_id;
@@ -125,6 +134,5 @@ const resetSession = () => {
   timeline.value = [];
 };
 
-const formatPercent = (value: number): string => `${(value * 100).toFixed(1)}%`;
+const formatJson = (value: unknown): string => JSON.stringify(value, null, 2);
 </script>
-

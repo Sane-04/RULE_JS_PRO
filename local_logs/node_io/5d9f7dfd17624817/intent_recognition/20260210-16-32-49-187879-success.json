@@ -1,0 +1,22 @@
+{
+  "session_id": "5d9f7dfd17624817",
+  "admin_id": 1,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-10T16:32:49",
+  "input": {
+    "message": "查询22级男生总数",
+    "history_user_messages": [],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "business_query",
+    "is_followup": false,
+    "confidence": 0.95,
+    "merged_query": "查询22级男生总数",
+    "rewritten_query": "查询22级男生总数",
+    "threshold": 0.7
+  }
+}

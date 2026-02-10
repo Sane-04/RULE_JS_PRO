@@ -461,9 +461,12 @@
 ## 7. 多 Agents 工作流设计
 
 ### 7.1 工作流总览
-意图识别 → 任务解析 → SQL 生成（CTE-only）→ SQL 验证 → 结果返回
+当前实现链路：`intent_recognition -> task_parse(条件执行) -> sql_generation(条件执行) -> end`
 
-失败回跳规则：`SQL 验证失败 -> 隐藏上下文探索 -> SQL 生成 -> SQL 验证`（受最大重试次数控制）。
+- 当 `intent=chat` 时：跳过 `task_parse`，直接结束并返回。
+- 当 `intent=business_query` 时：进入 `task_parse`，再进入 `sql_generation`。
+- 上下文来源：统一从数据库 `chat_history` 按 `session_id` 读取最近 4 条 `user` 消息。
+- 当前实现不包含兜底规则：意图识别、任务解析、SQL 生成均依赖 LLM，缺少配置或输出不合法会直接报错。
 
 ### 7.2 工作流输入/输出规范
 
@@ -471,22 +474,21 @@
 ```json
 {
   "session_id": "string",
-  "admin_id": "int",
   "message": "string",
-  "history": [
-    {"role": "user", "content": "..."}
-  ]
+  "model_name": "string|null"
 }
 ```
-> TASK010 仅使用最近 4 条 `user` 消息做追问识别与问题合并。
+说明：
+- `session_id` 可选，首次可不传；不传则后端自动生成。
+- 前端不再传 `history`；后端从数据库读取历史上下文。
 
 #### 7.2.2 意图识别节点
-- 输入：当前问题 + 最近 4 条 `user` 消息
+- 输入：当前问题 + 数据库中最近 4 条 `user` 消息
 - 规则：
   - 意图仅允许 `chat` / `business_query`
-  - 判断当前问题是否为追问
-  - 若为追问，合并历史生成 `merged_query`
-  - 输出面向教务域的 `rewritten_query`
+  - LLM 输出必须是合法 JSON
+  - 必须包含有效 `confidence`、`merged_query`、`rewritten_query`
+  - `confidence < threshold` 时将意图降级为 `chat`
 - 输出：
 ```json
 {
@@ -497,44 +499,49 @@
   "confidence": 0.91
 }
 ```
-> 若 `is_followup=false`，`merged_query` 可等于当前问题的业务化改写结果。
+说明：当前无兜底分支；若 LLM 不可用或输出非法，节点直接抛错。
 
 #### 7.2.3 任务解析节点
+- 触发条件：仅当 `intent=business_query`
+- 规则：
+  - 使用知识库 `app/knowledge/schema_kb_core.json` 生成 `kb_field_whitelist` 与 `alias_hints`
+  - 模型输出必须是合法 JSON，且 `operation` 在白名单内
+  - `filters.field` 只保留白名单字段（`table.field`）
+  - 输出结构固定，供后续 SQL 生成节点消费
 - 输出：
 ```json
 {
   "intent": "business_query",
-  "entities": [{"type": "course", "value": "高等数学A"}],
-  "dimensions": ["term", "class"],
-  "metrics": ["avg_score"],
-  "filters": [{"field": "term", "op": "=", "value": "2025-2026-1"}],
+  "entities": [{"type": "grade", "value": "22级"}],
+  "dimensions": ["class.class_name"],
+  "metrics": ["count"],
+  "filters": [{"field": "student.gender", "op": "=", "value": "男"}],
   "time_range": {"start": null, "end": null},
-  "operation": "aggregate|detail"
+  "operation": "detail|aggregate|ranking|trend",
+  "confidence": 0.82
 }
 ```
 
 #### 7.2.4 SQL 生成节点
 - 规则：
-  - 只允许 CTE 分解生成（`WITH ... AS ...`），不允许直接简单查询；
-  - SQL 中字段必须使用带表名前缀的形式（例如 `score.score_value`）；
-  - 字段映射必须由“任务解析实体 + 知识库表/字段描述”驱动；
-  - 映射后的字段必须存在于知识库白名单字段中。
+  - SQL 生成输入除 `task` 外，还会注入知识库语义提示（`kb_schema_hints`，包含表描述与字段描述）；
+  - SQL 必须使用 `WITH`（CTE）开头（MySQL 8）；
+  - SQL 中所有字段必须使用 `table.field` 形式，不允许别名字段（如 `s.name`）；
+  - SQL 字段白名单校验针对真实表字段；若字段前缀是 CTE 名称（如 `base.course_name`），则跳过白名单校验；
+  - 必须输出 `entity_mappings`，并覆盖 `entities` 的全部关键实体；
+  - 任一关键实体映射失败或映射字段未出现在 SQL 中，节点直接抛错。
 - 输出：
 ```json
 {
-  "sql": "WITH ... AS (...) SELECT score.score_value FROM score ...",
-  "params": {"term": "2025-2026-1"},
-  "generation_mode": "cte_only",
-  "used_tables": ["score", "course", "student"],
-  "used_fields": ["score.score_value", "course.course_name", "student.real_name"],
-  "field_mapping": [
-    {"entity": "成绩", "mapped_field": "score.score_value"},
-    {"entity": "课程", "mapped_field": "course.course_name"}
-  ]
+  "sql": "WITH ... SELECT ...",
+  "entity_mappings": [
+    {"type": "grade", "value": "22级", "field": "student.enroll_year", "reason": "别名命中"}
+  ],
+  "sql_fields": ["student.enroll_year", "student.gender"]
 }
 ```
 
-#### 7.2.5 SQL 验证节点
+#### 7.2.5 SQL 验证节点（待实现）
 - 规则：不使用 LLM，仅执行 SQL 做可执行性验证
 - 输出：
 ```json
@@ -547,7 +554,7 @@
 }
 ```
 
-#### 7.2.6 隐藏上下文探索节点（仅失败回跳触发）
+#### 7.2.6 隐藏上下文探索节点（待实现）
 - 输出：
 ```json
 {
@@ -560,7 +567,7 @@
 }
 ```
 
-#### 7.2.7 结果返回节点
+#### 7.2.7 结果返回节点（待实现）
 - 输出：
 ```json
 {
@@ -627,34 +634,9 @@
 
 ### 8.7 智能聊天
 - POST /api/chat
-- GET /api/chat/stream (SSE)
-- POST /api/chat/intent（TASK010 意图识别节点）
-- POST /api/chat/parse（TASK010 + TASK011，输出结构化任务）
+- GET /api/chat/stream (SSE，待实现)
 
-`POST /api/chat/intent` 当前返回结构：
-```json
-{
-  "code": 0,
-  "message": "ok",
-  "data": {
-    "session_id": "string",
-    "intent": "chat|business_query",
-    "is_followup": true,
-    "confidence": 0.91,
-    "merged_query": "合并后的问题",
-    "rewritten_query": "合并后的问题",
-    "threshold": 0.7
-  }
-}
-```
-说明：
-- 仅使用最近 4 条 `user` 消息判断追问；
-- 当前阶段固定 `rewritten_query = merged_query`（不做二次重写）；
-- `confidence < 0.7` 时降级为 `chat`；
-- 会写入 `chat_history`（user+assistant 两条）与 `workflow_log(intent_recognition)`。
-- 节点输入/输出会落盘到本地目录 `NODE_IO_LOG_DIR`（默认 `local_logs/node_io`）。
-
-`POST /api/chat/parse` 当前返回结构：
+`POST /api/chat` 当前返回结构：
 ```json
 {
   "code": 0,
@@ -676,15 +658,27 @@
       "time_range": {"start": null, "end": null},
       "operation": "aggregate",
       "confidence": 0.82
+    },
+    "sql_result": {
+      "sql": "WITH ... SELECT ...",
+      "entity_mappings": [
+        {"type": "grade", "value": "2022级", "field": "student.enroll_year", "reason": "年级映射"}
+      ],
+      "sql_fields": ["student.enroll_year", "student.gender"]
     }
   }
 }
 ```
 说明：
-- `intent=chat` 时 `skipped=true` 且 `task=null`，不会进入任务解析节点；
+- 前端请求体仅包含 `session_id/message/model_name`，不再包含 `history`；
+- 历史上下文统一由后端从数据库读取最近 4 条 `user` 消息；
+- `intent=chat` 时 `skipped=true` 且 `task=null` 且 `sql_result=null`，不会进入任务解析和 SQL 生成节点；
 - `filters.field` 仅允许知识库白名单字段（`table.field`）；
-- 会新增 `workflow_log(task_parse)`，并将节点 I/O 落盘到 `NODE_IO_LOG_DIR/<session_id>/task_parse/`。
-- TASK010/TASK011 执行实现统一集中在 `app/services/chat_graph.py`。
+- SQL 节点会做静态自检：`WITH` 校验、真实表字段白名单校验（CTE 名字段跳过）、关键实体映射覆盖校验；
+- 意图识别、任务解析、SQL 生成均无兜底分支：LLM 不可用或输出非法会直接报错；
+- 会写入 `chat_history`（user+assistant 两条）与 `workflow_log(intent_recognition/task_parse/sql_generation)`；
+- 节点输入输出会落盘到 `NODE_IO_LOG_DIR/<session_id>/<step_name>/`；
+- TASK010/TASK011/TASK015 在同一张 LangGraph 中执行（节点：`intent_recognition`、`task_parse`、`sql_generation`），统一实现位于 `app/services/chat_graph.py`。
 
 ### 8.8 历史记录与模板
 - GET /api/history/session

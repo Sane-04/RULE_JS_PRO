@@ -1,0 +1,69 @@
+{
+  "session_id": "c014b05e9e6a41c2",
+  "admin_id": 1,
+  "step_name": "sql_generation",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-10T17:00:15",
+  "input": {
+    "rewritten_query": "查询课程“数据库原理”在各班的平均分、最高分、最低分。",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "course_name",
+          "value": "数据库原理"
+        }
+      ],
+      "dimensions": [
+        "class.class_name"
+      ],
+      "metrics": [
+        "avg(score.score_value)",
+        "max(score.score_value)",
+        "min(score.score_value)"
+      ],
+      "filters": [
+        {
+          "field": "course.course_name",
+          "op": "=",
+          "value": "数据库原理"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.95
+    }
+  },
+  "output": {
+    "sql": "WITH base AS (SELECT class.class_name, score.score_value FROM course JOIN course_class ON course.id = course_class.course_id JOIN score ON course_class.id = score.course_class_id JOIN class ON course_class.class_id = class.id WHERE course.course_name = '数据库原理' AND course.is_deleted = 0 AND course_class.is_deleted = 0 AND score.is_deleted = 0 AND class.is_deleted = 0) SELECT base.class_name, AVG(base.score_value) AS avg_score, MAX(base.score_value) AS max_score, MIN(base.score_value) AS min_score FROM base GROUP BY base.class_name ORDER BY base.class_name",
+    "entity_mappings": [
+      {
+        "type": "course_name",
+        "value": "数据库原理",
+        "field": "course.course_name",
+        "reason": "根据字段描述“课程名称，课程实体映射主字段”及别名提示“课程名、课程名称、course_name”映射"
+      }
+    ],
+    "sql_fields": [
+      "class.class_name",
+      "score.score_value",
+      "course.id",
+      "course_class.course_id",
+      "course_class.id",
+      "score.course_class_id",
+      "course_class.class_id",
+      "class.id",
+      "course.course_name",
+      "course.is_deleted",
+      "course_class.is_deleted",
+      "score.is_deleted",
+      "class.is_deleted",
+      "base.class_name",
+      "base.score_value"
+    ]
+  }
+}

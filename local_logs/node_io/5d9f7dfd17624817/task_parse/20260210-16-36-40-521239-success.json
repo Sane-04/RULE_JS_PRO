@@ -1,0 +1,51 @@
+{
+  "session_id": "5d9f7dfd17624817",
+  "admin_id": 1,
+  "step_name": "task_parse",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-10T16:36:40",
+  "input": {
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": false,
+      "confidence": 0.95,
+      "merged_query": "查询2025-2026-1学期各班平均分排名前5",
+      "rewritten_query": "查询2025-2026-1学期各班平均分排名前5",
+      "threshold": 0.7
+    }
+  },
+  "output": {
+    "intent": "business_query",
+    "entities": [
+      {
+        "type": "term",
+        "value": "2025-2026-1"
+      }
+    ],
+    "dimensions": [
+      "class.class_name"
+    ],
+    "metrics": [
+      "avg(score.score_value)"
+    ],
+    "filters": [
+      {
+        "field": "score.term",
+        "op": "=",
+        "value": "2025-2026-1"
+      },
+      {
+        "field": "score.is_deleted",
+        "op": "=",
+        "value": false
+      }
+    ],
+    "time_range": {
+      "start": null,
+      "end": null
+    },
+    "operation": "ranking",
+    "confidence": 0.95
+  }
+}

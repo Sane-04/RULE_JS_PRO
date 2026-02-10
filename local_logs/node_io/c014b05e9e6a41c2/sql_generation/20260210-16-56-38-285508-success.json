@@ -1,0 +1,85 @@
+{
+  "session_id": "c014b05e9e6a41c2",
+  "admin_id": 1,
+  "step_name": "sql_generation",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-10T16:56:38",
+  "input": {
+    "rewritten_query": "查询2025-2026-1学期各课程的授课教师姓名和选课人数",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "term",
+          "value": "2025-2026-1"
+        }
+      ],
+      "dimensions": [
+        "course.course_name",
+        "teacher.real_name"
+      ],
+      "metrics": [
+        "count"
+      ],
+      "filters": [
+        {
+          "field": "course_class.term",
+          "op": "=",
+          "value": "2025-2026-1"
+        },
+        {
+          "field": "course_class.is_deleted",
+          "op": "=",
+          "value": false
+        },
+        {
+          "field": "enroll.status",
+          "op": "=",
+          "value": "已选中"
+        },
+        {
+          "field": "enroll.is_deleted",
+          "op": "=",
+          "value": false
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.95
+    }
+  },
+  "output": {
+    "sql": "WITH base AS (SELECT course.course_name, teacher.real_name, enroll.student_id FROM course JOIN course_class ON course.id = course_class.course_id JOIN teacher ON course_class.teacher_id = teacher.id JOIN enroll ON course_class.id = enroll.course_class_id WHERE course_class.term = '2025-2026-1' AND course_class.is_deleted = 0 AND enroll.status = '已选中' AND enroll.is_deleted = 0 AND course.is_deleted = 0 AND teacher.is_deleted = 0) SELECT base.course_name, base.real_name, COUNT(*) AS student_count FROM base GROUP BY base.course_name, base.real_name ORDER BY base.course_name, base.real_name",
+    "entity_mappings": [
+      {
+        "type": "term",
+        "value": "2025-2026-1",
+        "field": "course_class.term",
+        "reason": "根据字段描述“学期（如 2025-2026-1）”精确匹配"
+      }
+    ],
+    "sql_fields": [
+      "course.course_name",
+      "teacher.real_name",
+      "enroll.student_id",
+      "course.id",
+      "course_class.course_id",
+      "course_class.teacher_id",
+      "teacher.id",
+      "course_class.id",
+      "enroll.course_class_id",
+      "course_class.term",
+      "course_class.is_deleted",
+      "enroll.status",
+      "enroll.is_deleted",
+      "course.is_deleted",
+      "teacher.is_deleted",
+      "base.course_name",
+      "base.real_name"
+    ]
+  }
+}

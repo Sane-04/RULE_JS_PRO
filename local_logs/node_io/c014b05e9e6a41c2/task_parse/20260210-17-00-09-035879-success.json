@@ -1,0 +1,48 @@
+{
+  "session_id": "c014b05e9e6a41c2",
+  "admin_id": 1,
+  "step_name": "task_parse",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-10T17:00:09",
+  "input": {
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": false,
+      "confidence": 0.95,
+      "merged_query": "查询课程“数据库原理”在各班的平均分、最高分、最低分。",
+      "rewritten_query": "查询课程“数据库原理”在各班的平均分、最高分、最低分。",
+      "threshold": 0.7
+    }
+  },
+  "output": {
+    "intent": "business_query",
+    "entities": [
+      {
+        "type": "course_name",
+        "value": "数据库原理"
+      }
+    ],
+    "dimensions": [
+      "class.class_name"
+    ],
+    "metrics": [
+      "avg(score.score_value)",
+      "max(score.score_value)",
+      "min(score.score_value)"
+    ],
+    "filters": [
+      {
+        "field": "course.course_name",
+        "op": "=",
+        "value": "数据库原理"
+      }
+    ],
+    "time_range": {
+      "start": null,
+      "end": null
+    },
+    "operation": "aggregate",
+    "confidence": 0.95
+  }
+}

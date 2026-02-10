@@ -1,35 +1,66 @@
 import api from "./client";
 
-export type HistoryMessage = {
-  role: string;
-  content: string;
-};
-
-export type ChatIntentRequest = {
+export type ChatRequest = {
   session_id?: string;
   message: string;
-  history?: HistoryMessage[];
   model_name?: string;
 };
 
-export type ChatIntentData = {
+export type TaskEntity = {
+  type: string;
+  value: string;
+};
+
+export type TaskFilter = {
+  field: string;
+  op: string;
+  value: unknown;
+};
+
+export type TaskTimeRange = {
+  start: string | null;
+  end: string | null;
+};
+
+export type TaskParseResult = {
+  intent: "chat" | "business_query";
+  entities: TaskEntity[];
+  dimensions: string[];
+  metrics: string[];
+  filters: TaskFilter[];
+  time_range: TaskTimeRange;
+  operation: "detail" | "aggregate" | "ranking" | "trend";
+  confidence: number;
+};
+
+export type ChatData = {
   session_id: string;
   intent: "chat" | "business_query";
   is_followup: boolean;
-  confidence: number;
   merged_query: string;
   rewritten_query: string;
-  threshold: number;
+  skipped: boolean;
+  reason: string | null;
+  task: TaskParseResult | null;
+  sql_result: {
+    sql: string;
+    entity_mappings: Array<{
+      type: string;
+      value: string;
+      field: string;
+      reason: string;
+    }>;
+    sql_fields: string[];
+  } | null;
 };
 
-export type ChatIntentResponse = {
+export type ChatResponse = {
   code: number;
   message: string;
-  data: ChatIntentData;
+  data: ChatData;
 };
 
-export async function postChatIntent(payload: ChatIntentRequest): Promise<ChatIntentResponse> {
-  const response = await api.post<ChatIntentResponse>("/chat/intent", payload);
+export async function postChat(payload: ChatRequest): Promise<ChatResponse> {
+  const response = await api.post<ChatResponse>("/chat", payload);
   return response.data;
 }
-

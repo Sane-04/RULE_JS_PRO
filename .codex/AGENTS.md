@@ -511,3 +511,186 @@ Yolo模式：[YOLO_MODE]
 ### 乱码问题
 如出现乱码，参考下图解决
 ![alt text](unicode编码问题表.jpg)
+
+### Python 业务函数代码风格（Agent 强约束版）
+1️⃣ 总体目标（Agent 行为准则）
+
+优先保证业务函数的线性可读性，避免无意义抽象。
+
+Agent 在编写 Python 业务代码时，应将“是否复用”作为唯一函数抽象理由。
+
+2️⃣ 可执行规则（Agent Rules）
+Rule 1：禁止非必要函数抽象
+
+MUST NOT 为仅使用一次的逻辑创建独立函数
+
+MUST NOT 因“减少代码行数 / 看起来更优雅”而拆函数
+
+MUST 将一次性逻辑直接写在业务函数中
+
+Rule 2：仅在需要复用时才允许抽象
+
+ONLY IF 同一段逻辑在当前业务函数中被调用 ≥ 2 次
+
+才允许将其抽象为函数
+
+否则保持内联实现
+
+Rule 3：抽象函数必须为嵌套函数
+
+当需要抽象逻辑时：
+
+MUST 使用嵌套函数（inner function）
+
+MUST NOT 将该函数定义为：
+
+模块级函数
+
+类方法
+
+工具函数（utils）
+
+Rule 4：嵌套函数的定义位置与命名规范
+
+嵌套函数必须满足以下所有条件：
+
+MUST 定义在当前业务函数内部
+
+MUST 写在业务函数的最开头
+
+MUST 使用 _helper 前缀命名
+
+命名格式示例：
+
+_helper_validate_xxx
+
+_helper_build_xxx
+
+Rule 5：业务主流程位置约束
+
+MUST 将真实业务逻辑代码写在函数末尾
+
+MUST NOT 在业务流程中间穿插嵌套函数定义
+
+业务代码应自上而下连续展开，不被实现细节打断
+
+3️⃣ 正例（符合规范 ✅）
+正例 1：需要复用 → 使用嵌套 _helper
+def create_order(user, items):
+    def _helper_calc_total_price(items):
+        total = 0
+        for item in items:
+            total += item.price * item.count
+        return total
+
+    def _helper_validate_items(items):
+        if not items:
+            raise ValueError("items cannot be empty")
+
+    _helper_validate_items(items)
+
+    total_price = _helper_calc_total_price(items)
+    discounted_price = _helper_calc_total_price(items) * 0.9
+
+    order = {
+        "user": user.id,
+        "total_price": discounted_price,
+    }
+    return order
+
+
+✔ 说明：
+
+_helper_calc_total_price 被复用 → 合法抽象
+
+嵌套函数写在开头
+
+业务逻辑集中在函数末尾
+
+正例 2：不复用 → 直接内联
+def update_user_status(user):
+    if user.is_banned:
+        raise PermissionError("user is banned")
+
+    if user.last_login_days > 365:
+        user.status = "inactive"
+    else:
+        user.status = "active"
+
+    return user
+
+
+✔ 说明：
+
+所有逻辑只用一次
+
+没有为了“好看”而拆函数
+
+4️⃣ 反例（禁止 ❌）
+反例 1：无意义抽象（只用一次）
+def process_payment(order):
+    def _helper_check_order(order):
+        if order.amount <= 0:
+            raise ValueError("invalid amount")
+
+    _helper_check_order(order)
+    pay(order)
+
+
+❌ 问题：
+
+_helper_check_order 仅调用一次
+
+不具备复用价值
+
+应直接内联
+
+反例 2：抽象为模块级函数（违规）
+def _helper_calc_total(items):
+    return sum(item.price for item in items)
+
+def create_order(items):
+    total = _helper_calc_total(items)
+    return total
+
+
+❌ 问题：
+
+_helper 仅服务单一业务函数
+
+被错误提升为模块级函数
+
+反例 3：嵌套函数位置错误
+def create_order(items):
+    total = sum(item.price for item in items)
+
+    def _helper_log(items):
+        print(items)
+
+    _helper_log(items)
+    return total
+
+
+❌ 问题：
+
+嵌套函数未写在函数开头
+
+打断业务逻辑阅读顺序
+
+5️⃣ Agent 自检清单
+
+在生成或修改代码前，Agent 必须自问：
+
+这段逻辑是否会被重复使用？
+
+如果只用一次，是否不该抽象？
+
+如果抽象：
+
+是否写成了嵌套函数？
+
+是否在函数最开头？
+
+是否使用 _helper 前缀？
+
+业务主流程是否集中在函数末尾？

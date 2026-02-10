@@ -1,0 +1,67 @@
+{
+  "session_id": "5d9f7dfd17624817",
+  "admin_id": 1,
+  "step_name": "sql_generation",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-10T16:36:46",
+  "input": {
+    "rewritten_query": "查询2025-2026-1学期各班平均分排名前5",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "term",
+          "value": "2025-2026-1"
+        }
+      ],
+      "dimensions": [
+        "class.class_name"
+      ],
+      "metrics": [
+        "avg(score.score_value)"
+      ],
+      "filters": [
+        {
+          "field": "score.term",
+          "op": "=",
+          "value": "2025-2026-1"
+        },
+        {
+          "field": "score.is_deleted",
+          "op": "=",
+          "value": false
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "ranking",
+      "confidence": 0.95
+    }
+  },
+  "output": {
+    "sql": "WITH class_avg_scores AS (SELECT class.class_name, AVG(score.score_value) AS avg_score FROM score JOIN course_class ON score.course_class_id = course_class.id JOIN class ON course_class.class_id = class.id WHERE score.term = '2025-2026-1' AND score.is_deleted = 0 AND course_class.is_deleted = 0 AND class.is_deleted = 0 GROUP BY class.class_name) SELECT class_name, avg_score FROM class_avg_scores ORDER BY avg_score DESC LIMIT 5",
+    "entity_mappings": [
+      {
+        "type": "term",
+        "value": "2025-2026-1",
+        "field": "score.term",
+        "reason": "根据字段描述“学期（如 2025-2026-1）”及别名“学期”“学年学期”映射；同时 course_class.term 也具备相同描述，但 score 表是成绩事实主表，且任务中 filters 明确指定 score.term，故优先映射至 score.term"
+      }
+    ],
+    "sql_fields": [
+      "class.class_name",
+      "score.score_value",
+      "score.course_class_id",
+      "course_class.id",
+      "course_class.class_id",
+      "class.id",
+      "score.term",
+      "score.is_deleted",
+      "course_class.is_deleted",
+      "class.is_deleted"
+    ]
+  }
+}

@@ -1,0 +1,339 @@
+{
+  "session_id": "b77a2aa884694a70",
+  "admin_id": 2,
+  "step_name": "result_return",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T01:26:32",
+  "input": {
+    "message": "查询22级计本一班女生人数",
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": false,
+      "confidence": 0.95,
+      "merged_query": "查询22级计本一班女生人数",
+      "rewritten_query": "查询22级计本一班女生人数",
+      "threshold": 0.7
+    },
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "grade",
+          "value": "22级"
+        },
+        {
+          "type": "class_name",
+          "value": "计本一班"
+        },
+        {
+          "type": "gender",
+          "value": "女生"
+        }
+      ],
+      "dimensions": [],
+      "metrics": [
+        "count"
+      ],
+      "filters": [
+        {
+          "field": "class.grade_year",
+          "op": "=",
+          "value": 2022
+        },
+        {
+          "field": "class.class_name",
+          "op": "=",
+          "value": "计本一班"
+        },
+        {
+          "field": "student.gender",
+          "op": "=",
+          "value": "女"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.95
+    },
+    "sql_result": {
+      "sql": "WITH base AS (SELECT student.id FROM student JOIN class ON student.class_id = class.id WHERE class.grade_year = 2022 AND class.class_name = '2022级计算机科学与技术1班' AND student.gender = '女' AND student.is_deleted = 0 AND class.is_deleted = 0) SELECT COUNT(*) AS student_count FROM base",
+      "entity_mappings": [
+        {
+          "type": "grade",
+          "value": "22级",
+          "field": "class.grade_year",
+          "reason": "根据字段描述“年级/入学年份（如 2022 级）”及 probe_samples 中唯一匹配值 '2022' 归一化为数值 2022"
+        },
+        {
+          "type": "class_name",
+          "value": "计本一班",
+          "field": "class.class_name",
+          "reason": "probe_samples 中存在 '2022级计算机科学与技术1班'，且其年级前缀与 grade=2022 一致；'计本一班' 是 '计算机科学与技术1班' 的常见简称，经规范化匹配唯一确定为该值"
+        },
+        {
+          "type": "gender",
+          "value": "女生",
+          "field": "student.gender",
+          "reason": "probe_samples 中 gender 候选值为 ['男', '女']，'女生' 规范化后精确匹配 '女'"
+        }
+      ],
+      "sql_fields": [
+        "student.id",
+        "student.class_id",
+        "class.id",
+        "class.grade_year",
+        "class.class_name",
+        "student.gender",
+        "student.is_deleted",
+        "class.is_deleted"
+      ]
+    },
+    "sql_validate_result": {
+      "is_valid": true,
+      "error": null,
+      "rows": 1,
+      "result": [
+        {
+          "student_count": 26
+        }
+      ],
+      "executed_sql": "WITH base AS (SELECT student.id FROM student JOIN class ON student.class_id = class.id WHERE class.grade_year = 2022 AND class.class_name = '2022级计算机科学与技术1班' AND student.gender = '女' AND student.is_deleted = 0 AND class.is_deleted = 0) SELECT COUNT(*) AS student_count FROM base",
+      "empty_result": false,
+      "zero_metric_result": false
+    },
+    "hidden_context_result": {
+      "error_type": "execution_error",
+      "error": "",
+      "failed_sql": "WITH base AS (SELECT student.id FROM student JOIN class ON student.class_id = class.id WHERE class.grade_year = 2022 AND class.class_name = '计本一班' AND student.gender = '女' AND student.is_deleted = 0 AND class.is_deleted = 0) SELECT COUNT(*) AS student_count FROM base",
+      "rewritten_query": "查询22级计本一班女生人数",
+      "field_candidates": [],
+      "probe_samples": [
+        {
+          "field": "class.grade_year",
+          "probe_sql": "SELECT DISTINCT class.grade_year AS value FROM class WHERE class.grade_year IS NOT NULL AND class.is_deleted = 0 LIMIT 20",
+          "values": [
+            "2022",
+            "2024",
+            "2023",
+            "2025"
+          ]
+        },
+        {
+          "field": "class.class_name",
+          "probe_sql": "SELECT DISTINCT class.class_name AS value FROM class WHERE class.class_name IS NOT NULL AND class.is_deleted = 0 LIMIT 20",
+          "values": [
+            "2022级计算机科学与技术1班",
+            "2022级计算机科学与技术2班",
+            "2024级计算机科学与技术3班",
+            "2023级计算机科学与技术4班",
+            "2023级计算机科学与技术5班",
+            "2023级计算机科学与技术6班",
+            "2022级软件工程1班",
+            "2022级软件工程2班",
+            "2025级软件工程3班",
+            "2022级软件工程4班",
+            "2022级软件工程5班",
+            "2022级软件工程6班",
+            "2023级人工智能1班",
+            "2023级人工智能2班",
+            "2022级人工智能3班",
+            "2023级人工智能4班",
+            "2025级人工智能5班",
+            "2023级人工智能6班",
+            "2025级数据科学与大数据技术1班",
+            "2024级数据科学与大数据技术2班"
+          ]
+        },
+        {
+          "field": "student.gender",
+          "probe_sql": "SELECT DISTINCT student.gender AS value FROM student WHERE student.gender IS NOT NULL AND student.is_deleted = 0 LIMIT 20",
+          "values": [
+            "男",
+            "女"
+          ]
+        }
+      ],
+      "hints": [
+        "error_type=execution_error",
+        "use_probe_samples_to_rewrite_filters_or_entities",
+        "retry_sql_generation_with_hidden_context"
+      ],
+      "kb_summary": {
+        "table_count": 10,
+        "field_count": 84
+      },
+      "retry_count": 1
+    },
+    "hidden_context_retry_count": 1
+  },
+  "output": {
+    "session_id": "b77a2aa884694a70",
+    "intent": "business_query",
+    "is_followup": false,
+    "merged_query": "查询22级计本一班女生人数",
+    "rewritten_query": "查询22级计本一班女生人数",
+    "skipped": false,
+    "reason": null,
+    "final_status": "success",
+    "reason_code": null,
+    "summary": "22级计本一班女生人数为26人。",
+    "task": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "grade",
+          "value": "22级"
+        },
+        {
+          "type": "class_name",
+          "value": "计本一班"
+        },
+        {
+          "type": "gender",
+          "value": "女生"
+        }
+      ],
+      "dimensions": [],
+      "metrics": [
+        "count"
+      ],
+      "filters": [
+        {
+          "field": "class.grade_year",
+          "op": "=",
+          "value": 2022
+        },
+        {
+          "field": "class.class_name",
+          "op": "=",
+          "value": "计本一班"
+        },
+        {
+          "field": "student.gender",
+          "op": "=",
+          "value": "女"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.95
+    },
+    "sql_result": {
+      "sql": "WITH base AS (SELECT student.id FROM student JOIN class ON student.class_id = class.id WHERE class.grade_year = 2022 AND class.class_name = '2022级计算机科学与技术1班' AND student.gender = '女' AND student.is_deleted = 0 AND class.is_deleted = 0) SELECT COUNT(*) AS student_count FROM base",
+      "entity_mappings": [
+        {
+          "type": "grade",
+          "value": "22级",
+          "field": "class.grade_year",
+          "reason": "根据字段描述“年级/入学年份（如 2022 级）”及 probe_samples 中唯一匹配值 '2022' 归一化为数值 2022"
+        },
+        {
+          "type": "class_name",
+          "value": "计本一班",
+          "field": "class.class_name",
+          "reason": "probe_samples 中存在 '2022级计算机科学与技术1班'，且其年级前缀与 grade=2022 一致；'计本一班' 是 '计算机科学与技术1班' 的常见简称，经规范化匹配唯一确定为该值"
+        },
+        {
+          "type": "gender",
+          "value": "女生",
+          "field": "student.gender",
+          "reason": "probe_samples 中 gender 候选值为 ['男', '女']，'女生' 规范化后精确匹配 '女'"
+        }
+      ],
+      "sql_fields": [
+        "student.id",
+        "student.class_id",
+        "class.id",
+        "class.grade_year",
+        "class.class_name",
+        "student.gender",
+        "student.is_deleted",
+        "class.is_deleted"
+      ]
+    },
+    "sql_validate_result": {
+      "is_valid": true,
+      "error": null,
+      "rows": 1,
+      "result": [
+        {
+          "student_count": 26
+        }
+      ],
+      "executed_sql": "WITH base AS (SELECT student.id FROM student JOIN class ON student.class_id = class.id WHERE class.grade_year = 2022 AND class.class_name = '2022级计算机科学与技术1班' AND student.gender = '女' AND student.is_deleted = 0 AND class.is_deleted = 0) SELECT COUNT(*) AS student_count FROM base",
+      "empty_result": false,
+      "zero_metric_result": false
+    },
+    "hidden_context_result": {
+      "error_type": "execution_error",
+      "error": "",
+      "failed_sql": "WITH base AS (SELECT student.id FROM student JOIN class ON student.class_id = class.id WHERE class.grade_year = 2022 AND class.class_name = '计本一班' AND student.gender = '女' AND student.is_deleted = 0 AND class.is_deleted = 0) SELECT COUNT(*) AS student_count FROM base",
+      "rewritten_query": "查询22级计本一班女生人数",
+      "field_candidates": [],
+      "probe_samples": [
+        {
+          "field": "class.grade_year",
+          "probe_sql": "SELECT DISTINCT class.grade_year AS value FROM class WHERE class.grade_year IS NOT NULL AND class.is_deleted = 0 LIMIT 20",
+          "values": [
+            "2022",
+            "2024",
+            "2023",
+            "2025"
+          ]
+        },
+        {
+          "field": "class.class_name",
+          "probe_sql": "SELECT DISTINCT class.class_name AS value FROM class WHERE class.class_name IS NOT NULL AND class.is_deleted = 0 LIMIT 20",
+          "values": [
+            "2022级计算机科学与技术1班",
+            "2022级计算机科学与技术2班",
+            "2024级计算机科学与技术3班",
+            "2023级计算机科学与技术4班",
+            "2023级计算机科学与技术5班",
+            "2023级计算机科学与技术6班",
+            "2022级软件工程1班",
+            "2022级软件工程2班",
+            "2025级软件工程3班",
+            "2022级软件工程4班",
+            "2022级软件工程5班",
+            "2022级软件工程6班",
+            "2023级人工智能1班",
+            "2023级人工智能2班",
+            "2022级人工智能3班",
+            "2023级人工智能4班",
+            "2025级人工智能5班",
+            "2023级人工智能6班",
+            "2025级数据科学与大数据技术1班",
+            "2024级数据科学与大数据技术2班"
+          ]
+        },
+        {
+          "field": "student.gender",
+          "probe_sql": "SELECT DISTINCT student.gender AS value FROM student WHERE student.gender IS NOT NULL AND student.is_deleted = 0 LIMIT 20",
+          "values": [
+            "男",
+            "女"
+          ]
+        }
+      ],
+      "hints": [
+        "error_type=execution_error",
+        "use_probe_samples_to_rewrite_filters_or_entities",
+        "retry_sql_generation_with_hidden_context"
+      ],
+      "kb_summary": {
+        "table_count": 10,
+        "field_count": 84
+      },
+      "retry_count": 1
+    },
+    "hidden_context_retry_count": 1
+  }
+}

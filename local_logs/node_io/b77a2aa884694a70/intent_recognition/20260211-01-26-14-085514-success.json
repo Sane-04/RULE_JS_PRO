@@ -1,0 +1,22 @@
+{
+  "session_id": "b77a2aa884694a70",
+  "admin_id": 2,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T01:26:14",
+  "input": {
+    "message": "查询22级计本一班女生人数",
+    "history_user_messages": [],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "business_query",
+    "is_followup": false,
+    "confidence": 0.95,
+    "merged_query": "查询22级计本一班女生人数",
+    "rewritten_query": "查询22级计本一班女生人数",
+    "threshold": 0.7
+  }
+}

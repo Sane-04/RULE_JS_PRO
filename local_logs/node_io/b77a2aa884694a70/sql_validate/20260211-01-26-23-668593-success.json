@@ -1,0 +1,56 @@
+{
+  "session_id": "b77a2aa884694a70",
+  "admin_id": 2,
+  "step_name": "sql_validate",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T01:26:23",
+  "input": {
+    "sql_result": {
+      "sql": "WITH base AS (SELECT student.id FROM student JOIN class ON student.class_id = class.id WHERE class.grade_year = 2022 AND class.class_name = '计本一班' AND student.gender = '女' AND student.is_deleted = 0 AND class.is_deleted = 0) SELECT COUNT(*) AS student_count FROM base",
+      "entity_mappings": [
+        {
+          "type": "grade",
+          "value": "22级",
+          "field": "class.grade_year",
+          "reason": "根据字段描述“年级/入学年份（如 2022 级）”映射，22级对应入学年份2022"
+        },
+        {
+          "type": "class_name",
+          "value": "计本一班",
+          "field": "class.class_name",
+          "reason": "根据字段描述“班级名称，班级实体映射主字段”直接匹配"
+        },
+        {
+          "type": "gender",
+          "value": "女生",
+          "field": "student.gender",
+          "reason": "根据字段描述“性别（男/女等）”，“女生”规范化为“女”"
+        }
+      ],
+      "sql_fields": [
+        "student.id",
+        "student.class_id",
+        "class.id",
+        "class.grade_year",
+        "class.class_name",
+        "student.gender",
+        "student.is_deleted",
+        "class.is_deleted"
+      ]
+    }
+  },
+  "output": {
+    "is_valid": true,
+    "error": null,
+    "rows": 1,
+    "result": [
+      {
+        "student_count": 0
+      }
+    ],
+    "executed_sql": "WITH base AS (SELECT student.id FROM student JOIN class ON student.class_id = class.id WHERE class.grade_year = 2022 AND class.class_name = '计本一班' AND student.gender = '女' AND student.is_deleted = 0 AND class.is_deleted = 0) SELECT COUNT(*) AS student_count FROM base",
+    "empty_result": false,
+    "zero_metric_result": true
+  }
+}

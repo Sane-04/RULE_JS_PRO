@@ -41,6 +41,9 @@ export type ChatData = {
   rewritten_query: string;
   skipped: boolean;
   reason: string | null;
+  final_status: "success" | "partial_success" | "failed";
+  reason_code: string | null;
+  summary: string;
   task: TaskParseResult | null;
   sql_result: {
     sql: string;

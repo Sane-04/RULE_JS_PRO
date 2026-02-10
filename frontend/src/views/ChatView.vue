@@ -28,56 +28,6 @@
         <p v-if="error" class="error-text">{{ error }}</p>
       </section>
 
-      <section class="card chat-result-card" v-if="result">
-        <div class="chat-kv-grid">
-          <div class="chat-kv">
-            <span class="chat-kv-label">intent</span>
-            <span class="chat-kv-value">{{ result.intent }}</span>
-          </div>
-          <div class="chat-kv">
-            <span class="chat-kv-label">is_followup</span>
-            <span class="chat-kv-value">{{ result.is_followup ? "true" : "false" }}</span>
-          </div>
-          <div class="chat-kv">
-            <span class="chat-kv-label">skipped</span>
-            <span class="chat-kv-value">{{ result.skipped ? "true" : "false" }}</span>
-          </div>
-          <div class="chat-kv">
-            <span class="chat-kv-label">reason</span>
-            <span class="chat-kv-value">{{ result.reason || "-" }}</span>
-          </div>
-        </div>
-
-        <div class="chat-block">
-          <p class="chat-block-title">merged_query</p>
-          <p class="chat-block-content">{{ result.merged_query }}</p>
-        </div>
-        <div class="chat-block">
-          <p class="chat-block-title">rewritten_query</p>
-          <p class="chat-block-content">{{ result.rewritten_query }}</p>
-        </div>
-        <div class="chat-block">
-          <p class="chat-block-title">task</p>
-          <pre class="chat-json">{{ formatJson(result.task) }}</pre>
-        </div>
-        <div class="chat-block">
-          <p class="chat-block-title">sql_result</p>
-          <pre class="chat-json">{{ formatJson(result.sql_result) }}</pre>
-        </div>
-        <div class="chat-block">
-          <p class="chat-block-title">sql_validate_result</p>
-          <pre class="chat-json">{{ formatJson(result.sql_validate_result) }}</pre>
-        </div>
-        <div class="chat-block">
-          <p class="chat-block-title">hidden_context_retry_count</p>
-          <p class="chat-block-content">{{ result.hidden_context_retry_count }}</p>
-        </div>
-        <div class="chat-block">
-          <p class="chat-block-title">hidden_context_result</p>
-          <pre class="chat-json">{{ formatJson(result.hidden_context_result) }}</pre>
-        </div>
-      </section>
-
       <section class="card chat-history-card" v-if="timeline.length">
         <div class="table-meta">
           <div>
@@ -102,7 +52,7 @@
 import { ref } from "vue";
 
 import AppLayout from "../layouts/AppLayout.vue";
-import { postChat, type ChatData } from "../api/chat";
+import { postChat } from "../api/chat";
 
 type TimelineMessage = {
   role: "user" | "assistant";
@@ -113,7 +63,6 @@ const loading = ref(false);
 const error = ref("");
 const message = ref("");
 const sessionId = ref("");
-const result = ref<ChatData | null>(null);
 const timeline = ref<TimelineMessage[]>([]);
 
 const submitMessage = async () => {
@@ -126,10 +75,9 @@ const submitMessage = async () => {
       session_id: sessionId.value || undefined,
       message: text,
     });
-    result.value = resp.data;
     sessionId.value = resp.data.session_id;
     timeline.value.push({ role: "user", content: text });
-    timeline.value.push({ role: "assistant", content: resp.data.rewritten_query });
+    timeline.value.push({ role: "assistant", content: resp.data.summary });
     message.value = "";
   } catch (err: any) {
     error.value = err?.response?.data?.message ?? "请求失败";
@@ -141,10 +89,7 @@ const submitMessage = async () => {
 const resetSession = () => {
   sessionId.value = "";
   message.value = "";
-  result.value = null;
   error.value = "";
   timeline.value = [];
 };
-
-const formatJson = (value: unknown): string => JSON.stringify(value, null, 2);
 </script>

@@ -5,66 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6c8e0914-6428-4a24-8e3e-eeee2006fd1f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/AI_JS.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/AI_JS.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/1d0014e9-b951-47db-a5fc-9f86d0b9537f.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/1d0014e9-b951-47db-a5fc-9f86d0b9537f.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DEV_PLAN.md" beforeDir="false" afterPath="$PROJECT_DIR$/DEV_PLAN.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/prompts/sql_generation_prompts.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/prompts/sql_generation_prompts.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/schemas/chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/chat.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/services/chat_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/chat_graph.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/dist/assets/index-BrRMkodm.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/dist/assets/index-BrRMkodm.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/dist/assets/index-Di9icB1P.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/dist/assets/index-Di9icB1P.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/_metadata.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/_metadata.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/axios.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/axios.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/axios.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/axios.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-DUJS4OLK.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-DUJS4OLK.js.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-PZ5AY32C.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-PZ5AY32C.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-PZ5AY32C.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-PZ5AY32C.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/pinia.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/pinia.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/pinia.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/pinia.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue-router.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue-router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue-router.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue-router.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/vue.js.map" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/api/chat.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/chat.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/api/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/client.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/1666767cc9b74f4a/intent_recognition/20260210-15-16-07-317897-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/1666767cc9b74f4a/intent_recognition/20260210-15-22-46-749644-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/1666767cc9b74f4a/task_parse/20260210-15-16-09-985417-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/1666767cc9b74f4a/task_parse/20260210-15-22-48-982972-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/3775a825ef6f4b7f/intent_recognition/20260210-17-53-35-361245-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/3775a825ef6f4b7f/intent_recognition/20260210-17-55-24-438879-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/3775a825ef6f4b7f/sql_generation/20260210-17-53-44-517362-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/3775a825ef6f4b7f/sql_generation/20260210-17-55-33-672634-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/3775a825ef6f4b7f/sql_validate/20260210-17-53-44-605414-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/3775a825ef6f4b7f/sql_validate/20260210-17-55-33-791298-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/3775a825ef6f4b7f/task_parse/20260210-17-53-38-541872-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/3775a825ef6f4b7f/task_parse/20260210-17-55-27-614984-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/47e76a48fde146b2/intent_recognition/20260210-15-07-13-289647-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/5d9f7dfd17624817/intent_recognition/20260210-16-32-49-187879-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/5d9f7dfd17624817/intent_recognition/20260210-16-36-37-010255-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/5d9f7dfd17624817/intent_recognition/20260210-16-38-01-262696-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/5d9f7dfd17624817/sql_generation/20260210-16-32-58-344179-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/5d9f7dfd17624817/sql_generation/20260210-16-36-46-334068-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/5d9f7dfd17624817/sql_generation/20260210-16-38-13-095466-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/5d9f7dfd17624817/task_parse/20260210-16-32-53-192436-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/5d9f7dfd17624817/task_parse/20260210-16-36-40-521239-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/5d9f7dfd17624817/task_parse/20260210-16-38-06-016410-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/c014b05e9e6a41c2/intent_recognition/20260210-16-56-27-809015-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/c014b05e9e6a41c2/intent_recognition/20260210-17-00-06-440742-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/c014b05e9e6a41c2/sql_generation/20260210-16-56-38-285508-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/c014b05e9e6a41c2/sql_generation/20260210-17-00-15-112935-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/c014b05e9e6a41c2/task_parse/20260210-16-56-31-671993-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/c014b05e9e6a41c2/task_parse/20260210-17-00-09-035879-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/ddc17d3f9f964139/intent_recognition/20260210-15-05-52-620073-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/f1d3f4b887584a54/intent_recognition/20260210-16-48-13-838308-success.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/f1d3f4b887584a54/sql_generation/20260210-16-48-25-424070-failed.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_logs/node_io/f1d3f4b887584a54/task_parse/20260210-16-48-17-104745-success.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/views/ChatView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/ChatView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -284,7 +229,7 @@
       <workItem from="1770342460101" duration="10346000" />
       <workItem from="1770600696894" duration="11413000" />
       <workItem from="1770688112303" duration="23420000" />
-      <workItem from="1770728288012" duration="7323000" />
+      <workItem from="1770728288012" duration="10022000" />
     </task>
     <servers />
   </component>

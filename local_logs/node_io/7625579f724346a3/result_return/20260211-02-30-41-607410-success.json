@@ -1,0 +1,41 @@
+{
+  "session_id": "7625579f724346a3",
+  "admin_id": 2,
+  "step_name": "result_return",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T02:30:41",
+  "input": {
+    "message": "你好",
+    "intent_result": {
+      "intent": "chat",
+      "is_followup": false,
+      "confidence": 0.95,
+      "merged_query": "你好",
+      "rewritten_query": "你好",
+      "threshold": 0.7
+    },
+    "parse_result": null,
+    "sql_result": null,
+    "sql_validate_result": null,
+    "hidden_context_result": null,
+    "hidden_context_retry_count": 0
+  },
+  "output": {
+    "session_id": "7625579f724346a3",
+    "intent": "chat",
+    "is_followup": false,
+    "merged_query": "你好",
+    "rewritten_query": "你好",
+    "skipped": true,
+    "reason": "intent_is_chat",
+    "final_status": "success",
+    "reason_code": "intent_is_chat",
+    "summary": "你好！请问有什么教务相关的问题需要帮助吗？",
+    "task": null,
+    "sql_result": null,
+    "sql_validate_result": null,
+    "hidden_context_result": null,
+    "hidden_context_retry_count": 0
+  }
+}

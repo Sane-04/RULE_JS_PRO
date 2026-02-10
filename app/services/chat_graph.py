@@ -16,6 +16,7 @@ from app.core.config import settings
 from app.models.chat_history import ChatHistory
 from app.models.workflow_log import WorkflowLog
 from app.prompts.intent_prompts import INTENT_SYSTEM_PROMPT_FULL, build_intent_user_prompt
+from app.prompts.result_summary_prompts import RESULT_SUMMARY_SYSTEM_PROMPT, build_result_summary_user_prompt
 from app.prompts.sql_generation_prompts import SQL_GENERATION_SYSTEM_PROMPT, build_sql_generation_user_prompt
 from app.prompts.task_parse_prompts import TASK_PARSE_SYSTEM_PROMPT, build_task_parse_user_prompt
 from app.schemas.chat import ChatIntentRequest
@@ -32,14 +33,24 @@ class UnifiedChatGraphState(TypedDict):
     sql_validate_result: dict[str, Any] | None
     hidden_context_result: dict[str, Any] | None
     hidden_context_retry_count: int
+    result_return_result: dict[str, Any] | None
 
 
 def execute_chat_workflow(
-    db: Session,
-    admin_id: int,
-    payload: ChatIntentRequest,
+        db: Session,
+        admin_id: int,
+        payload: ChatIntentRequest,
 ) -> dict[str, Any]:
-    """执行统一聊天工作流（TASK010/TASK011/TASK015/TASK016）。"""
+    """作用：执行统一聊天工作流（TASK010/TASK011/TASK015/TASK016）。
+    
+    输入参数：
+    - db: Session。
+    - admin_id: int。
+    - payload: ChatIntentRequest。
+    
+    输出参数：
+    - 返回值类型: dict[str, Any]。
+    """
 
     ALLOWED_INTENTS = {"chat", "business_query"}
     ALLOWED_OPERATIONS = {"detail", "aggregate", "ranking", "trend"}
@@ -47,7 +58,15 @@ def execute_chat_workflow(
     HIDDEN_CONTEXT_MAX_RETRY = 2
 
     def _helper_get_recent_user_messages(session_id: str, limit: int = 4) -> list[str]:
-        """读取同一会话最近的用户消息。"""
+        """作用：读取同一会话最近的用户消息。
+        
+        输入参数：
+        - session_id: str。
+        - limit: int。
+        
+        输出参数：
+        - 返回值类型: list[str]。
+        """
 
         rows = (
             db.query(ChatHistory)
@@ -63,7 +82,14 @@ def execute_chat_workflow(
         return [row.message_content for row in reversed(rows)]
 
     def _helper_extract_json_object(text_value: str) -> dict[str, Any] | None:
-        """从模型输出文本中提取 JSON。"""
+        """作用：从模型输出文本中提取 JSON。
+        
+        输入参数：
+        - text_value: str。
+        
+        输出参数：
+        - 返回值类型: dict[str, Any] | None。
+        """
 
         match = re.search(r"\{.*\}", text_value, flags=re.S)
         if not match:
@@ -74,7 +100,15 @@ def execute_chat_workflow(
             return None
 
     def _helper_safe_float(value: Any, default: float = 0.0) -> float:
-        """安全转换浮点并裁剪到 [0,1]。"""
+        """作用：安全转换浮点并裁剪到 [0,1]。
+        
+        输入参数：
+        - value: Any。
+        - default: float。
+        
+        输出参数：
+        - 返回值类型: float。
+        """
 
         try:
             number = float(value)
@@ -83,7 +117,14 @@ def execute_chat_workflow(
         return max(0.0, min(1.0, number))
 
     def _helper_to_unique_str_list(value: Any) -> list[str]:
-        """标准化字符串数组并去重。"""
+        """作用：标准化字符串数组并去重。
+        
+        输入参数：
+        - value: Any。
+        
+        输出参数：
+        - 返回值类型: list[str]。
+        """
 
         if not isinstance(value, list):
             return []
@@ -101,7 +142,14 @@ def execute_chat_workflow(
         return result
 
     def _helper_normalize_entities(value: Any) -> list[dict[str, str]]:
-        """标准化实体列表。"""
+        """作用：标准化实体列表。
+        
+        输入参数：
+        - value: Any。
+        
+        输出参数：
+        - 返回值类型: list[dict[str, str]]。
+        """
 
         if not isinstance(value, list):
             return []
@@ -117,9 +165,25 @@ def execute_chat_workflow(
         return entities
 
     def _helper_normalize_filters(value: Any, whitelist: set[str]) -> list[dict[str, Any]]:
-        """标准化过滤条件并校验字段白名单。"""
+        """作用：标准化过滤条件并校验字段白名单。
+        
+        输入参数：
+        - value: Any。
+        - whitelist: set[str]。
+        
+        输出参数：
+        - 返回值类型: list[dict[str, Any]]。
+        """
 
         def _helper_normalize_filter_value(raw_value: Any) -> Any:
+            """作用：标准化单个过滤值，清理字符串两端空格并兼容字符串列表值。
+            
+            输入参数：
+            - raw_value: Any。
+            
+            输出参数：
+            - 返回值类型: Any。
+            """
             if isinstance(raw_value, str):
                 return raw_value.strip()
             if isinstance(raw_value, list):
@@ -142,7 +206,14 @@ def execute_chat_workflow(
         return filters
 
     def _helper_trim_sql_fields_and_values(sql: str) -> str:
-        """清理 SQL 字段与字符串字面值两端空格。"""
+        """作用：清理 SQL 字段与字符串字面值两端空格。
+        
+        输入参数：
+        - sql: str。
+        
+        输出参数：
+        - 返回值类型: str。
+        """
 
         normalized_sql = re.sub(
             r"\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\.\s*([a-zA-Z_][a-zA-Z0-9_]*)\b",
@@ -151,6 +222,14 @@ def execute_chat_workflow(
         )
 
         def _helper_trim_quoted_value(match: re.Match[str]) -> str:
+            """作用：清理 SQL 单引号字符串字面值的两端空格并保持引号结构。
+            
+            输入参数：
+            - match: re.Match[str]。
+            
+            输出参数：
+            - 返回值类型: str。
+            """
             raw_value = match.group(1)
             return f"'{raw_value.strip()}'"
 
@@ -158,7 +237,14 @@ def execute_chat_workflow(
         return normalized_sql
 
     def _helper_extract_sql_fields(sql: str) -> list[str]:
-        """提取 SQL 中的表字段引用并去重。"""
+        """作用：提取 SQL 中的表字段引用并去重。
+        
+        输入参数：
+        - sql: str。
+        
+        输出参数：
+        - 返回值类型: list[str]。
+        """
 
         matches = re.findall(r"\b([a-zA-Z_][a-zA-Z0-9_]*)\.([a-zA-Z_][a-zA-Z0-9_]*)\b", sql)
         result: list[str] = []
@@ -173,13 +259,28 @@ def execute_chat_workflow(
         return result
 
     def _helper_extract_cte_names(sql: str) -> set[str]:
-        """提取 WITH 子句中定义的 CTE 名称。"""
+        """作用：提取 WITH 子句中定义的 CTE 名称。
+        
+        输入参数：
+        - sql: str。
+        
+        输出参数：
+        - 返回值类型: set[str]。
+        """
 
         names = re.findall(r"(?is)(?:\bwith\b|,)\s*([a-zA-Z_][a-zA-Z0-9_]*)\s+as\s*\(", sql)
         return {name.lower() for name in names}
 
     def _helper_normalize_entity_mappings(value: Any, whitelist: set[str]) -> list[dict[str, str]]:
-        """标准化实体映射并校验字段白名单。"""
+        """作用：标准化实体映射并校验字段白名单。
+        
+        输入参数：
+        - value: Any。
+        - whitelist: set[str]。
+        
+        输出参数：
+        - 返回值类型: list[dict[str, str]]。
+        """
 
         if not isinstance(value, list):
             return []
@@ -206,7 +307,14 @@ def execute_chat_workflow(
         return mappings
 
     def _helper_is_readonly_sql(sql: str) -> bool:
-        """仅允许查询 SQL。"""
+        """作用：仅允许查询 SQL。
+        
+        输入参数：
+        - sql: str。
+        
+        输出参数：
+        - 返回值类型: bool。
+        """
 
         stripped = sql.strip().lower()
         if not stripped:
@@ -231,7 +339,14 @@ def execute_chat_workflow(
         return True
 
     def _helper_build_kb_hints() -> tuple[list[str], list[dict[str, list[str]]], list[dict[str, Any]]]:
-        """构建字段白名单、字段别名提示与结构化描述提示。"""
+        """作用：构建字段白名单、字段别名提示与结构化描述提示。
+        
+        输入参数：
+        - 无。
+        
+        输出参数：
+        - 返回值类型: tuple[list[str], list[dict[str, list[str]]], list[dict[str, Any]]]。
+        """
 
         kb_path = Path(__file__).resolve().parents[1] / "knowledge" / "schema_kb_core.json"
         kb = json.loads(kb_path.read_text(encoding="utf-8"))
@@ -284,7 +399,17 @@ def execute_chat_workflow(
         return fields, alias_pairs, schema_hints
 
     def _helper_call_llm(system_prompt: str, user_prompt: str, model_name: str, timeout: float) -> dict[str, Any]:
-        """调用大模型并解析 JSON。"""
+        """作用：调用大模型并解析 JSON。
+        
+        输入参数：
+        - system_prompt: str。
+        - user_prompt: str。
+        - model_name: str。
+        - timeout: float。
+        
+        输出参数：
+        - 返回值类型: dict[str, Any]。
+        """
 
         import httpx
         from openai import OpenAI
@@ -320,12 +445,22 @@ def execute_chat_workflow(
         return output_data
 
     def _helper_intent_node_logic(
-        message: str,
-        history_user_messages: list[str],
-        threshold: float,
-        model_name: str,
+            message: str,
+            history_user_messages: list[str],
+            threshold: float,
+            model_name: str,
     ) -> dict[str, Any]:
-        """意图识别节点业务逻辑。"""
+        """作用：意图识别节点业务逻辑。
+        
+        输入参数：
+        - message: str。
+        - history_user_messages: list[str]。
+        - threshold: float。
+        - model_name: str。
+        
+        输出参数：
+        - 返回值类型: dict[str, Any]。
+        """
 
         llm_data = _helper_call_llm(
             system_prompt=INTENT_SYSTEM_PROMPT_FULL,
@@ -362,7 +497,15 @@ def execute_chat_workflow(
         return result
 
     def _helper_task_parse_node_logic(intent_result: dict[str, Any], model_name: str) -> dict[str, Any]:
-        """任务解析节点业务逻辑。"""
+        """作用：任务解析节点业务逻辑。
+        
+        输入参数：
+        - intent_result: dict[str, Any]。
+        - model_name: str。
+        
+        输出参数：
+        - 返回值类型: dict[str, Any]。
+        """
 
         query = str(
             intent_result.get("rewritten_query")
@@ -410,7 +553,8 @@ def execute_chat_workflow(
             "metrics": _helper_to_unique_str_list(llm_output.get("metrics")),
             "filters": _helper_normalize_filters(llm_output.get("filters"), whitelist_set),
             "time_range": {
-                "start": str(time_range_raw.get("start")).strip() if time_range_raw.get("start") not in (None, "") else None,
+                "start": str(time_range_raw.get("start")).strip() if time_range_raw.get("start") not in (
+                None, "") else None,
                 "end": str(time_range_raw.get("end")).strip() if time_range_raw.get("end") not in (None, "") else None,
             },
             "operation": operation,
@@ -421,12 +565,22 @@ def execute_chat_workflow(
         return result
 
     def _helper_sql_generation_node_logic(
-        rewritten_query: str,
-        parse_result: dict[str, Any],
-        hidden_context_result: dict[str, Any] | None,
-        model_name: str,
+            rewritten_query: str,
+            parse_result: dict[str, Any],
+            hidden_context_result: dict[str, Any] | None,
+            model_name: str,
     ) -> dict[str, Any]:
-        """SQL 生成节点业务逻辑。"""
+        """作用：SQL 生成节点业务逻辑。
+        
+        输入参数：
+        - rewritten_query: str。
+        - parse_result: dict[str, Any]。
+        - hidden_context_result: dict[str, Any] | None。
+        - model_name: str。
+        
+        输出参数：
+        - 返回值类型: dict[str, Any]。
+        """
 
         if not isinstance(parse_result, dict):
             raise ValueError("SQL 生成缺少有效任务解析结果")
@@ -501,9 +655,24 @@ def execute_chat_workflow(
         return result
 
     def _helper_sql_validate_node_logic(sql_result: dict[str, Any] | None) -> dict[str, Any]:
-        """SQL 校验节点业务逻辑：执行 SQL 并返回结果或错误信息。"""
+        """作用：SQL 校验节点业务逻辑：执行 SQL 并返回结果或错误信息。
+        
+        输入参数：
+        - sql_result: dict[str, Any] | None。
+        
+        输出参数：
+        - 返回值类型: dict[str, Any]。
+        """
 
         def _helper_extract_metric_aliases(sql_text: str) -> list[str]:
+            """作用：从 SQL 中提取指标型别名（如 count/sum/avg）用于后续零值判断。
+            
+            输入参数：
+            - sql_text: str。
+            
+            输出参数：
+            - 返回值类型: list[str]。
+            """
             aliases = re.findall(r"(?is)\bas\s+([a-zA-Z_][a-zA-Z0-9_]*)", sql_text)
             keywords = (
                 "count", "sum", "avg", "total", "num", "cnt",
@@ -523,6 +692,15 @@ def execute_chat_workflow(
             return result
 
         def _helper_has_zero_metric(result_rows: list[dict[str, Any]], metric_aliases: list[str]) -> bool:
+            """作用：根据指标别名检查查询结果首行是否存在数值型指标等于0的情况。
+            
+            输入参数：
+            - result_rows: list[dict[str, Any]]。
+            - metric_aliases: list[str]。
+            
+            输出参数：
+            - 返回值类型: bool。
+            """
             if not result_rows or not metric_aliases:
                 return False
             first_row = result_rows[0] if isinstance(result_rows[0], dict) else {}
@@ -600,12 +778,22 @@ def execute_chat_workflow(
             return v_result
 
     def _helper_hidden_context_node_logic(
-        rewritten_query: str,
-        parse_result: dict[str, Any] | None,
-        sql_result: dict[str, Any] | None,
-        sql_validate_result: dict[str, Any] | None,
+            rewritten_query: str,
+            parse_result: dict[str, Any] | None,
+            sql_result: dict[str, Any] | None,
+            sql_validate_result: dict[str, Any] | None,
     ) -> dict[str, Any]:
-        """隐藏上下文探索节点：基于 SQL 报错做只读探测并产出补充上下文。"""
+        """作用：隐藏上下文探索节点：基于 SQL 报错做只读探测并产出补充上下文。
+        
+        输入参数：
+        - rewritten_query: str。
+        - parse_result: dict[str, Any] | None。
+        - sql_result: dict[str, Any] | None。
+        - sql_validate_result: dict[str, Any] | None。
+        
+        输出参数：
+        - 返回值类型: dict[str, Any]。
+        """
 
         error_text = str((sql_validate_result or {}).get("error") or "").strip()
         failed_sql = str((sql_result or {}).get("sql") or "").strip()
@@ -741,14 +929,26 @@ def execute_chat_workflow(
         return hc_result
 
     def _helper_insert_workflow_log(
-        session_id: str,
-        step_name: str,
-        input_json: dict[str, Any],
-        output_json: dict[str, Any] | None,
-        status: str,
-        error_message: str | None,
+            session_id: str,
+            step_name: str,
+            input_json: dict[str, Any],
+            output_json: dict[str, Any] | None,
+            status: str,
+            error_message: str | None,
     ) -> None:
-        """插入工作流日志。"""
+        """作用：插入工作流日志。
+        
+        输入参数：
+        - session_id: str。
+        - step_name: str。
+        - input_json: dict[str, Any]。
+        - output_json: dict[str, Any] | None。
+        - status: str。
+        - error_message: str | None。
+        
+        输出参数：
+        - 返回值类型: None。
+        """
 
         db.add(
             WorkflowLog(
@@ -766,12 +966,22 @@ def execute_chat_workflow(
         )
 
     def _helper_insert_chat_history(
-        session_id: str,
-        user_message: str,
-        rewritten_query: str,
-        model_name: str,
+            session_id: str,
+            user_message: str,
+            assistant_message: str,
+            model_name: str,
     ) -> None:
-        """插入一轮用户与助手会话。"""
+        """作用：插入一轮用户与助手会话。
+        
+        输入参数：
+        - session_id: str。
+        - user_message: str。
+        - assistant_message: str。
+        - model_name: str。
+        
+        输出参数：
+        - 返回值类型: None。
+        """
 
         db.add(
             ChatHistory(
@@ -790,7 +1000,7 @@ def execute_chat_workflow(
                 admin_id=admin_id,
                 session_id=session_id,
                 message_role="assistant",
-                message_content=rewritten_query,
+                message_content=assistant_message,
                 model_name=model_name,
                 created_by=admin_id,
                 updated_by=admin_id,
@@ -799,14 +1009,26 @@ def execute_chat_workflow(
         )
 
     def _helper_save_node_io_local(
-        session_id: str,
-        step_name: str,
-        node_input: dict[str, Any],
-        node_output: dict[str, Any] | None,
-        status: str,
-        error_message: str | None,
+            session_id: str,
+            step_name: str,
+            node_input: dict[str, Any],
+            node_output: dict[str, Any] | None,
+            status: str,
+            error_message: str | None,
     ) -> None:
-        """保存节点输入输出到本地。"""
+        """作用：保存节点输入输出到本地。
+        
+        输入参数：
+        - session_id: str。
+        - step_name: str。
+        - node_input: dict[str, Any]。
+        - node_output: dict[str, Any] | None。
+        - status: str。
+        - error_message: str | None。
+        
+        输出参数：
+        - 返回值类型: None。
+        """
 
         root = Path(settings.node_io_log_dir)
         step_dir = root / session_id / step_name
@@ -826,13 +1048,24 @@ def execute_chat_workflow(
         file_path.write_text(json.dumps(payload_data, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def _helper_node_logger(
-        step_name: str,
-        node_input: dict[str, Any],
-        node_output: dict[str, Any] | None,
-        status: str,
-        error_message: str | None,
+            step_name: str,
+            node_input: dict[str, Any],
+            node_output: dict[str, Any] | None,
+            status: str,
+            error_message: str | None,
     ) -> None:
-        """节点日志包装。"""
+        """作用：节点日志包装。
+        
+        输入参数：
+        - step_name: str。
+        - node_input: dict[str, Any]。
+        - node_output: dict[str, Any] | None。
+        - status: str。
+        - error_message: str | None。
+        
+        输出参数：
+        - 返回值类型: None。
+        """
 
         _helper_save_node_io_local(
             session_id=session_id,
@@ -844,7 +1077,14 @@ def execute_chat_workflow(
         )
 
     def _helper_intent_node(state: UnifiedChatGraphState) -> UnifiedChatGraphState:
-        """图中的意图识别节点。"""
+        """作用：图中的意图识别节点。
+        
+        输入参数：
+        - state: UnifiedChatGraphState。
+        
+        输出参数：
+        - 返回值类型: UnifiedChatGraphState。
+        """
 
         node_input = {
             "message": state["message"],
@@ -866,7 +1106,14 @@ def execute_chat_workflow(
             raise
 
     def _helper_task_parse_node(state: UnifiedChatGraphState) -> UnifiedChatGraphState:
-        """图中的任务解析节点。"""
+        """作用：图中的任务解析节点。
+        
+        输入参数：
+        - state: UnifiedChatGraphState。
+        
+        输出参数：
+        - 返回值类型: UnifiedChatGraphState。
+        """
 
         intent_result = state.get("intent_result") or {}
         node_input = {"intent_result": intent_result}
@@ -879,7 +1126,14 @@ def execute_chat_workflow(
             raise
 
     def _helper_sql_generation_node(state: UnifiedChatGraphState) -> UnifiedChatGraphState:
-        """图中的 SQL 生成节点。"""
+        """作用：图中的 SQL 生成节点。
+        
+        输入参数：
+        - state: UnifiedChatGraphState。
+        
+        输出参数：
+        - 返回值类型: UnifiedChatGraphState。
+        """
 
         parse_result = state.get("parse_result") or {}
         hidden_context_result = state.get("hidden_context_result")
@@ -903,7 +1157,14 @@ def execute_chat_workflow(
             raise
 
     def _helper_sql_validate_node(state: UnifiedChatGraphState) -> UnifiedChatGraphState:
-        """图中的 SQL 验证节点。"""
+        """作用：图中的 SQL 验证节点。
+        
+        输入参数：
+        - state: UnifiedChatGraphState。
+        
+        输出参数：
+        - 返回值类型: UnifiedChatGraphState。
+        """
 
         node_input = {"sql_result": state.get("sql_result")}
         validate_result = _helper_sql_validate_node_logic(sql_result=state.get("sql_result"))
@@ -912,7 +1173,14 @@ def execute_chat_workflow(
         return {**state, "sql_validate_result": validate_result}
 
     def _helper_hidden_context_node(state: UnifiedChatGraphState) -> UnifiedChatGraphState:
-        """图中的 隐藏上下文 探索节点。"""
+        """作用：图中的 隐藏上下文 探索节点。
+        
+        输入参数：
+        - state: UnifiedChatGraphState。
+        
+        输出参数：
+        - 返回值类型: UnifiedChatGraphState。
+        """
 
         current_retry_count = int(state.get("hidden_context_retry_count") or 0)
         rewritten_query = str((state.get("intent_result") or {}).get("rewritten_query", state["message"])).strip()
@@ -961,13 +1229,180 @@ def execute_chat_workflow(
             )
             raise
 
+    def _helper_result_return_node_logic(
+            message: str,
+            intent_result: dict[str, Any] | None,
+            parse_result: dict[str, Any] | None,
+            sql_result: dict[str, Any] | None,
+            sql_validate_result: dict[str, Any] | None,
+            hidden_context_result: dict[str, Any] | None,
+            hidden_context_retry_count: int,
+            model_name: str,
+    ) -> dict[str, Any]:
+        """作用：收敛整条图执行结果，判定最终状态并生成面向用户的总结描述。
+        
+        输入参数：
+        - message: str。
+        - intent_result: dict[str, Any] | None。
+        - parse_result: dict[str, Any] | None。
+        - sql_result: dict[str, Any] | None。
+        - sql_validate_result: dict[str, Any] | None。
+        - hidden_context_result: dict[str, Any] | None。
+        - hidden_context_retry_count: int。
+        - model_name: str。
+        
+        输出参数：
+        - 返回值类型: dict[str, Any]。
+        """
+        intent_payload = intent_result or {}
+        intent = str(intent_payload.get("intent", "chat")).strip().lower()
+        is_followup = bool(intent_payload.get("is_followup", False))
+        merged_query = str(intent_payload.get("merged_query", message)).strip()
+        rewritten_query = str(intent_payload.get("rewritten_query", message)).strip()
+        skipped = parse_result is None
+
+        final_status = "failed"
+        reason_code: str | None = None
+        if intent == "chat":
+            final_status = "success"
+            reason_code = "intent_is_chat"
+        elif parse_result is None:
+            final_status = "failed"
+            reason_code = "task_parse_missing"
+        elif sql_validate_result is None:
+            final_status = "failed"
+            reason_code = "sql_validate_missing"
+        else:
+            is_valid = bool(sql_validate_result.get("is_valid"))
+            empty_result = bool(sql_validate_result.get("empty_result"))
+            zero_metric_result = bool(sql_validate_result.get("zero_metric_result"))
+            if is_valid and (not empty_result) and (not zero_metric_result):
+                final_status = "success"
+                reason_code = None
+            elif empty_result:
+                final_status = "partial_success"
+                reason_code = "empty_result_after_retry"
+            elif zero_metric_result:
+                final_status = "partial_success"
+                reason_code = "zero_metric_after_retry"
+            else:
+                final_status = "failed"
+                reason_code = "sql_invalid_after_retry"
+
+        summary = ""
+        try:
+            summary_data = _helper_call_llm(
+                system_prompt=RESULT_SUMMARY_SYSTEM_PROMPT,
+                user_prompt=build_result_summary_user_prompt(
+                    user_query=message,
+                    rewritten_query=rewritten_query,
+                    final_status=final_status,
+                    reason_code=reason_code,
+                    task=parse_result if isinstance(parse_result, dict) else None,
+                    sql_validate_result=sql_validate_result if isinstance(sql_validate_result, dict) else None,
+                    hidden_context_retry_count=hidden_context_retry_count,
+                ),
+                model_name=model_name,
+                timeout=12.0,
+            )
+            summary = str(summary_data.get("summary", "")).strip()
+        except Exception:
+            summary = ""
+
+        if not summary:
+            if final_status == "success":
+                if intent == "chat":
+                    summary = "当前问题被识别为闲聊，已跳过数据查询流程。"
+                else:
+                    rows = int((sql_validate_result or {}).get("rows") or 0)
+                    summary = f"查询执行成功，已返回结果，共{rows}行。"
+            elif reason_code == "zero_metric_after_retry":
+                summary = "查询流程已完成，但统计指标结果为0，建议检查筛选条件或换用更明确的实体名称。"
+            elif reason_code == "empty_result_after_retry":
+                summary = "查询流程已完成，但未命中符合条件的数据，建议放宽筛选条件后重试。"
+            elif reason_code == "sql_invalid_after_retry":
+                summary = "查询流程执行失败，SQL在重试后仍未通过校验，请调整问题描述后重试。"
+            elif reason_code == "task_parse_missing":
+                summary = "任务解析结果缺失，当前无法生成有效查询，请补充更明确的问题描述。"
+            elif reason_code == "sql_validate_missing":
+                summary = "SQL校验结果缺失，当前无法确认查询结果，请稍后重试。"
+            else:
+                summary = "查询未成功完成，请稍后重试。"
+        result = {
+            "session_id": session_id,
+            "intent": intent,
+            "is_followup": is_followup,
+            "merged_query": merged_query,
+            "rewritten_query": rewritten_query,
+            "skipped": skipped,
+            "reason": reason_code,
+            "final_status": final_status,
+            "reason_code": reason_code,
+            "summary": summary,
+            "task": parse_result,
+            "sql_result": sql_result,
+            "sql_validate_result": sql_validate_result,
+            "hidden_context_result": hidden_context_result,
+            "hidden_context_retry_count": hidden_context_retry_count,
+        }
+        print("结果返回节点输出：")
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        return result
+
     def _helper_result_return_node(state: UnifiedChatGraphState) -> UnifiedChatGraphState:
-        return state
+        """作用：图中的结果返回节点，负责调用结果收敛逻辑并写回状态。
+        
+        输入参数：
+        - state: UnifiedChatGraphState。
+        
+        输出参数：
+        - 返回值类型: UnifiedChatGraphState。
+        """
+        node_input = {
+            "message": state["message"],
+            "intent_result": state.get("intent_result"),
+            "parse_result": state.get("parse_result"),
+            "sql_result": state.get("sql_result"),
+            "sql_validate_result": state.get("sql_validate_result"),
+            "hidden_context_result": state.get("hidden_context_result"),
+            "hidden_context_retry_count": int(state.get("hidden_context_retry_count") or 0),
+        }
+        try:
+            result_return_result = _helper_result_return_node_logic(
+                message=state["message"],
+                intent_result=state.get("intent_result"),
+                parse_result=state.get("parse_result"),
+                sql_result=state.get("sql_result"),
+                sql_validate_result=state.get("sql_validate_result"),
+                hidden_context_result=state.get("hidden_context_result"),
+                hidden_context_retry_count=int(state.get("hidden_context_retry_count") or 0),
+                model_name=state["model_name"],
+            )
+            _helper_node_logger("result_return", node_input, result_return_result, "success", None)
+            return {**state, "result_return_result": result_return_result}
+        except Exception as exc:
+            _helper_node_logger("result_return", node_input, None, "failed", str(exc))
+            raise
 
     def _helper_build_graph():
-        """构建统一工作流图。"""
+        """作用：构建统一工作流图。
+        
+        输入参数：
+        - 无。
+        
+        输出参数：
+        - 返回值类型: Any。
+        """
 
         def _helper_route_after_intent(state: UnifiedChatGraphState) -> str:
+            """作用：意图识别后的路由决策，业务查询进入任务解析，闲聊直接返回结果节点。
+            
+            输入参数：
+            - state: UnifiedChatGraphState。
+            
+            输出参数：
+            - 返回值类型: str。
+            """
             intent_result = state.get("intent_result") or {}
             intent = str(intent_result.get("intent", "chat")).strip().lower()
             if intent == "business_query":
@@ -975,6 +1410,14 @@ def execute_chat_workflow(
             return "result_return"
 
         def _helper_route_after_sql_validate(state: UnifiedChatGraphState) -> str:
+            """作用：SQL 校验后的路由决策，失败/空结果/零指标时进入隐藏上下文重试，否则直接返回结果节点。
+            
+            输入参数：
+            - state: UnifiedChatGraphState。
+            
+            输出参数：
+            - 返回值类型: str。
+            """
             intent = str((state.get("intent_result") or {}).get("intent", "chat")).strip().lower()
             validate_result = state.get("sql_validate_result") or {}
             retry_count = int(state.get("hidden_context_retry_count") or 0)
@@ -992,6 +1435,14 @@ def execute_chat_workflow(
             return "result_return"
 
         def _helper_route_after_hidden_context(state: UnifiedChatGraphState) -> str:
+            """作用：隐藏上下文节点后的路由决策，未超重试上限则回到 SQL 生成，超限则返回结果节点。
+            
+            输入参数：
+            - state: UnifiedChatGraphState。
+            
+            输出参数：
+            - 返回值类型: str。
+            """
             retry_count = int(state.get("hidden_context_retry_count") or 0)
             if retry_count > HIDDEN_CONTEXT_MAX_RETRY:
                 return "result_return"
@@ -1046,6 +1497,7 @@ def execute_chat_workflow(
         "sql_validate_result": None,
         "hidden_context_result": None,
         "hidden_context_retry_count": 0,
+        "result_return_result": None,
     }
     input_json = {
         "message": payload.message,
@@ -1060,29 +1512,15 @@ def execute_chat_workflow(
         parse_result = graph_output.get("parse_result")
         sql_result = graph_output.get("sql_result")
         sql_validate_result = graph_output.get("sql_validate_result")
-        hidden_context_result = graph_output.get("hidden_context_result")
-        hidden_context_retry_count = int(graph_output.get("hidden_context_retry_count") or 0)
-
-        skipped = parse_result is None
-        result = {
-            "session_id": session_id,
-            "intent": intent_result.get("intent", "chat"),
-            "is_followup": bool(intent_result.get("is_followup", False)),
-            "merged_query": str(intent_result.get("merged_query", payload.message)).strip(),
-            "rewritten_query": str(intent_result.get("rewritten_query", payload.message)).strip(),
-            "skipped": skipped,
-            "reason": "intent_is_chat" if skipped else None,
-            "task": parse_result,
-            "sql_result": sql_result,
-            "sql_validate_result": sql_validate_result,
-            "hidden_context_result": hidden_context_result,
-            "hidden_context_retry_count": hidden_context_retry_count,
-        }
+        result = graph_output.get("result_return_result")
+        if not isinstance(result, dict):
+            raise ValueError("结果返回节点未产出有效结果")
+        skipped = bool(result.get("skipped"))
 
         _helper_insert_chat_history(
             session_id=session_id,
             user_message=payload.message,
-            rewritten_query=result["rewritten_query"],
+            assistant_message=result["summary"],
             model_name=model_name,
         )
         _helper_insert_workflow_log(

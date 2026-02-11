@@ -1,0 +1,44 @@
+{
+  "session_id": "1b98d250d97d4cea",
+  "admin_id": 2,
+  "step_name": "task_parse",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T21:59:02",
+  "input": {
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": true,
+      "confidence": 0.95,
+      "merged_query": "查询孔航的信息",
+      "rewritten_query": "查询孔航的信息",
+      "threshold": 0.7
+    }
+  },
+  "output": {
+    "intent": "business_query",
+    "entities": [
+      {
+        "type": "name",
+        "value": "孔航"
+      }
+    ],
+    "dimensions": [
+      "teacher.real_name"
+    ],
+    "metrics": [],
+    "filters": [
+      {
+        "field": "teacher.real_name",
+        "op": "=",
+        "value": "孔航"
+      }
+    ],
+    "time_range": {
+      "start": null,
+      "end": null
+    },
+    "operation": "detail",
+    "confidence": 0.95
+  }
+}

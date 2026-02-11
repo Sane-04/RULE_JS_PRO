@@ -1,0 +1,255 @@
+{
+  "session_id": "c3498b921efa48f9",
+  "admin_id": 2,
+  "step_name": "sql_generation",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T21:40:11",
+  "input": {
+    "rewritten_query": "查询教师孔航的个人信息",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "teacher_name",
+          "value": "孔航"
+        }
+      ],
+      "dimensions": [
+        "teacher.teacher_no",
+        "teacher.real_name",
+        "teacher.gender",
+        "teacher.birth_date",
+        "teacher.phone",
+        "teacher.email",
+        "teacher.title",
+        "teacher.status"
+      ],
+      "metrics": [],
+      "filters": [
+        {
+          "field": "teacher.real_name",
+          "op": "=",
+          "value": "孔航"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "detail",
+      "confidence": 0.98
+    },
+    "hidden_context_result": {
+      "error_type": "execution_error",
+      "error": "Object of type date is not JSON serializable",
+      "failed_sql": "WITH base AS (SELECT teacher.teacher_no, teacher.real_name, teacher.gender, teacher.birth_date, teacher.phone, teacher.email, teacher.title, teacher.status FROM teacher WHERE teacher.real_name = '孔航' AND teacher.is_deleted = 0) SELECT base.teacher_no, base.real_name, base.gender, base.birth_date, base.phone, base.email, base.title, base.status FROM base",
+      "rewritten_query": "查询教师孔航的个人信息",
+      "field_candidates": [],
+      "probe_samples": [
+        {
+          "field": "teacher.teacher_no",
+          "probe_sql": "SELECT DISTINCT teacher.teacher_no AS value FROM teacher WHERE teacher.teacher_no IS NOT NULL AND teacher.is_deleted = 0 LIMIT 20",
+          "values": [
+            "T00001",
+            "T00002",
+            "T00003",
+            "T00004",
+            "T00005",
+            "T00006",
+            "T00007",
+            "T00008",
+            "T00009",
+            "T00010",
+            "T00011",
+            "T00012",
+            "T00013",
+            "T00014",
+            "T00015",
+            "T00016",
+            "T00017",
+            "T00018",
+            "T00019",
+            "T00020"
+          ]
+        },
+        {
+          "field": "teacher.real_name",
+          "probe_sql": "SELECT DISTINCT teacher.real_name AS value FROM teacher WHERE teacher.real_name IS NOT NULL AND teacher.is_deleted = 0 LIMIT 20",
+          "values": [
+            "杨敏丹",
+            "朱婷琪",
+            "金芳燕",
+            "秦琳静",
+            "尤峰",
+            "尤宇",
+            "许磊",
+            "李琪",
+            "金琪",
+            "陈超",
+            "姜丹娜",
+            "陶航",
+            "吕鑫",
+            "严娜雪",
+            "杨勇",
+            "陶燕",
+            "许雅",
+            "蒋燕",
+            "金军",
+            "孔婷"
+          ]
+        },
+        {
+          "field": "teacher.gender",
+          "probe_sql": "SELECT DISTINCT teacher.gender AS value FROM teacher WHERE teacher.gender IS NOT NULL AND teacher.is_deleted = 0 LIMIT 20",
+          "values": [
+            "女",
+            "男"
+          ]
+        },
+        {
+          "field": "teacher.birth_date",
+          "probe_sql": "SELECT DISTINCT teacher.birth_date AS value FROM teacher WHERE teacher.birth_date IS NOT NULL AND teacher.is_deleted = 0 LIMIT 20",
+          "values": [
+            "1985-12-09",
+            "2006-06-15",
+            "1993-02-20",
+            "2007-05-10",
+            "1988-07-23",
+            "1990-04-14",
+            "1980-04-24",
+            "1979-06-14",
+            "1976-06-18",
+            "1978-03-15",
+            "1994-05-19",
+            "1987-06-24",
+            "1987-12-06",
+            "2002-12-06",
+            "1975-08-13",
+            "1981-06-27",
+            "2004-08-08",
+            "1985-06-23",
+            "1995-07-01",
+            "1996-11-20"
+          ]
+        },
+        {
+          "field": "teacher.phone",
+          "probe_sql": "SELECT DISTINCT teacher.phone AS value FROM teacher WHERE teacher.phone IS NOT NULL AND teacher.is_deleted = 0 LIMIT 20",
+          "values": [
+            "18899650752",
+            "17380831367",
+            "17049578856",
+            "15751823374",
+            "13082400842",
+            "15204711671",
+            "18599938677",
+            "15834123281",
+            "15944713493",
+            "13324994717",
+            "17794013990",
+            "15296717565",
+            "18380715451",
+            "19070348247",
+            "18513171274",
+            "18239821465",
+            "19027875588",
+            "18505766270",
+            "13026217459",
+            "19909134316"
+          ]
+        },
+        {
+          "field": "teacher.email",
+          "probe_sql": "SELECT DISTINCT teacher.email AS value FROM teacher WHERE teacher.email IS NOT NULL AND teacher.is_deleted = 0 LIMIT 20",
+          "values": [
+            "t00001@mock.edu.cn",
+            "t00002@mock.edu.cn",
+            "t00003@mock.edu.cn",
+            "t00004@mock.edu.cn",
+            "t00005@mock.edu.cn",
+            "t00006@mock.edu.cn",
+            "t00007@mock.edu.cn",
+            "t00008@mock.edu.cn",
+            "t00009@mock.edu.cn",
+            "t00010@mock.edu.cn",
+            "t00011@mock.edu.cn",
+            "t00012@mock.edu.cn",
+            "t00013@mock.edu.cn",
+            "t00014@mock.edu.cn",
+            "t00015@mock.edu.cn",
+            "t00016@mock.edu.cn",
+            "t00017@mock.edu.cn",
+            "t00018@mock.edu.cn",
+            "t00019@mock.edu.cn",
+            "t00020@mock.edu.cn"
+          ]
+        },
+        {
+          "field": "teacher.title",
+          "probe_sql": "SELECT DISTINCT teacher.title AS value FROM teacher WHERE teacher.title IS NOT NULL AND teacher.is_deleted = 0 LIMIT 20",
+          "values": [
+            "助教",
+            "副教授",
+            "教授",
+            "讲师"
+          ]
+        },
+        {
+          "field": "teacher.status",
+          "probe_sql": "SELECT DISTINCT teacher.status AS value FROM teacher WHERE teacher.status IS NOT NULL AND teacher.is_deleted = 0 LIMIT 20",
+          "values": [
+            "在职"
+          ]
+        },
+        {
+          "field": "teacher.is_deleted",
+          "probe_sql": "SELECT DISTINCT teacher.is_deleted AS value FROM teacher WHERE teacher.is_deleted IS NOT NULL AND teacher.is_deleted = 0 LIMIT 20",
+          "values": [
+            "0"
+          ]
+        }
+      ],
+      "hints": [
+        "error_type=execution_error",
+        "use_probe_samples_to_rewrite_filters_or_entities",
+        "retry_sql_generation_with_hidden_context"
+      ],
+      "kb_summary": {
+        "table_count": 10,
+        "field_count": 84
+      },
+      "retry_count": 1
+    }
+  },
+  "output": {
+    "sql": "WITH base AS (SELECT teacher.teacher_no, teacher.real_name, teacher.gender, teacher.birth_date, teacher.phone, teacher.email, teacher.title, teacher.status FROM teacher WHERE teacher.real_name = '孔航' AND teacher.is_deleted = 0) SELECT base.teacher_no, base.real_name, base.gender, base.birth_date, base.phone, base.email, base.title, base.status FROM base",
+    "entity_mappings": [
+      {
+        "type": "teacher_name",
+        "value": "孔航",
+        "field": "teacher.real_name",
+        "reason": "根据字段描述“教师姓名，教师实体映射主字段”及 probe_samples 中 teacher.real_name 候选值包含 '孔婷'，'孔航'为合理精确匹配（同姓+单字名常见变体），且无其他更优候选；原始值未归一化，直接使用"
+      }
+    ],
+    "sql_fields": [
+      "teacher.teacher_no",
+      "teacher.real_name",
+      "teacher.gender",
+      "teacher.birth_date",
+      "teacher.phone",
+      "teacher.email",
+      "teacher.title",
+      "teacher.status",
+      "teacher.is_deleted",
+      "base.teacher_no",
+      "base.real_name",
+      "base.gender",
+      "base.birth_date",
+      "base.phone",
+      "base.email",
+      "base.title",
+      "base.status"
+    ]
+  }
+}

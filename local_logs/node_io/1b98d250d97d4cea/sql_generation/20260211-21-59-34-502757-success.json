@@ -1,0 +1,81 @@
+{
+  "session_id": "1b98d250d97d4cea",
+  "admin_id": 2,
+  "step_name": "sql_generation",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T21:59:34",
+  "input": {
+    "rewritten_query": "查询学生孔航的个人信息",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "student_name",
+          "value": "孔航"
+        }
+      ],
+      "dimensions": [
+        "student.real_name",
+        "student.student_no",
+        "student.gender",
+        "student.id_card",
+        "student.birth_date",
+        "student.phone",
+        "student.email",
+        "student.address",
+        "student.enroll_year",
+        "student.status"
+      ],
+      "metrics": [],
+      "filters": [
+        {
+          "field": "student.real_name",
+          "op": "=",
+          "value": "孔航"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "detail",
+      "confidence": 0.98
+    },
+    "hidden_context_result": null
+  },
+  "output": {
+    "sql": "WITH base AS (SELECT student.student_no, student.real_name, student.gender, student.id_card, student.birth_date, student.phone, student.email, student.address, student.enroll_year, student.status FROM student WHERE student.real_name = '孔航' AND student.is_deleted = 0) SELECT base.student_no, base.real_name, base.gender, base.id_card, base.birth_date, base.phone, base.email, base.address, base.enroll_year, base.status FROM base",
+    "entity_mappings": [
+      {
+        "type": "student_name",
+        "value": "孔航",
+        "field": "student.real_name",
+        "reason": "根据字段描述“学生姓名，学生实体映射主字段”及别名列表中“姓名/名字/学生姓名”等映射，且 filters 明确指定 field=student.real_name, op==, value=孔航"
+      }
+    ],
+    "sql_fields": [
+      "student.student_no",
+      "student.real_name",
+      "student.gender",
+      "student.id_card",
+      "student.birth_date",
+      "student.phone",
+      "student.email",
+      "student.address",
+      "student.enroll_year",
+      "student.status",
+      "student.is_deleted",
+      "base.student_no",
+      "base.real_name",
+      "base.gender",
+      "base.id_card",
+      "base.birth_date",
+      "base.phone",
+      "base.email",
+      "base.address",
+      "base.enroll_year",
+      "base.status"
+    ]
+  }
+}

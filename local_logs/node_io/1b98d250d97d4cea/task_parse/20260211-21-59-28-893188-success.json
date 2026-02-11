@@ -1,0 +1,53 @@
+{
+  "session_id": "1b98d250d97d4cea",
+  "admin_id": 2,
+  "step_name": "task_parse",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T21:59:28",
+  "input": {
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": true,
+      "confidence": 0.95,
+      "merged_query": "查询学生孔航的个人信息",
+      "rewritten_query": "查询学生孔航的个人信息",
+      "threshold": 0.7
+    }
+  },
+  "output": {
+    "intent": "business_query",
+    "entities": [
+      {
+        "type": "student_name",
+        "value": "孔航"
+      }
+    ],
+    "dimensions": [
+      "student.real_name",
+      "student.student_no",
+      "student.gender",
+      "student.id_card",
+      "student.birth_date",
+      "student.phone",
+      "student.email",
+      "student.address",
+      "student.enroll_year",
+      "student.status"
+    ],
+    "metrics": [],
+    "filters": [
+      {
+        "field": "student.real_name",
+        "op": "=",
+        "value": "孔航"
+      }
+    ],
+    "time_range": {
+      "start": null,
+      "end": null
+    },
+    "operation": "detail",
+    "confidence": 0.98
+  }
+}

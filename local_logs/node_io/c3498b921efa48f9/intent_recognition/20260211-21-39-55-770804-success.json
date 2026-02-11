@@ -1,0 +1,22 @@
+{
+  "session_id": "c3498b921efa48f9",
+  "admin_id": 2,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T21:39:55",
+  "input": {
+    "message": "查询孔航的信息",
+    "history_user_messages": [],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "business_query",
+    "is_followup": false,
+    "confidence": 0.95,
+    "merged_query": "查询教师孔航的个人信息",
+    "rewritten_query": "查询教师孔航的个人信息",
+    "threshold": 0.7
+  }
+}

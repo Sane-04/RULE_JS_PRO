@@ -1,0 +1,387 @@
+{
+  "session_id": "1b98d250d97d4cea",
+  "admin_id": 2,
+  "step_name": "result_return",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T21:59:37",
+  "input": {
+    "message": "我问你叫孔航的学生",
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": true,
+      "confidence": 0.95,
+      "merged_query": "查询学生孔航的个人信息",
+      "rewritten_query": "查询学生孔航的个人信息",
+      "threshold": 0.7
+    },
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "student_name",
+          "value": "孔航"
+        }
+      ],
+      "dimensions": [
+        "student.real_name",
+        "student.student_no",
+        "student.gender",
+        "student.id_card",
+        "student.birth_date",
+        "student.phone",
+        "student.email",
+        "student.address",
+        "student.enroll_year",
+        "student.status"
+      ],
+      "metrics": [],
+      "filters": [
+        {
+          "field": "student.real_name",
+          "op": "=",
+          "value": "孔航"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "detail",
+      "confidence": 0.98
+    },
+    "sql_result": {
+      "sql": "WITH base AS (SELECT student.student_no, student.real_name, student.gender, student.id_card, student.birth_date, student.phone, student.email, student.address, student.enroll_year, student.status FROM student WHERE student.real_name = '孔航' AND student.is_deleted = 0) SELECT base.student_no, base.real_name, base.gender, base.id_card, base.birth_date, base.phone, base.email, base.address, base.enroll_year, base.status FROM base",
+      "entity_mappings": [
+        {
+          "type": "student_name",
+          "value": "孔航",
+          "field": "student.real_name",
+          "reason": "根据字段描述“学生姓名，学生实体映射主字段”及别名列表中“姓名/名字/学生姓名”等映射，且 filters 明确指定 field=student.real_name, op==, value=孔航"
+        }
+      ],
+      "sql_fields": [
+        "student.student_no",
+        "student.real_name",
+        "student.gender",
+        "student.id_card",
+        "student.birth_date",
+        "student.phone",
+        "student.email",
+        "student.address",
+        "student.enroll_year",
+        "student.status",
+        "student.is_deleted",
+        "base.student_no",
+        "base.real_name",
+        "base.gender",
+        "base.id_card",
+        "base.birth_date",
+        "base.phone",
+        "base.email",
+        "base.address",
+        "base.enroll_year",
+        "base.status"
+      ]
+    },
+    "sql_validate_result": {
+      "is_valid": true,
+      "error": null,
+      "rows": 8,
+      "result": [
+        {
+          "student_no": "S00004",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "440106200503065714",
+          "birth_date": "2005-03-06",
+          "phone": "13543360809",
+          "email": "s00004@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2022,
+          "status": "在读"
+        },
+        {
+          "student_no": "S02423",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "310101200502189060",
+          "birth_date": "2005-02-18",
+          "phone": "19129767220",
+          "email": "s02423@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2023,
+          "status": "在读"
+        },
+        {
+          "student_no": "S03199",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "440103200607086860",
+          "birth_date": "2006-07-08",
+          "phone": "13748030665",
+          "email": "s03199@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2023,
+          "status": "在读"
+        },
+        {
+          "student_no": "S07915",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "120101200402068290",
+          "birth_date": "2004-02-06",
+          "phone": "19919742453",
+          "email": "s07915@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2022,
+          "status": "在读"
+        },
+        {
+          "student_no": "S08266",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "440106200412301662",
+          "birth_date": "2004-12-30",
+          "phone": "18221377085",
+          "email": "s08266@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2022,
+          "status": "在读"
+        },
+        {
+          "student_no": "S17286",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "310101200402287405",
+          "birth_date": "2004-02-28",
+          "phone": "13028670811",
+          "email": "s17286@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2022,
+          "status": "在读"
+        },
+        {
+          "student_no": "S18939",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "110101200502227189",
+          "birth_date": "2005-02-22",
+          "phone": "18083980716",
+          "email": "s18939@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2023,
+          "status": "在读"
+        },
+        {
+          "student_no": "S19115",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "440103200706265645",
+          "birth_date": "2007-06-26",
+          "phone": "17564712226",
+          "email": "s19115@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2025,
+          "status": "在读"
+        }
+      ],
+      "executed_sql": "WITH base AS (SELECT student.student_no, student.real_name, student.gender, student.id_card, student.birth_date, student.phone, student.email, student.address, student.enroll_year, student.status FROM student WHERE student.real_name = '孔航' AND student.is_deleted = 0) SELECT base.student_no, base.real_name, base.gender, base.id_card, base.birth_date, base.phone, base.email, base.address, base.enroll_year, base.status FROM base",
+      "empty_result": false,
+      "zero_metric_result": false
+    },
+    "hidden_context_result": null,
+    "hidden_context_retry_count": 0
+  },
+  "output": {
+    "session_id": "1b98d250d97d4cea",
+    "intent": "business_query",
+    "is_followup": true,
+    "merged_query": "查询学生孔航的个人信息",
+    "rewritten_query": "查询学生孔航的个人信息",
+    "skipped": false,
+    "reason": null,
+    "final_status": "success",
+    "reason_code": null,
+    "summary": "查询到8名同名学生“孔航”，均为男性，在读状态，入学年份为2022–2025年，身份证号、联系方式等信息各不相同。请确认具体学号或补充其他信息以便精准定位。",
+    "assistant_reply": "查询到8名同名学生“孔航”，均为男性，在读状态，入学年份为2022–2025年，身份证号、联系方式等信息各不相同。请确认具体学号或补充其他信息以便精准定位。\n\n详细信息：\n1. student_no=S00004，real_name=孔航，gender=男，id_card=440106200503065714，birth_date=2005-03-06，phone=13543360809，email=s00004@student.mock.edu.cn，address=湖北省宜昌市西陵区三峡科技MOCK大学，enroll_year=2022，status=在读\n2. student_no=S02423，real_name=孔航，gender=男，id_card=310101200502189060，birth_date=2005-02-18，phone=19129767220，email=s02423@student.mock.edu.cn，address=湖北省宜昌市西陵区三峡科技MOCK大学，enroll_year=2023，status=在读\n3. student_no=S03199，real_name=孔航，gender=男，id_card=440103200607086860，birth_date=2006-07-08，phone=13748030665，email=s03199@student.mock.edu.cn，address=湖北省宜昌市西陵区三峡科技MOCK大学，enroll_year=2023，status=在读\n4. student_no=S07915，real_name=孔航，gender=男，id_card=120101200402068290，birth_date=2004-02-06，phone=19919742453，email=s07915@student.mock.edu.cn，address=湖北省宜昌市西陵区三峡科技MOCK大学，enroll_year=2022，status=在读\n5. student_no=S08266，real_name=孔航，gender=男，id_card=440106200412301662，birth_date=2004-12-30，phone=18221377085，email=s08266@student.mock.edu.cn，address=湖北省宜昌市西陵区三峡科技MOCK大学，enroll_year=2022，status=在读\n6. student_no=S17286，real_name=孔航，gender=男，id_card=310101200402287405，birth_date=2004-02-28，phone=13028670811，email=s17286@student.mock.edu.cn，address=湖北省宜昌市西陵区三峡科技MOCK大学，enroll_year=2022，status=在读\n7. student_no=S18939，real_name=孔航，gender=男，id_card=110101200502227189，birth_date=2005-02-22，phone=18083980716，email=s18939@student.mock.edu.cn，address=湖北省宜昌市西陵区三峡科技MOCK大学，enroll_year=2023，status=在读\n8. student_no=S19115，real_name=孔航，gender=男，id_card=440103200706265645，birth_date=2007-06-26，phone=17564712226，email=s19115@student.mock.edu.cn，address=湖北省宜昌市西陵区三峡科技MOCK大学，enroll_year=2025，status=在读",
+    "download_url": null,
+    "task": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "student_name",
+          "value": "孔航"
+        }
+      ],
+      "dimensions": [
+        "student.real_name",
+        "student.student_no",
+        "student.gender",
+        "student.id_card",
+        "student.birth_date",
+        "student.phone",
+        "student.email",
+        "student.address",
+        "student.enroll_year",
+        "student.status"
+      ],
+      "metrics": [],
+      "filters": [
+        {
+          "field": "student.real_name",
+          "op": "=",
+          "value": "孔航"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "detail",
+      "confidence": 0.98
+    },
+    "sql_result": {
+      "sql": "WITH base AS (SELECT student.student_no, student.real_name, student.gender, student.id_card, student.birth_date, student.phone, student.email, student.address, student.enroll_year, student.status FROM student WHERE student.real_name = '孔航' AND student.is_deleted = 0) SELECT base.student_no, base.real_name, base.gender, base.id_card, base.birth_date, base.phone, base.email, base.address, base.enroll_year, base.status FROM base",
+      "entity_mappings": [
+        {
+          "type": "student_name",
+          "value": "孔航",
+          "field": "student.real_name",
+          "reason": "根据字段描述“学生姓名，学生实体映射主字段”及别名列表中“姓名/名字/学生姓名”等映射，且 filters 明确指定 field=student.real_name, op==, value=孔航"
+        }
+      ],
+      "sql_fields": [
+        "student.student_no",
+        "student.real_name",
+        "student.gender",
+        "student.id_card",
+        "student.birth_date",
+        "student.phone",
+        "student.email",
+        "student.address",
+        "student.enroll_year",
+        "student.status",
+        "student.is_deleted",
+        "base.student_no",
+        "base.real_name",
+        "base.gender",
+        "base.id_card",
+        "base.birth_date",
+        "base.phone",
+        "base.email",
+        "base.address",
+        "base.enroll_year",
+        "base.status"
+      ]
+    },
+    "sql_validate_result": {
+      "is_valid": true,
+      "error": null,
+      "rows": 8,
+      "result": [
+        {
+          "student_no": "S00004",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "440106200503065714",
+          "birth_date": "2005-03-06",
+          "phone": "13543360809",
+          "email": "s00004@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2022,
+          "status": "在读"
+        },
+        {
+          "student_no": "S02423",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "310101200502189060",
+          "birth_date": "2005-02-18",
+          "phone": "19129767220",
+          "email": "s02423@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2023,
+          "status": "在读"
+        },
+        {
+          "student_no": "S03199",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "440103200607086860",
+          "birth_date": "2006-07-08",
+          "phone": "13748030665",
+          "email": "s03199@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2023,
+          "status": "在读"
+        },
+        {
+          "student_no": "S07915",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "120101200402068290",
+          "birth_date": "2004-02-06",
+          "phone": "19919742453",
+          "email": "s07915@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2022,
+          "status": "在读"
+        },
+        {
+          "student_no": "S08266",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "440106200412301662",
+          "birth_date": "2004-12-30",
+          "phone": "18221377085",
+          "email": "s08266@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2022,
+          "status": "在读"
+        },
+        {
+          "student_no": "S17286",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "310101200402287405",
+          "birth_date": "2004-02-28",
+          "phone": "13028670811",
+          "email": "s17286@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2022,
+          "status": "在读"
+        },
+        {
+          "student_no": "S18939",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "110101200502227189",
+          "birth_date": "2005-02-22",
+          "phone": "18083980716",
+          "email": "s18939@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2023,
+          "status": "在读"
+        },
+        {
+          "student_no": "S19115",
+          "real_name": "孔航",
+          "gender": "男",
+          "id_card": "440103200706265645",
+          "birth_date": "2007-06-26",
+          "phone": "17564712226",
+          "email": "s19115@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学",
+          "enroll_year": 2025,
+          "status": "在读"
+        }
+      ],
+      "executed_sql": "WITH base AS (SELECT student.student_no, student.real_name, student.gender, student.id_card, student.birth_date, student.phone, student.email, student.address, student.enroll_year, student.status FROM student WHERE student.real_name = '孔航' AND student.is_deleted = 0) SELECT base.student_no, base.real_name, base.gender, base.id_card, base.birth_date, base.phone, base.email, base.address, base.enroll_year, base.status FROM base",
+      "empty_result": false,
+      "zero_metric_result": false
+    },
+    "hidden_context_result": null,
+    "hidden_context_retry_count": 0
+  }
+}

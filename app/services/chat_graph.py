@@ -4,7 +4,7 @@ import csv
 import json
 import re
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Callable, TypedDict
 
@@ -66,6 +66,20 @@ def execute_chat_workflow(
             on_step_event(step_name, status, error_message)
         except Exception:
             return
+
+    def _helper_to_json_safe(value: Any) -> Any:
+        """作用：递归转换为 JSON 安全类型，避免 date/datetime 序列化失败。"""
+        if isinstance(value, datetime):
+            return value.isoformat()
+        if isinstance(value, date):
+            return value.isoformat()
+        if isinstance(value, dict):
+            return {str(key): _helper_to_json_safe(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [_helper_to_json_safe(item) for item in value]
+        if isinstance(value, tuple):
+            return [_helper_to_json_safe(item) for item in value]
+        return value
 
     def _helper_get_recent_user_messages(session_id: str, limit: int = 4) -> list[str]:
         """作用：读取同一会话最近的用户消息。
@@ -503,7 +517,7 @@ def execute_chat_workflow(
             "threshold": threshold,
         }
         print("意图识别节点输出:")
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+        print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
         return result
 
     def _helper_task_parse_node_logic(intent_result: dict[str, Any], model_name: str) -> dict[str, Any]:
@@ -571,7 +585,7 @@ def execute_chat_workflow(
             "confidence": confidence,
         }
         print("任务解析节点输出:")
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+        print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
         return result
 
     def _helper_sql_generation_node_logic(
@@ -661,7 +675,7 @@ def execute_chat_workflow(
             "sql_fields": sql_fields,
         }
         print("SQL 生成节点输出:")
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+        print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
         return result
 
     def _helper_sql_validate_node_logic(sql_result: dict[str, Any] | None) -> dict[str, Any]:
@@ -738,7 +752,7 @@ def execute_chat_workflow(
                 "zero_metric_result": False,
             }
             print("SQL验证节点输出:")
-            print(json.dumps(v_result, indent=2, ensure_ascii=False))
+            print(json.dumps(v_result, indent=2, ensure_ascii=False, default=str))
             return v_result
 
         if not _helper_is_readonly_sql(sql):
@@ -752,12 +766,12 @@ def execute_chat_workflow(
                 "zero_metric_result": False,
             }
             print("SQL验证节点输出:")
-            print(json.dumps(v_result, indent=2, ensure_ascii=False))
+            print(json.dumps(v_result, indent=2, ensure_ascii=False, default=str))
             return v_result
 
         try:
             rows = db.execute(text(sql)).mappings().all()
-            result_rows = [dict(row) for row in rows]
+            result_rows = _helper_to_json_safe([dict(row) for row in rows])
             metric_aliases = _helper_extract_metric_aliases(sql)
             empty_result = len(result_rows) == 0
             zero_metric_result = _helper_has_zero_metric(result_rows, metric_aliases)
@@ -771,7 +785,7 @@ def execute_chat_workflow(
                 "zero_metric_result": zero_metric_result,
             }
             print("SQL验证节点输出:")
-            print(json.dumps(v_result, indent=2, ensure_ascii=False))
+            print(json.dumps(v_result, indent=2, ensure_ascii=False, default=str))
             return v_result
         except Exception as exc:
             v_result = {
@@ -784,7 +798,7 @@ def execute_chat_workflow(
                 "zero_metric_result": False,
             }
             print("SQL验证节点输出:")
-            print(json.dumps(v_result, indent=2, ensure_ascii=False))
+            print(json.dumps(v_result, indent=2, ensure_ascii=False, default=str))
             return v_result
 
     def _helper_hidden_context_node_logic(
@@ -925,7 +939,7 @@ def execute_chat_workflow(
             },
         }
         print("隐藏上下文探索节点输出:")
-        print(json.dumps(hc_result, indent=2, ensure_ascii=False))
+        print(json.dumps(hc_result, indent=2, ensure_ascii=False, default=str))
         return hc_result
 
     def _helper_insert_workflow_log(
@@ -954,8 +968,8 @@ def execute_chat_workflow(
             WorkflowLog(
                 session_id=session_id,
                 step_name=step_name,
-                input_json=input_json,
-                output_json=output_json,
+                input_json=_helper_to_json_safe(input_json),
+                output_json=_helper_to_json_safe(output_json),
                 status=status,
                 error_message=error_message,
                 risk_level="low",
@@ -1045,7 +1059,10 @@ def execute_chat_workflow(
             "input": node_input,
             "output": node_output,
         }
-        file_path.write_text(json.dumps(payload_data, ensure_ascii=False, indent=2), encoding="utf-8")
+        file_path.write_text(
+            json.dumps(_helper_to_json_safe(payload_data), ensure_ascii=False, indent=2, default=str),
+            encoding="utf-8",
+        )
 
     def _helper_node_logger(
             step_name: str,
@@ -1475,7 +1492,7 @@ def execute_chat_workflow(
             "hidden_context_retry_count": hidden_context_retry_count,
         }
         print("结果返回节点输出：")
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+        print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
         return result
 
     def _helper_result_return_node(state: UnifiedChatGraphState) -> UnifiedChatGraphState:

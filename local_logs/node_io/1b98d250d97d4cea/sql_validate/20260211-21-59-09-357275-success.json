@@ -1,0 +1,78 @@
+{
+  "session_id": "1b98d250d97d4cea",
+  "admin_id": 2,
+  "step_name": "sql_validate",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T21:59:09",
+  "input": {
+    "sql_result": {
+      "sql": "WITH base AS (SELECT teacher.teacher_no, teacher.real_name, teacher.gender, teacher.title, teacher.phone, teacher.email, college.college_name FROM teacher JOIN college ON teacher.college_id = college.id WHERE teacher.real_name = '孔航' AND teacher.is_deleted = 0 AND college.is_deleted = 0) SELECT base.teacher_no, base.real_name, base.gender, base.title, base.phone, base.email, base.college_name FROM base",
+      "entity_mappings": [
+        {
+          "type": "name",
+          "value": "孔航",
+          "field": "teacher.real_name",
+          "reason": "根据字段描述“教师姓名，教师实体映射主字段”及别名提示“姓名/教师姓名/real_name”映射"
+        }
+      ],
+      "sql_fields": [
+        "teacher.teacher_no",
+        "teacher.real_name",
+        "teacher.gender",
+        "teacher.title",
+        "teacher.phone",
+        "teacher.email",
+        "college.college_name",
+        "teacher.college_id",
+        "college.id",
+        "teacher.is_deleted",
+        "college.is_deleted",
+        "base.teacher_no",
+        "base.real_name",
+        "base.gender",
+        "base.title",
+        "base.phone",
+        "base.email",
+        "base.college_name"
+      ]
+    }
+  },
+  "output": {
+    "is_valid": true,
+    "error": null,
+    "rows": 3,
+    "result": [
+      {
+        "teacher_no": "T00079",
+        "real_name": "孔航",
+        "gender": "男",
+        "title": "教授",
+        "phone": "17399121655",
+        "email": "t00079@mock.edu.cn",
+        "college_name": "三峡科技MOCK大学经济与贸易学院"
+      },
+      {
+        "teacher_no": "T00295",
+        "real_name": "孔航",
+        "gender": "男",
+        "title": "讲师",
+        "phone": "17779812387",
+        "email": "t00295@mock.edu.cn",
+        "college_name": "三峡科技MOCK大学理学院"
+      },
+      {
+        "teacher_no": "T00516",
+        "real_name": "孔航",
+        "gender": "男",
+        "title": "讲师",
+        "phone": "13017130232",
+        "email": "t00516@mock.edu.cn",
+        "college_name": "三峡科技MOCK大学人文学院"
+      }
+    ],
+    "executed_sql": "WITH base AS (SELECT teacher.teacher_no, teacher.real_name, teacher.gender, teacher.title, teacher.phone, teacher.email, college.college_name FROM teacher JOIN college ON teacher.college_id = college.id WHERE teacher.real_name = '孔航' AND teacher.is_deleted = 0 AND college.is_deleted = 0) SELECT base.teacher_no, base.real_name, base.gender, base.title, base.phone, base.email, base.college_name FROM base",
+    "empty_result": false,
+    "zero_metric_result": false
+  }
+}

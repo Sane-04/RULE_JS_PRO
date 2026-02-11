@@ -5,25 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6c8e0914-6428-4a24-8e3e-eeee2006fd1f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.codex/AGENTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/.codex/AGENTS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DEV_PLAN.md" beforeDir="false" afterPath="$PROJECT_DIR$/DEV_PLAN.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/core/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/prompts/sql_generation_prompts.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/prompts/sql_generation_prompts.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/chat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers/importer.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/importer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/schemas/chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/chat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/chat_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/chat_graph.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/cockpit_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/cockpit_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/import_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/import_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/dist/assets/index-BD5BUXA6.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/dist/assets/index-t1xCy1Po.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/dist/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/dist/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/api/chat.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api/chat.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/styles/base.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/styles/base.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/ChatView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/ChatView.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/views/LoginView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/views/LoginView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -248,7 +230,7 @@
       <workItem from="1770600696894" duration="11413000" />
       <workItem from="1770688112303" duration="23420000" />
       <workItem from="1770728288012" duration="10801000" />
-      <workItem from="1770773797115" duration="14544000" />
+      <workItem from="1770773797115" duration="15153000" />
     </task>
     <servers />
   </component>

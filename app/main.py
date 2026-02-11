@@ -2,7 +2,9 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
 
+from app.db.session import SessionLocal
 from app.routers import admin, auth, chat, data, importer, metric, cockpit
 from app.schemas.response import ErrorResponse
 
@@ -17,6 +19,17 @@ def create_app() -> FastAPI:
     app.include_router(importer.router, tags=["import"])
     app.include_router(metric.router, tags=["metric"])
     app.include_router(cockpit.router, tags=["cockpit"])
+
+    @app.get("/healthz")
+    def healthz():
+        db = SessionLocal()
+        try:
+            db.execute(text("SELECT 1"))
+        except Exception as exc:
+            raise HTTPException(status_code=503, detail=f"Database unavailable: {exc.__class__.__name__}") from exc
+        finally:
+            db.close()
+        return {"status": "ok"}
 
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):

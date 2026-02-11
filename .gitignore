@@ -1,0 +1,33 @@
+# Sensitive env
+.env
+.env.*
+
+# Local agent/config files
+.codex/
+
+# IDE
+.idea/
+.vscode/
+
+# Python cache/artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Frontend deps/build
+frontend/node_modules/
+frontend/dist/
+
+# Local runtime logs/exports
+local_logs/
+
+# Temp/test data
+tmp_test_import/
+resp.json
+
+# OS junk
+.DS_Store
+Thumbs.db

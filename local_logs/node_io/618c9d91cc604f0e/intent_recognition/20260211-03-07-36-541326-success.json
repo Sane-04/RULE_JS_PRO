@@ -1,0 +1,22 @@
+{
+  "session_id": "618c9d91cc604f0e",
+  "admin_id": 2,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T03:07:36",
+  "input": {
+    "message": "1去问",
+    "history_user_messages": [],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "chat",
+    "is_followup": false,
+    "confidence": 0.95,
+    "merged_query": "我想去咨询相关问题。",
+    "rewritten_query": "我想去咨询相关问题。",
+    "threshold": 0.7
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "session_id": "f608b11d340b45ad",
+  "admin_id": 2,
+  "step_name": "result_return",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T03:07:07",
+  "input": {
+    "message": "会话",
+    "intent_result": {
+      "intent": "chat",
+      "is_followup": false,
+      "confidence": 0.95,
+      "merged_query": "你好，有什么可以帮助你的？",
+      "rewritten_query": "你好，有什么可以帮助你的？",
+      "threshold": 0.7
+    },
+    "parse_result": null,
+    "sql_result": null,
+    "sql_validate_result": null,
+    "hidden_context_result": null,
+    "hidden_context_retry_count": 0
+  },
+  "output": {
+    "session_id": "f608b11d340b45ad",
+    "intent": "chat",
+    "is_followup": false,
+    "merged_query": "你好，有什么可以帮助你的？",
+    "rewritten_query": "你好，有什么可以帮助你的？",
+    "skipped": true,
+    "reason": "intent_is_chat",
+    "final_status": "success",
+    "reason_code": "intent_is_chat",
+    "summary": "你好！我是教务查询助手，可以帮你查询课表、成绩、考试安排、学籍信息等。请告诉我你需要了解什么？",
+    "task": null,
+    "sql_result": null,
+    "sql_validate_result": null,
+    "hidden_context_result": null,
+    "hidden_context_retry_count": 0
+  }
+}

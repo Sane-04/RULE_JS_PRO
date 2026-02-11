@@ -16,256 +16,258 @@
         </div>
       </header>
 
-      <section class="card filter-panel">
-        <div class="filter-grid">
-          <div class="filter-field">
-            <label>学期</label>
-            <select v-model="filters.term">
-              <option value="">全部</option>
-              <option v-for="term in filterOptions.terms" :key="term" :value="term">
-                {{ term }}
-              </option>
-            </select>
+      <div class="page-body-scroll">
+        <section class="card filter-panel">
+          <div class="filter-grid">
+            <div class="filter-field">
+              <label>学期</label>
+              <select v-model="filters.term">
+                <option value="">全部</option>
+                <option v-for="term in filterOptions.terms" :key="term" :value="term">
+                  {{ term }}
+                </option>
+              </select>
+            </div>
+            <div class="filter-field">
+              <label>学院</label>
+              <select v-model="filters.college_id">
+                <option value="">全部</option>
+                <option v-for="item in filterOptions.colleges" :key="item.value" :value="String(item.value)">
+                  {{ item.label }}
+                </option>
+              </select>
+            </div>
+            <div class="filter-field">
+              <label>专业</label>
+              <select v-model="filters.major_id">
+                <option value="">全部</option>
+                <option v-for="item in filteredMajors" :key="item.value" :value="String(item.value)">
+                  {{ item.label }}
+                </option>
+              </select>
+            </div>
+            <div class="filter-field">
+              <label>年级</label>
+              <select v-model="filters.grade_year">
+                <option value="">全部</option>
+                <option v-for="item in filterOptions.grades" :key="item" :value="String(item)">
+                  {{ item }}
+                </option>
+              </select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn ghost" type="button" @click="applyFilters" :disabled="loading">
+                应用筛选
+              </button>
+              <button class="btn ghost" type="button" @click="resetFilters" :disabled="loading">
+                重置
+              </button>
+            </div>
           </div>
-          <div class="filter-field">
-            <label>学院</label>
-            <select v-model="filters.college_id">
-              <option value="">全部</option>
-              <option v-for="item in filterOptions.colleges" :key="item.value" :value="String(item.value)">
-                {{ item.label }}
-              </option>
-            </select>
-          </div>
-          <div class="filter-field">
-            <label>专业</label>
-            <select v-model="filters.major_id">
-              <option value="">全部</option>
-              <option v-for="item in filteredMajors" :key="item.value" :value="String(item.value)">
-                {{ item.label }}
-              </option>
-            </select>
-          </div>
-          <div class="filter-field">
-            <label>年级</label>
-            <select v-model="filters.grade_year">
-              <option value="">全部</option>
-              <option v-for="item in filterOptions.grades" :key="item" :value="String(item)">
-                {{ item }}
-              </option>
-            </select>
-          </div>
-          <div class="filter-actions">
-            <button class="btn ghost" type="button" @click="applyFilters" :disabled="loading">
-              应用筛选
-            </button>
-            <button class="btn ghost" type="button" @click="resetFilters" :disabled="loading">
-              重置
-            </button>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="cockpit-grid">
-        <div
-          class="card metric-card"
-          v-for="card in cards"
-          :key="card.code"
-          :style="{ '--metric-accent': metricAccent(card.code) }"
-        >
-          <div class="metric-info">
-            <p class="metric-name">{{ card.name }}</p>
-            <p class="metric-value">{{ formatValue(card) }}</p>
-            <span class="metric-tag">{{ card.code }}</span>
-          </div>
+        <section class="cockpit-grid">
           <div
-            class="metric-icon"
-            :style="{
-              background: metricSoft(card.code),
-              color: metricAccent(card.code),
-            }"
+            class="card metric-card"
+            v-for="card in cards"
+            :key="card.code"
+            :style="{ '--metric-accent': metricAccent(card.code) }"
           >
-            {{ metricIcon(card.code) }}
+            <div class="metric-info">
+              <p class="metric-name">{{ card.name }}</p>
+              <p class="metric-value">{{ formatValue(card) }}</p>
+              <span class="metric-tag">{{ card.code }}</span>
+            </div>
+            <div
+              class="metric-icon"
+              :style="{
+                background: metricSoft(card.code),
+                color: metricAccent(card.code),
+              }"
+            >
+              {{ metricIcon(card.code) }}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="cockpit-row">
-        <div class="card trend-card">
-          <div class="card-head">
-            <div>
-              <p class="table-title">趋势对比</p>
-              <p class="table-sub">近 6 个月出勤率</p>
-            </div>
-          </div>
-          <div v-if="loading" class="table-state">正在加载趋势...</div>
-          <div v-else class="trend-chart">
-            <div class="trend-plot">
-              <div class="trend-ylabels">
-                <span>100%</span>
-                <span>90%</span>
-                <span>80%</span>
-                <span>70%</span>
-                <span>60%</span>
-              </div>
-              <svg viewBox="0 0 320 140" preserveAspectRatio="none" role="img" aria-label="trend">
-                <g class="trend-yaxis">
-                  <line x1="10" y1="30" x2="310" y2="30" stroke="#e5e7eb" stroke-width="1" />
-                  <line x1="10" y1="52.5" x2="310" y2="52.5" stroke="#e5e7eb" stroke-width="1" />
-                  <line x1="10" y1="75" x2="310" y2="75" stroke="#e5e7eb" stroke-width="1" />
-                  <line x1="10" y1="97.5" x2="310" y2="97.5" stroke="#e5e7eb" stroke-width="1" />
-                  <line x1="10" y1="120" x2="310" y2="120" stroke="#e5e7eb" stroke-width="1" />
-                </g>
-                <polyline :points="trendLine(attendance)" fill="none" stroke="#1f7a8c" stroke-width="3" />
-              </svg>
-            </div>
-            <div class="trend-legend">
-              <span><i class="legend-dot teal"></i>出勤率</span>
-            </div>
-            <div class="trend-axis" :style="{ gridTemplateColumns: `repeat(${Math.max(trends.length, 1)}, 1fr)` }">
-              <span v-for="item in trends" :key="item.date">{{ item.date.slice(5) }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="card dist-card">
-          <div class="card-head">
-            <div>
-              <p class="table-title">结构分布</p>
-              <p class="table-sub">学院规模与成绩段分布</p>
-            </div>
-            <div class="tab-group">
-              <button
-                class="tab-btn"
-                :class="{ active: distTab === 'college' }"
-                type="button"
-                @click="distTab = 'college'"
-              >
-                College Scale
-              </button>
-              <button
-                class="tab-btn"
-                :class="{ active: distTab === 'score' }"
-                type="button"
-                @click="distTab = 'score'"
-              >
-                Grade Dist.
-              </button>
-            </div>
-          </div>
-          <div v-if="distTab === 'college'" class="bar-chart">
-            <div v-if="distributions.college_students.length === 0" class="table-state">No data</div>
-            <div v-else class="bar-list">
-              <div v-for="item in distributions.college_students" :key="item.name" class="bar-row">
-                <span class="bar-label" :title="item.name">{{ item.name }}</span>
-                <div class="bar-track">
-                  <span class="bar-fill" :style="{ width: calcBar(item.value, collegeMax) }"></span>
-                </div>
-                <span class="bar-value">{{ formatNumber(item.value) }}</span>
-              </div>
-            </div>
-          </div>
-          <div v-else class="donut-wrap">
-            <div v-if="scoreTotal === 0" class="table-state">No data</div>
-            <div v-else class="donut-layout">
-              <svg class="donut-chart" viewBox="0 0 120 120" role="img" aria-label="score">
-                <g transform="rotate(-90 60 60)">
-                  <circle
-                    v-for="segment in scoreSegments"
-                    :key="segment.name"
-                    cx="60"
-                    cy="60"
-                    r="42"
-                    fill="none"
-                    :stroke="segment.color"
-                    stroke-width="12"
-                    :stroke-dasharray="segment.dasharray"
-                    :stroke-dashoffset="segment.dashoffset"
-                    stroke-linecap="round"
-                  />
-                </g>
-              </svg>
-              <div class="donut-legend">
-                <div v-for="segment in scoreSegments" :key="segment.name" class="legend-item">
-                  <span class="legend-dot" :style="{ background: segment.color }"></span>
-                  <span class="legend-name">{{ segment.name }}</span>
-                  <span class="legend-value">{{ formatNumber(segment.value) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="cockpit-row">
-        <div class="card rank-card">
-          <div class="card-head">
-            <div>
-              <p class="table-title">风险榜单</p>
-              <p class="table-sub">挂科率与缺勤率 Top</p>
-            </div>
-            <button class="btn ghost" type="button" @click="goToData('course')">查看课程</button>
-          </div>
-          <div class="rank-grid">
-            <div>
-              <p class="rank-title">课程挂科率</p>
-              <ol class="rank-list">
-                <li v-for="(item, index) in sortedCourseFailRate" :key="item.name" class="rank-item">
-                  <span class="rank-badge" :class="rankClass(index)" :style="rankBadgeStyle(index)">{{ index + 1 }}</span>
-                  <div class="rank-body">
-                    <span class="rank-name">{{ item.name }}</span>
-                    <div class="rank-progress">
-                      <span class="rank-value">{{ toPercent(item.value) }}</span>
-                      <div class="mini-progress">
-                        <span class="mini-bar" :class="riskBarClass(item.value)" :style="{ width: toPercent(item.value) }"></span>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              </ol>
-            </div>
-            <div>
-              <p class="rank-title">班级缺勤率</p>
-              <ol class="rank-list">
-                <li v-for="(item, index) in sortedClassAbsentRate" :key="item.name" class="rank-item">
-                  <span class="rank-badge" :class="rankClass(index)" :style="rankBadgeStyle(index)">{{ index + 1 }}</span>
-                  <div class="rank-body">
-                    <span class="rank-name">{{ item.name }}</span>
-                    <div class="rank-progress">
-                      <span class="rank-value">{{ toPercent(item.value) }}</span>
-                      <div class="mini-progress">
-                        <span class="mini-bar" :class="riskBarClass(item.value)" :style="{ width: toPercent(item.value) }"></span>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        <div class="card alert-card">
-          <div class="card-head">
-            <div>
-              <p class="table-title">高风险学生</p>
-              <p class="table-sub">挂科累计提醒</p>
-            </div>
-            <button class="btn ghost" type="button" @click="goToData('student')">查看学生</button>
-          </div>
-          <div v-if="loading" class="table-state">正在加载风险清单...</div>
-          <div v-else-if="risks.length === 0" class="table-state">暂无风险</div>
-          <ul v-else class="alert-list">
-            <li v-for="item in risks" :key="item.title" class="alert-item">
-              <span class="alert-level">{{ item.level }}</span>
+        <section class="cockpit-row">
+          <div class="card trend-card">
+            <div class="card-head">
               <div>
-                <p>{{ item.title }}</p>
-                <small>{{ item.message }}</small>
+                <p class="table-title">趋势对比</p>
+                <p class="table-sub">近 6 个月出勤率</p>
               </div>
-            </li>
-          </ul>
-        </div>
-      </section>
+            </div>
+            <div v-if="loading" class="table-state">正在加载趋势...</div>
+            <div v-else class="trend-chart">
+              <div class="trend-plot">
+                <div class="trend-ylabels">
+                  <span>100%</span>
+                  <span>90%</span>
+                  <span>80%</span>
+                  <span>70%</span>
+                  <span>60%</span>
+                </div>
+                <svg viewBox="0 0 320 140" preserveAspectRatio="none" role="img" aria-label="trend">
+                  <g class="trend-yaxis">
+                    <line x1="10" y1="30" x2="310" y2="30" stroke="#e5e7eb" stroke-width="1" />
+                    <line x1="10" y1="52.5" x2="310" y2="52.5" stroke="#e5e7eb" stroke-width="1" />
+                    <line x1="10" y1="75" x2="310" y2="75" stroke="#e5e7eb" stroke-width="1" />
+                    <line x1="10" y1="97.5" x2="310" y2="97.5" stroke="#e5e7eb" stroke-width="1" />
+                    <line x1="10" y1="120" x2="310" y2="120" stroke="#e5e7eb" stroke-width="1" />
+                  </g>
+                  <polyline :points="trendLine(attendance)" fill="none" stroke="#1f7a8c" stroke-width="3" />
+                </svg>
+              </div>
+              <div class="trend-legend">
+                <span><i class="legend-dot teal"></i>出勤率</span>
+              </div>
+              <div class="trend-axis" :style="{ gridTemplateColumns: `repeat(${Math.max(trends.length, 1)}, 1fr)` }">
+                <span v-for="item in trends" :key="item.date">{{ item.date.slice(5) }}</span>
+              </div>
+            </div>
+          </div>
 
-      <p v-if="error" class="error-text">{{ error }}</p>
+          <div class="card dist-card">
+            <div class="card-head">
+              <div>
+                <p class="table-title">结构分布</p>
+                <p class="table-sub">学院规模与成绩段分布</p>
+              </div>
+              <div class="tab-group">
+                <button
+                  class="tab-btn"
+                  :class="{ active: distTab === 'college' }"
+                  type="button"
+                  @click="distTab = 'college'"
+                >
+                  College Scale
+                </button>
+                <button
+                  class="tab-btn"
+                  :class="{ active: distTab === 'score' }"
+                  type="button"
+                  @click="distTab = 'score'"
+                >
+                  Grade Dist.
+                </button>
+              </div>
+            </div>
+            <div v-if="distTab === 'college'" class="bar-chart">
+              <div v-if="distributions.college_students.length === 0" class="table-state">No data</div>
+              <div v-else class="bar-list">
+                <div v-for="item in distributions.college_students" :key="item.name" class="bar-row">
+                  <span class="bar-label" :title="item.name">{{ item.name }}</span>
+                  <div class="bar-track">
+                    <span class="bar-fill" :style="{ width: calcBar(item.value, collegeMax) }"></span>
+                  </div>
+                  <span class="bar-value">{{ formatNumber(item.value) }}</span>
+                </div>
+              </div>
+            </div>
+            <div v-else class="donut-wrap">
+              <div v-if="scoreTotal === 0" class="table-state">No data</div>
+              <div v-else class="donut-layout">
+                <svg class="donut-chart" viewBox="0 0 120 120" role="img" aria-label="score">
+                  <g transform="rotate(-90 60 60)">
+                    <circle
+                      v-for="segment in scoreSegments"
+                      :key="segment.name"
+                      cx="60"
+                      cy="60"
+                      r="42"
+                      fill="none"
+                      :stroke="segment.color"
+                      stroke-width="12"
+                      :stroke-dasharray="segment.dasharray"
+                      :stroke-dashoffset="segment.dashoffset"
+                      stroke-linecap="round"
+                    />
+                  </g>
+                </svg>
+                <div class="donut-legend">
+                  <div v-for="segment in scoreSegments" :key="segment.name" class="legend-item">
+                    <span class="legend-dot" :style="{ background: segment.color }"></span>
+                    <span class="legend-name">{{ segment.name }}</span>
+                    <span class="legend-value">{{ formatNumber(segment.value) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="cockpit-row">
+          <div class="card rank-card">
+            <div class="card-head">
+              <div>
+                <p class="table-title">风险榜单</p>
+                <p class="table-sub">挂科率与缺勤率 Top</p>
+              </div>
+              <button class="btn ghost" type="button" @click="goToData('course')">查看课程</button>
+            </div>
+            <div class="rank-grid">
+              <div>
+                <p class="rank-title">课程挂科率</p>
+                <ol class="rank-list">
+                  <li v-for="(item, index) in sortedCourseFailRate" :key="item.name" class="rank-item">
+                    <span class="rank-badge" :class="rankClass(index)" :style="rankBadgeStyle(index)">{{ index + 1 }}</span>
+                    <div class="rank-body">
+                      <span class="rank-name">{{ item.name }}</span>
+                      <div class="rank-progress">
+                        <span class="rank-value">{{ toPercent(item.value) }}</span>
+                        <div class="mini-progress">
+                          <span class="mini-bar" :class="riskBarClass(item.value)" :style="{ width: toPercent(item.value) }"></span>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+              <div>
+                <p class="rank-title">班级缺勤率</p>
+                <ol class="rank-list">
+                  <li v-for="(item, index) in sortedClassAbsentRate" :key="item.name" class="rank-item">
+                    <span class="rank-badge" :class="rankClass(index)" :style="rankBadgeStyle(index)">{{ index + 1 }}</span>
+                    <div class="rank-body">
+                      <span class="rank-name">{{ item.name }}</span>
+                      <div class="rank-progress">
+                        <span class="rank-value">{{ toPercent(item.value) }}</span>
+                        <div class="mini-progress">
+                          <span class="mini-bar" :class="riskBarClass(item.value)" :style="{ width: toPercent(item.value) }"></span>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <div class="card alert-card">
+            <div class="card-head">
+              <div>
+                <p class="table-title">高风险学生</p>
+                <p class="table-sub">挂科累计提醒</p>
+              </div>
+              <button class="btn ghost" type="button" @click="goToData('student')">查看学生</button>
+            </div>
+            <div v-if="loading" class="table-state">正在加载风险清单...</div>
+            <div v-else-if="risks.length === 0" class="table-state">暂无风险</div>
+            <ul v-else class="alert-list">
+              <li v-for="item in risks" :key="item.title" class="alert-item">
+                <span class="alert-level">{{ item.level }}</span>
+                <div>
+                  <p>{{ item.title }}</p>
+                  <small>{{ item.message }}</small>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <p v-if="error" class="error-text">{{ error }}</p>
+      </div>
     </section>
   </AppLayout>
 </template>

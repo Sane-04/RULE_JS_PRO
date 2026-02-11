@@ -1,0 +1,41 @@
+{
+  "session_id": "9a66d219eb854d5c",
+  "admin_id": 2,
+  "step_name": "result_return",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T03:07:23",
+  "input": {
+    "message": "去晚",
+    "intent_result": {
+      "intent": "chat",
+      "is_followup": false,
+      "confidence": 0.85,
+      "merged_query": "我来晚了。",
+      "rewritten_query": "我来晚了。",
+      "threshold": 0.7
+    },
+    "parse_result": null,
+    "sql_result": null,
+    "sql_validate_result": null,
+    "hidden_context_result": null,
+    "hidden_context_retry_count": 0
+  },
+  "output": {
+    "session_id": "9a66d219eb854d5c",
+    "intent": "chat",
+    "is_followup": false,
+    "merged_query": "我来晚了。",
+    "rewritten_query": "我来晚了。",
+    "skipped": true,
+    "reason": "intent_is_chat",
+    "final_status": "success",
+    "reason_code": "intent_is_chat",
+    "summary": "您来晚了，如有需要办理的教务事项，请尽快联系教务处或查看相关通知。",
+    "task": null,
+    "sql_result": null,
+    "sql_validate_result": null,
+    "hidden_context_result": null,
+    "hidden_context_retry_count": 0
+  }
+}

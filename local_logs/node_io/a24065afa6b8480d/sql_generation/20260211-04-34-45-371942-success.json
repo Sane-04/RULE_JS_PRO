@@ -1,0 +1,89 @@
+{
+  "session_id": "a24065afa6b8480d",
+  "admin_id": 2,
+  "step_name": "sql_generation",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T04:34:45",
+  "input": {
+    "rewritten_query": "在22级学生中，女生里有多少人是软件工程专业的？",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "grade",
+          "value": "22级"
+        },
+        {
+          "type": "gender",
+          "value": "女生"
+        },
+        {
+          "type": "major",
+          "value": "软件工程"
+        }
+      ],
+      "dimensions": [],
+      "metrics": [
+        "count"
+      ],
+      "filters": [
+        {
+          "field": "student.enroll_year",
+          "op": "=",
+          "value": 2022
+        },
+        {
+          "field": "student.gender",
+          "op": "=",
+          "value": "女"
+        },
+        {
+          "field": "major.major_name",
+          "op": "=",
+          "value": "软件工程"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.95
+    },
+    "hidden_context_result": null
+  },
+  "output": {
+    "sql": "WITH base AS (SELECT student.id FROM student JOIN major ON student.major_id = major.id WHERE student.enroll_year = 2022 AND student.gender = '女' AND major.major_name = '软件工程' AND student.is_deleted = 0 AND major.is_deleted = 0) SELECT COUNT(*) AS count FROM base",
+    "entity_mappings": [
+      {
+        "type": "grade",
+        "value": "22级",
+        "field": "student.enroll_year",
+        "reason": "根据字段描述“入学年份（常见问法：22级）”映射，22级对应入学年份2022"
+      },
+      {
+        "type": "gender",
+        "value": "女生",
+        "field": "student.gender",
+        "reason": "根据字段描述“性别（男/女等）”映射，女生对应值为'女'"
+      },
+      {
+        "type": "major",
+        "value": "软件工程",
+        "field": "major.major_name",
+        "reason": "根据字段描述“专业名称，专业实体映射主字段”映射，原文“软件工程”与major.major_name语义完全一致"
+      }
+    ],
+    "sql_fields": [
+      "student.id",
+      "student.major_id",
+      "major.id",
+      "student.enroll_year",
+      "student.gender",
+      "major.major_name",
+      "student.is_deleted",
+      "major.is_deleted"
+    ]
+  }
+}

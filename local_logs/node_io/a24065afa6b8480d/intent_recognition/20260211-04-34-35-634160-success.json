@@ -1,0 +1,25 @@
+{
+  "session_id": "a24065afa6b8480d",
+  "admin_id": 2,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T04:34:35",
+  "input": {
+    "message": "这些女生中有多少人是软件工程专业的？",
+    "history_user_messages": [
+      "查询22级学生人数",
+      "其中女生多少人？"
+    ],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "business_query",
+    "is_followup": true,
+    "confidence": 0.95,
+    "merged_query": "在22级学生中，女生里有多少人是软件工程专业的？",
+    "rewritten_query": "在22级学生中，女生里有多少人是软件工程专业的？",
+    "threshold": 0.7
+  }
+}

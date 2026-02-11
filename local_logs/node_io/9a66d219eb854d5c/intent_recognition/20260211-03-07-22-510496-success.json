@@ -1,0 +1,22 @@
+{
+  "session_id": "9a66d219eb854d5c",
+  "admin_id": 2,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T03:07:22",
+  "input": {
+    "message": "去晚",
+    "history_user_messages": [],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "chat",
+    "is_followup": false,
+    "confidence": 0.85,
+    "merged_query": "我来晚了。",
+    "rewritten_query": "我来晚了。",
+    "threshold": 0.7
+  }
+}

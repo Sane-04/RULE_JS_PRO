@@ -100,3 +100,16 @@ class ChatParseResponse(BaseModel):
     code: int = 0
     message: str = "ok"
     data: ChatParseData
+
+
+class ChatSessionItem(BaseModel):
+    session_id: str = Field(..., description="会话 ID")
+    preview: str = Field(default="", description="会话预览（第一条用户问题，截断展示）")
+    last_active_at: str = Field(..., description="最后活跃时间")
+
+
+class ChatSessionMessageItem(BaseModel):
+    id: int = Field(..., description="消息 ID")
+    role: Literal["user", "assistant"] = Field(..., description="消息角色")
+    content: str = Field(..., description="消息内容")
+    created_at: str = Field(..., description="消息创建时间")

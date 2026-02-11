@@ -1,0 +1,24 @@
+{
+  "session_id": "f608b11d340b45ad",
+  "admin_id": 2,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T03:07:14",
+  "input": {
+    "message": "阿萨",
+    "history_user_messages": [
+      "会话"
+    ],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "chat",
+    "is_followup": false,
+    "confidence": 0.95,
+    "merged_query": "阿萨",
+    "rewritten_query": "阿萨",
+    "threshold": 0.7
+  }
+}

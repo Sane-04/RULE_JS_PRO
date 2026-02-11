@@ -84,7 +84,56 @@ export type ChatResponse = {
   data: ChatData;
 };
 
+export type ChatListMeta = {
+  offset: number;
+  limit: number;
+  total: number;
+};
+
+export type ChatSessionItem = {
+  session_id: string;
+  preview: string;
+  last_active_at: string;
+};
+
+export type ChatSessionMessageItem = {
+  id: number;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+};
+
+export type ChatSessionListResponse = {
+  code: number;
+  message: string;
+  data: ChatSessionItem[];
+  meta: ChatListMeta;
+};
+
+export type ChatSessionMessageListResponse = {
+  code: number;
+  message: string;
+  data: ChatSessionMessageItem[];
+  meta: ChatListMeta;
+};
+
 export async function postChat(payload: ChatRequest): Promise<ChatResponse> {
   const response = await api.post<ChatResponse>("/chat", payload);
+  return response.data;
+}
+
+export async function getChatSessions(params: {
+  offset: number;
+  limit: number;
+}): Promise<ChatSessionListResponse> {
+  const response = await api.get<ChatSessionListResponse>("/chat/sessions", { params });
+  return response.data;
+}
+
+export async function getChatSessionMessages(
+  sessionId: string,
+  params: { offset: number; limit: number }
+): Promise<ChatSessionMessageListResponse> {
+  const response = await api.get<ChatSessionMessageListResponse>(`/chat/sessions/${sessionId}/messages`, { params });
   return response.data;
 }

@@ -1,0 +1,46 @@
+{
+  "session_id": "a24065afa6b8480d",
+  "admin_id": 2,
+  "step_name": "sql_validate",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T04:34:10",
+  "input": {
+    "sql_result": {
+      "sql": "WITH base AS (SELECT student.id FROM student WHERE student.enroll_year = 2022 AND student.gender = '女' AND student.is_deleted = 0) SELECT COUNT(*) AS count FROM base",
+      "entity_mappings": [
+        {
+          "type": "grade",
+          "value": "22级",
+          "field": "student.enroll_year",
+          "reason": "根据字段描述“入学年份（常见问法：22级）”映射，22级对应入学年份2022"
+        },
+        {
+          "type": "gender",
+          "value": "女生",
+          "field": "student.gender",
+          "reason": "根据字段描述“性别（男/女等）”映射，女生对应值为'女'"
+        }
+      ],
+      "sql_fields": [
+        "student.id",
+        "student.enroll_year",
+        "student.gender",
+        "student.is_deleted"
+      ]
+    }
+  },
+  "output": {
+    "is_valid": true,
+    "error": null,
+    "rows": 1,
+    "result": [
+      {
+        "count": 2798
+      }
+    ],
+    "executed_sql": "WITH base AS (SELECT student.id FROM student WHERE student.enroll_year = 2022 AND student.gender = '女' AND student.is_deleted = 0) SELECT COUNT(*) AS count FROM base",
+    "empty_result": false,
+    "zero_metric_result": false
+  }
+}

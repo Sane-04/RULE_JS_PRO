@@ -14,7 +14,8 @@
         </div>
       </header>
 
-      <section class="card filter-card">
+      <div class="page-body-scroll">
+        <section class="card filter-card">
         <div class="filter-row">
           <div class="filter-group">
             <span class="filter-label">数据表</span>
@@ -61,9 +62,9 @@
           </div>
           <button class="btn ghost" type="button" @click="addFilter">添加条件</button>
         </div>
-      </section>
+        </section>
 
-      <section class="card">
+        <section class="card">
         <div class="table-meta">
           <div>
             <p class="table-title">{{ currentTable.label }}列表</p>
@@ -121,7 +122,8 @@
           @page-change="handlePageChange"
           @page-size-change="handlePageSizeChange"
         />
-      </section>
+        </section>
+      </div>
     </section>
 
     <DataFormModal

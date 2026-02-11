@@ -1,0 +1,70 @@
+{
+  "session_id": "a24065afa6b8480d",
+  "admin_id": 2,
+  "step_name": "sql_generation",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-11T04:34:10",
+  "input": {
+    "rewritten_query": "查询22级学生人数，其中女生多少人？",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "grade",
+          "value": "22级"
+        },
+        {
+          "type": "gender",
+          "value": "女生"
+        }
+      ],
+      "dimensions": [],
+      "metrics": [
+        "count"
+      ],
+      "filters": [
+        {
+          "field": "student.enroll_year",
+          "op": "=",
+          "value": 2022
+        },
+        {
+          "field": "student.gender",
+          "op": "=",
+          "value": "女"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.95
+    },
+    "hidden_context_result": null
+  },
+  "output": {
+    "sql": "WITH base AS (SELECT student.id FROM student WHERE student.enroll_year = 2022 AND student.gender = '女' AND student.is_deleted = 0) SELECT COUNT(*) AS count FROM base",
+    "entity_mappings": [
+      {
+        "type": "grade",
+        "value": "22级",
+        "field": "student.enroll_year",
+        "reason": "根据字段描述“入学年份（常见问法：22级）”映射，22级对应入学年份2022"
+      },
+      {
+        "type": "gender",
+        "value": "女生",
+        "field": "student.gender",
+        "reason": "根据字段描述“性别（男/女等）”映射，女生对应值为'女'"
+      }
+    ],
+    "sql_fields": [
+      "student.id",
+      "student.enroll_year",
+      "student.gender",
+      "student.is_deleted"
+    ]
+  }
+}

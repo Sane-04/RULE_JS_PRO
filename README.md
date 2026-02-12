@@ -34,6 +34,7 @@
 ### 3.2 数据管理
 
 - 通用数据接口（分页、过滤、搜索、排序、软删除）
+- 高级筛选支持 `*_id` 字段的编码/名称自动映射（如 `major_id=M001` 会自动映射到对应数值 ID）
 - 学生成绩明细查询
 - 多业务表切换管理
 
@@ -54,6 +55,7 @@
 
 - `POST /api/chat`
 - `POST /api/chat/stream`（SSE）
+- `sql_generation` 节点支持独立模型配置（默认 `qwen3-coder-plus`）
 - 工作流节点：
   - `intent_recognition`
   - `task_parse`
@@ -75,11 +77,12 @@ deploy/nginx/   Nginx 反向代理配置
 
 ## 5. 环境变量
 
-参考 `.env.example`，至少需要：
+参考项目根目录 `.env`（如自行抽离可复制为 `.env.example`），至少需要：
 
 - `DB_HOST` `DB_PORT` `DB_USER` `DB_PASSWORD` `DB_NAME`
 - `JWT_SECRET` `JWT_ALGORITHM`
 - `LLM_API_KEY` `LLM_BASE_URL` `LLM_MODEL_INTENT`
+- `LLM_MODEL_SQL_GENERATION`（仅 SQL 生成节点，默认 `qwen3-coder-plus`）
 - `CHAT_STREAM_MODE`
 
 ## 6. 部署与运维

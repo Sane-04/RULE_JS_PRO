@@ -1,0 +1,36 @@
+{
+  "session_id": "05ad6a90c603456d",
+  "admin_id": 1,
+  "step_name": "sql_generation",
+  "status": "failed",
+  "error_message": "SQL 包含非白名单字段: ['score.enroll_id']",
+  "timestamp": "2026-02-12T17:06:15",
+  "input": {
+    "rewritten_query": "对比各年级最近一次考试的表现",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [],
+      "dimensions": [
+        "class.grade_year"
+      ],
+      "metrics": [
+        "AVG(score.score_value)"
+      ],
+      "filters": [
+        {
+          "field": "score.term",
+          "op": "=",
+          "value": "(SELECT MAX(term) FROM score)"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.85
+    },
+    "hidden_context_result": null
+  },
+  "output": null
+}

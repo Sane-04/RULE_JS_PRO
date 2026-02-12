@@ -1,0 +1,22 @@
+{
+  "session_id": "108516c095784262",
+  "admin_id": 1,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-12T17:44:39",
+  "input": {
+    "message": "对比各年级最近一次考试表现",
+    "history_user_messages": [],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "business_query",
+    "is_followup": false,
+    "confidence": 0.95,
+    "merged_query": "对比各年级最近一次考试的表现",
+    "rewritten_query": "对比各年级最近一次考试的表现",
+    "threshold": 0.7
+  }
+}

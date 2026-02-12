@@ -1,0 +1,51 @@
+{
+  "session_id": "9e0a62c8a1a14615",
+  "admin_id": 1,
+  "step_name": "task_parse",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-12T18:10:15",
+  "input": {
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": false,
+      "confidence": 0.95,
+      "merged_query": "对比各年级最近一次考试的表现",
+      "rewritten_query": "对比各年级最近一次考试的表现",
+      "threshold": 0.7
+    }
+  },
+  "output": {
+    "intent": "business_query",
+    "entities": [],
+    "dimensions": [
+      "class.grade_year"
+    ],
+    "metrics": [
+      "avg(score.score_value)"
+    ],
+    "filters": [
+      {
+        "field": "score.is_deleted",
+        "op": "=",
+        "value": false
+      },
+      {
+        "field": "student.is_deleted",
+        "op": "=",
+        "value": false
+      },
+      {
+        "field": "class.is_deleted",
+        "op": "=",
+        "value": false
+      }
+    ],
+    "time_range": {
+      "start": null,
+      "end": null
+    },
+    "operation": "aggregate",
+    "confidence": 0.85
+  }
+}

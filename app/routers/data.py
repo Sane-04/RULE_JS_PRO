@@ -1,5 +1,6 @@
 ﻿from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request
 from fastapi.encoders import jsonable_encoder
+from datetime import date, datetime
 from sqlalchemy import asc, desc, or_
 from sqlalchemy.orm import Session
 
@@ -35,11 +36,64 @@ TABLE_MAP = {
 
 RESERVED_PARAMS = {"offset", "limit", "sort_by", "sort_dir", "only_deleted", "q"}
 
+FK_FILTER_RESOLVERS = {
+    "major_id": {"model": Major, "code_fields": ["major_code"], "name_fields": ["major_name"]},
+    "college_id": {"model": College, "code_fields": ["college_code"], "name_fields": ["college_name"]},
+    "class_id": {"model": ClassModel, "code_fields": ["class_code"], "name_fields": ["class_name"]},
+    "head_teacher_id": {"model": Teacher, "code_fields": ["teacher_no"], "name_fields": ["real_name"]},
+    "teacher_id": {"model": Teacher, "code_fields": ["teacher_no"], "name_fields": ["real_name"]},
+    "course_id": {"model": Course, "code_fields": ["course_code"], "name_fields": ["course_name"]},
+    "student_id": {"model": Student, "code_fields": ["student_no"], "name_fields": ["real_name"]},
+}
+
 
 def get_table(name: str) -> dict:
     if name not in TABLE_MAP:
         raise HTTPException(status_code=404, detail="Unknown table")
     return TABLE_MAP[name]
+
+
+def resolve_foreign_key_value(db: Session, key: str, value: str) -> tuple[bool, int | None]:
+    """尝试把 *_id 的业务编码/名称转换为真正的数值 ID。"""
+    resolver = FK_FILTER_RESOLVERS.get(key)
+    if not resolver:
+        return False, None
+
+    if not isinstance(value, str):
+        return True, None
+    lookup_text = value.strip()
+    if not lookup_text:
+        return True, None
+
+    ref_model = resolver["model"]
+    code_fields = resolver.get("code_fields", [])
+    name_fields = resolver.get("name_fields", [])
+
+    for field_name in code_fields:
+        if not hasattr(ref_model, field_name):
+            continue
+        row = (
+            db.query(ref_model.id)
+            .filter(getattr(ref_model, field_name) == lookup_text, ref_model.is_deleted == False)
+            .order_by(ref_model.id.asc())
+            .first()
+        )
+        if row:
+            return True, int(row[0])
+
+    for field_name in name_fields:
+        if not hasattr(ref_model, field_name):
+            continue
+        row = (
+            db.query(ref_model.id)
+            .filter(getattr(ref_model, field_name) == lookup_text, ref_model.is_deleted == False)
+            .order_by(ref_model.id.asc())
+            .first()
+        )
+        if row:
+            return True, int(row[0])
+
+    return True, None
 
 
 def cast_value(model, key: str, value: str):
@@ -53,15 +107,56 @@ def cast_value(model, key: str, value: str):
         # 其他预料之外的错误（如模型配置错误）依然可以记录或抛出
         raise e
 
+    normalized_value = value.strip() if isinstance(value, str) else value
+    if normalized_value == "":
+        return None
+
     if python_type is bool:
-        return value.lower() in {"1", "true", "yes"}
+        value_text = str(normalized_value).strip().lower()
+        if value_text in {"1", "true", "yes", "on"}:
+            return True
+        if value_text in {"0", "false", "no", "off"}:
+            return False
+        raise HTTPException(status_code=400, detail=f"Invalid filter value for {key}")
+
+    if python_type is int:
+        value_text = str(normalized_value).strip()
+        try:
+            return int(value_text)
+        except Exception:
+            try:
+                float_value = float(value_text)
+                if float_value.is_integer():
+                    return int(float_value)
+            except Exception:
+                pass
+        raise HTTPException(status_code=400, detail=f"Invalid filter value for {key}")
+
+    if python_type is float:
+        try:
+            return float(str(normalized_value).strip())
+        except Exception:
+            raise HTTPException(status_code=400, detail=f"Invalid filter value for {key}")
+
+    if python_type is date:
+        try:
+            return date.fromisoformat(str(normalized_value).strip())
+        except Exception:
+            raise HTTPException(status_code=400, detail=f"Invalid filter value for {key}")
+
+    if python_type is datetime:
+        try:
+            return datetime.fromisoformat(str(normalized_value).strip())
+        except Exception:
+            raise HTTPException(status_code=400, detail=f"Invalid filter value for {key}")
+
     try:
-        return python_type(value)
+        return python_type(normalized_value)
     except Exception:
         raise HTTPException(status_code=400, detail=f"Invalid filter value for {key}")
 
 
-def apply_filters(query, model, params: dict, only_deleted: bool):
+def apply_filters(query, model, params: dict, only_deleted: bool, db: Session):
     if only_deleted:
         query = query.filter(model.is_deleted == True)
     else:
@@ -69,7 +164,17 @@ def apply_filters(query, model, params: dict, only_deleted: bool):
 
     for key, value in params.items():
         if hasattr(model, key) and value is not None:
-            query = query.filter(getattr(model, key) == cast_value(model, key, value))
+            try:
+                casted_value = cast_value(model, key, value)
+            except HTTPException:
+                resolved, resolved_value = resolve_foreign_key_value(db, key, value)
+                if not resolved:
+                    raise
+                # 解析失败时使用不可能命中的 ID，返回空结果而非 400。
+                casted_value = -1 if resolved_value is None else resolved_value
+            if casted_value is None:
+                continue
+            query = query.filter(getattr(model, key) == casted_value)
     return query
 
 
@@ -126,7 +231,7 @@ def list_items(
 
     params = {k: v for k, v in request.query_params.items() if k not in RESERVED_PARAMS}
     query = db.query(model)
-    query = apply_filters(query, model, params, only_deleted)
+    query = apply_filters(query, model, params, only_deleted, db)
     query = apply_search(query, model, q)
     total = query.count()
     query = apply_sort(query, model, sort_by, sort_dir)

@@ -1,0 +1,553 @@
+{
+  "session_id": "3b725954a6a44bd1",
+  "admin_id": 1,
+  "step_name": "result_return",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-12T17:53:16",
+  "input": {
+    "message": "对比各年级最近一次考试表现",
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": false,
+      "confidence": 0.95,
+      "merged_query": "对比各年级最近一次考试的表现",
+      "rewritten_query": "对比各年级最近一次考试的表现",
+      "threshold": 0.7
+    },
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [],
+      "dimensions": [
+        "class.grade_year"
+      ],
+      "metrics": [
+        "avg(score.score_value)"
+      ],
+      "filters": [
+        {
+          "field": "score.term",
+          "op": "=",
+          "value": "最近一次"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.85
+    },
+    "sql_result": {
+      "sql": "WITH latest_term AS (SELECT MAX(score.term) AS term FROM score WHERE score.is_deleted = 0), base AS (SELECT class.grade_year, score.score_value FROM score JOIN enroll ON score.student_id = enroll.id JOIN student ON enroll.student_id = student.id JOIN class ON student.class_id = class.id JOIN latest_term ON score.term = latest_term.term WHERE score.is_deleted = 0 AND enroll.is_deleted = 0 AND student.is_deleted = 0 AND class.is_deleted = 0) SELECT base.grade_year, AVG(base.score_value) AS avg_score_value FROM base GROUP BY base.grade_year ORDER BY base.grade_year",
+      "entity_mappings": [],
+      "sql_fields": [
+        "score.term",
+        "score.is_deleted",
+        "class.grade_year",
+        "score.score_value",
+        "score.student_id",
+        "enroll.id",
+        "enroll.student_id",
+        "student.id",
+        "student.class_id",
+        "class.id",
+        "latest_term.term",
+        "enroll.is_deleted",
+        "student.is_deleted",
+        "class.is_deleted",
+        "base.grade_year",
+        "base.score_value"
+      ],
+      "applied_field_replacements": [
+        {
+          "from": "score.enroll_id",
+          "to": "score.student_id"
+        }
+      ]
+    },
+    "sql_validate_result": {
+      "is_valid": true,
+      "error": null,
+      "rows": 4,
+      "result": [
+        {
+          "grade_year": 2022,
+          "avg_score_value": 75.03901401704309
+        },
+        {
+          "grade_year": 2023,
+          "avg_score_value": 74.8875910093842
+        },
+        {
+          "grade_year": 2024,
+          "avg_score_value": 74.94234368843212
+        },
+        {
+          "grade_year": 2025,
+          "avg_score_value": 74.97217392342013
+        }
+      ],
+      "executed_sql": "WITH latest_term AS (SELECT MAX(score.term) AS term FROM score WHERE score.is_deleted = 0), base AS (SELECT class.grade_year, score.score_value FROM score JOIN enroll ON score.student_id = enroll.id JOIN student ON enroll.student_id = student.id JOIN class ON student.class_id = class.id JOIN latest_term ON score.term = latest_term.term WHERE score.is_deleted = 0 AND enroll.is_deleted = 0 AND student.is_deleted = 0 AND class.is_deleted = 0) SELECT base.grade_year, AVG(base.score_value) AS avg_score_value FROM base GROUP BY base.grade_year ORDER BY base.grade_year",
+      "empty_result": false,
+      "zero_metric_result": false
+    },
+    "hidden_context_result": {
+      "error_type": "execution_error",
+      "error": "SQL 包含非白名单字段: ['score.enroll_id']",
+      "failed_sql": "",
+      "rewritten_query": "对比各年级最近一次考试的表现",
+      "field_candidates": [
+        {
+          "missing": "score.enroll_id",
+          "candidates": [
+            "score.id",
+            "score.student_id",
+            "score.course_id",
+            "score.course_class_id",
+            "score.term",
+            "score.score_value",
+            "score.score_level",
+            "score.is_deleted"
+          ]
+        }
+      ],
+      "probe_samples": [
+        {
+          "field": "class.grade_year",
+          "probe_sql": "SELECT DISTINCT class.grade_year AS value FROM class WHERE class.grade_year IS NOT NULL AND class.is_deleted = 0",
+          "values": [
+            "2022",
+            "2024",
+            "2023",
+            "2025"
+          ]
+        },
+        {
+          "field": "score.term",
+          "probe_sql": "SELECT DISTINCT score.term AS value FROM score WHERE score.term IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "2025-2026-1"
+          ]
+        },
+        {
+          "field": "score.score_value",
+          "probe_sql": "SELECT DISTINCT score.score_value AS value FROM score WHERE score.score_value IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "59.8",
+            "90.7",
+            "87.1",
+            "99.5",
+            "66.5",
+            "61.6",
+            "95.5",
+            "99.1",
+            "66.0",
+            "51.2",
+            "98.6",
+            "85.9",
+            "90.8",
+            "78.2",
+            "63.1",
+            "94.5",
+            "62.5",
+            "60.9",
+            "92.0",
+            "57.3"
+          ]
+        },
+        {
+          "field": "score.id",
+          "probe_sql": "SELECT DISTINCT score.id AS value FROM score WHERE score.id IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20"
+          ]
+        },
+        {
+          "field": "score.student_id",
+          "probe_sql": "SELECT DISTINCT score.student_id AS value FROM score WHERE score.student_id IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20"
+          ]
+        },
+        {
+          "field": "score.course_id",
+          "probe_sql": "SELECT DISTINCT score.course_id AS value FROM score WHERE score.course_id IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "163",
+            "210",
+            "167",
+            "263",
+            "121",
+            "217",
+            "70",
+            "45",
+            "83",
+            "150",
+            "133",
+            "60",
+            "118",
+            "2",
+            "38",
+            "204",
+            "178",
+            "107",
+            "183",
+            "223"
+          ]
+        },
+        {
+          "field": "score.course_class_id",
+          "probe_sql": "SELECT DISTINCT score.course_class_id AS value FROM score WHERE score.course_class_id IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20"
+          ]
+        }
+      ],
+      "hints": [
+        "error_type=execution_error",
+        "missing_tokens=score.enroll_id",
+        "enforce_field_replacements_from_field_candidates",
+        "use_probe_samples_to_rewrite_filters_or_entities",
+        "retry_sql_generation_with_hidden_context"
+      ],
+      "kb_summary": {
+        "table_count": 10,
+        "field_count": 84
+      },
+      "retry_count": 1
+    },
+    "hidden_context_retry_count": 1
+  },
+  "output": {
+    "session_id": "3b725954a6a44bd1",
+    "intent": "business_query",
+    "is_followup": false,
+    "merged_query": "对比各年级最近一次考试的表现",
+    "rewritten_query": "对比各年级最近一次考试的表现",
+    "skipped": false,
+    "reason": null,
+    "final_status": "success",
+    "reason_code": null,
+    "summary": "各年级最近一次考试平均分：2022级75.04分，2023级74.89分，2024级74.94分，2025级74.97分。2022级表现最优，各年级整体成绩接近。",
+    "assistant_reply": "各年级最近一次考试平均分：2022级75.04分，2023级74.89分，2024级74.94分，2025级74.97分。2022级表现最优，各年级整体成绩接近。\n\n详细信息：\n1. grade_year=2022，avg_score_value=75.03901401704309\n2. grade_year=2023，avg_score_value=74.8875910093842\n3. grade_year=2024，avg_score_value=74.94234368843212\n4. grade_year=2025，avg_score_value=74.97217392342013",
+    "download_url": null,
+    "task": {
+      "intent": "business_query",
+      "entities": [],
+      "dimensions": [
+        "class.grade_year"
+      ],
+      "metrics": [
+        "avg(score.score_value)"
+      ],
+      "filters": [
+        {
+          "field": "score.term",
+          "op": "=",
+          "value": "最近一次"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.85
+    },
+    "sql_result": {
+      "sql": "WITH latest_term AS (SELECT MAX(score.term) AS term FROM score WHERE score.is_deleted = 0), base AS (SELECT class.grade_year, score.score_value FROM score JOIN enroll ON score.student_id = enroll.id JOIN student ON enroll.student_id = student.id JOIN class ON student.class_id = class.id JOIN latest_term ON score.term = latest_term.term WHERE score.is_deleted = 0 AND enroll.is_deleted = 0 AND student.is_deleted = 0 AND class.is_deleted = 0) SELECT base.grade_year, AVG(base.score_value) AS avg_score_value FROM base GROUP BY base.grade_year ORDER BY base.grade_year",
+      "entity_mappings": [],
+      "sql_fields": [
+        "score.term",
+        "score.is_deleted",
+        "class.grade_year",
+        "score.score_value",
+        "score.student_id",
+        "enroll.id",
+        "enroll.student_id",
+        "student.id",
+        "student.class_id",
+        "class.id",
+        "latest_term.term",
+        "enroll.is_deleted",
+        "student.is_deleted",
+        "class.is_deleted",
+        "base.grade_year",
+        "base.score_value"
+      ],
+      "applied_field_replacements": [
+        {
+          "from": "score.enroll_id",
+          "to": "score.student_id"
+        }
+      ]
+    },
+    "sql_validate_result": {
+      "is_valid": true,
+      "error": null,
+      "rows": 4,
+      "result": [
+        {
+          "grade_year": 2022,
+          "avg_score_value": 75.03901401704309
+        },
+        {
+          "grade_year": 2023,
+          "avg_score_value": 74.8875910093842
+        },
+        {
+          "grade_year": 2024,
+          "avg_score_value": 74.94234368843212
+        },
+        {
+          "grade_year": 2025,
+          "avg_score_value": 74.97217392342013
+        }
+      ],
+      "executed_sql": "WITH latest_term AS (SELECT MAX(score.term) AS term FROM score WHERE score.is_deleted = 0), base AS (SELECT class.grade_year, score.score_value FROM score JOIN enroll ON score.student_id = enroll.id JOIN student ON enroll.student_id = student.id JOIN class ON student.class_id = class.id JOIN latest_term ON score.term = latest_term.term WHERE score.is_deleted = 0 AND enroll.is_deleted = 0 AND student.is_deleted = 0 AND class.is_deleted = 0) SELECT base.grade_year, AVG(base.score_value) AS avg_score_value FROM base GROUP BY base.grade_year ORDER BY base.grade_year",
+      "empty_result": false,
+      "zero_metric_result": false
+    },
+    "hidden_context_result": {
+      "error_type": "execution_error",
+      "error": "SQL 包含非白名单字段: ['score.enroll_id']",
+      "failed_sql": "",
+      "rewritten_query": "对比各年级最近一次考试的表现",
+      "field_candidates": [
+        {
+          "missing": "score.enroll_id",
+          "candidates": [
+            "score.id",
+            "score.student_id",
+            "score.course_id",
+            "score.course_class_id",
+            "score.term",
+            "score.score_value",
+            "score.score_level",
+            "score.is_deleted"
+          ]
+        }
+      ],
+      "probe_samples": [
+        {
+          "field": "class.grade_year",
+          "probe_sql": "SELECT DISTINCT class.grade_year AS value FROM class WHERE class.grade_year IS NOT NULL AND class.is_deleted = 0",
+          "values": [
+            "2022",
+            "2024",
+            "2023",
+            "2025"
+          ]
+        },
+        {
+          "field": "score.term",
+          "probe_sql": "SELECT DISTINCT score.term AS value FROM score WHERE score.term IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "2025-2026-1"
+          ]
+        },
+        {
+          "field": "score.score_value",
+          "probe_sql": "SELECT DISTINCT score.score_value AS value FROM score WHERE score.score_value IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "59.8",
+            "90.7",
+            "87.1",
+            "99.5",
+            "66.5",
+            "61.6",
+            "95.5",
+            "99.1",
+            "66.0",
+            "51.2",
+            "98.6",
+            "85.9",
+            "90.8",
+            "78.2",
+            "63.1",
+            "94.5",
+            "62.5",
+            "60.9",
+            "92.0",
+            "57.3"
+          ]
+        },
+        {
+          "field": "score.id",
+          "probe_sql": "SELECT DISTINCT score.id AS value FROM score WHERE score.id IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20"
+          ]
+        },
+        {
+          "field": "score.student_id",
+          "probe_sql": "SELECT DISTINCT score.student_id AS value FROM score WHERE score.student_id IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20"
+          ]
+        },
+        {
+          "field": "score.course_id",
+          "probe_sql": "SELECT DISTINCT score.course_id AS value FROM score WHERE score.course_id IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "163",
+            "210",
+            "167",
+            "263",
+            "121",
+            "217",
+            "70",
+            "45",
+            "83",
+            "150",
+            "133",
+            "60",
+            "118",
+            "2",
+            "38",
+            "204",
+            "178",
+            "107",
+            "183",
+            "223"
+          ]
+        },
+        {
+          "field": "score.course_class_id",
+          "probe_sql": "SELECT DISTINCT score.course_class_id AS value FROM score WHERE score.course_class_id IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20"
+          ]
+        }
+      ],
+      "hints": [
+        "error_type=execution_error",
+        "missing_tokens=score.enroll_id",
+        "enforce_field_replacements_from_field_candidates",
+        "use_probe_samples_to_rewrite_filters_or_entities",
+        "retry_sql_generation_with_hidden_context"
+      ],
+      "kb_summary": {
+        "table_count": 10,
+        "field_count": 84
+      },
+      "retry_count": 1
+    },
+    "hidden_context_retry_count": 1
+  }
+}

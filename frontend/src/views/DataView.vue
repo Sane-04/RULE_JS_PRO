@@ -470,8 +470,9 @@ const buildQueryParams = () => {
     params.q = keyword.value.trim();
   }
   filters.value.forEach((filter) => {
-    if (filter.key && filter.value !== "") {
-      params[filter.key] = filter.value;
+    const value = filter.value.trim();
+    if (filter.key && value !== "") {
+      params[filter.key] = value;
     }
   });
   return params;

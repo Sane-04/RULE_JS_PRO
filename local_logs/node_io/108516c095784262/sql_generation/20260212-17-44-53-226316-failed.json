@@ -1,0 +1,52 @@
+{
+  "session_id": "108516c095784262",
+  "admin_id": 1,
+  "step_name": "sql_generation",
+  "status": "failed",
+  "error_message": "SQL 包含非白名单字段: ['score.enroll_id']",
+  "timestamp": "2026-02-12T17:44:53",
+  "input": {
+    "rewritten_query": "对比各年级最近一次考试的表现",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [],
+      "dimensions": [
+        "class.grade_year"
+      ],
+      "metrics": [
+        "avg(score.score_value)"
+      ],
+      "filters": [
+        {
+          "field": "score.is_deleted",
+          "op": "=",
+          "value": false
+        },
+        {
+          "field": "student.is_deleted",
+          "op": "=",
+          "value": false
+        },
+        {
+          "field": "class.is_deleted",
+          "op": "=",
+          "value": false
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.85
+    },
+    "hidden_context_result": null
+  },
+  "output": {
+    "sql": "",
+    "entity_mappings": [],
+    "sql_fields": [],
+    "generation_failed": true,
+    "generation_error": "SQL 包含非白名单字段: ['score.enroll_id']"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "session_id": "44b67413b4a84502",
+  "admin_id": 1,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-12T18:09:27",
+  "input": {
+    "message": "查询本周学生出勤异常情况",
+    "history_user_messages": [],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "business_query",
+    "is_followup": false,
+    "confidence": 0.95,
+    "merged_query": "查询本周学生出勤异常情况",
+    "rewritten_query": "查询本周学生出勤异常情况",
+    "threshold": 0.7
+  }
+}

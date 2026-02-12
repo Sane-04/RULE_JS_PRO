@@ -646,6 +646,79 @@ def execute_chat_workflow(
                 continue
             if field not in whitelist_set:
                 invalid_fields.append(field)
+        applied_field_replacements: list[dict[str, str]] = []
+        if invalid_fields and isinstance(hidden_context_result, dict):
+            raw_field_candidates = hidden_context_result.get("field_candidates")
+            candidate_map: dict[str, list[str]] = {}
+            if isinstance(raw_field_candidates, list):
+                for item in raw_field_candidates:
+                    if not isinstance(item, dict):
+                        continue
+                    missing_field = str(item.get("missing", "")).strip()
+                    if not missing_field:
+                        continue
+                    candidates_raw = item.get("candidates")
+                    if not isinstance(candidates_raw, list):
+                        continue
+                    normalized_candidates: list[str] = []
+                    seen_candidates: set[str] = set()
+                    for candidate in candidates_raw:
+                        candidate_text = str(candidate).strip()
+                        if not candidate_text:
+                            continue
+                        if candidate_text not in whitelist_set:
+                            continue
+                        candidate_key = candidate_text.lower()
+                        if candidate_key in seen_candidates:
+                            continue
+                        seen_candidates.add(candidate_key)
+                        normalized_candidates.append(candidate_text)
+                    if normalized_candidates:
+                        candidate_map[missing_field.lower()] = normalized_candidates
+
+            replacement_sql = sql
+            for invalid_field in invalid_fields:
+                replacement_candidates = candidate_map.get(invalid_field.lower(), [])
+                if not replacement_candidates:
+                    continue
+                invalid_table = invalid_field.split(".", 1)[0].lower() if "." in invalid_field else ""
+                invalid_suffix = invalid_field.split(".", 1)[1].lower() if "." in invalid_field else invalid_field.lower()
+                target_field = ""
+                if invalid_suffix.endswith("_id"):
+                    for candidate in replacement_candidates:
+                        candidate_lower = candidate.lower()
+                        if candidate_lower.endswith("_id") and (not candidate_lower.endswith(".id")):
+                            if invalid_table and (not candidate_lower.startswith(f"{invalid_table}.")):
+                                continue
+                            target_field = candidate
+                            break
+                for candidate in replacement_candidates:
+                    if target_field:
+                        break
+                    if invalid_table and candidate.lower().startswith(f"{invalid_table}."):
+                        target_field = candidate
+                        break
+                if not target_field:
+                    target_field = replacement_candidates[0]
+
+                replace_pattern = re.compile(rf"\b{re.escape(invalid_field)}\b", flags=re.I)
+                if not replace_pattern.search(replacement_sql):
+                    continue
+                replacement_sql = replace_pattern.sub(target_field, replacement_sql)
+                applied_field_replacements.append({"from": invalid_field, "to": target_field})
+
+            if applied_field_replacements:
+                sql = _helper_trim_sql_fields_and_values(replacement_sql)
+                sql_fields = _helper_extract_sql_fields(sql)
+                cte_names = _helper_extract_cte_names(sql)
+                invalid_fields = []
+                for field in sql_fields:
+                    table_name = field.split(".", 1)[0].lower()
+                    if table_name in cte_names:
+                        continue
+                    if field not in whitelist_set:
+                        invalid_fields.append(field)
+
         if invalid_fields:
             raise ValueError(f"SQL 包含非白名单字段: {invalid_fields}")
 
@@ -673,6 +746,7 @@ def execute_chat_workflow(
             "sql": sql,
             "entity_mappings": entity_mappings,
             "sql_fields": sql_fields,
+            "applied_field_replacements": applied_field_replacements,
         }
         print("SQL 生成节点输出:")
         print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
@@ -845,6 +919,37 @@ def execute_chat_workflow(
                     continue
                 if field_text in whitelist_set:
                     candidate_fields.append(field_text)
+        # 当 SQL 生成失败且 sql_fields 为空时，回退到任务解析字段作为探测候选，帮助下一轮重试修复。
+        if isinstance(parse_result, dict):
+            dimensions_raw = parse_result.get("dimensions")
+            if isinstance(dimensions_raw, list):
+                for field in dimensions_raw:
+                    field_text = str(field).strip()
+                    if field_text in whitelist_set:
+                        candidate_fields.append(field_text)
+
+            filters_raw = parse_result.get("filters")
+            if isinstance(filters_raw, list):
+                for item in filters_raw:
+                    if not isinstance(item, dict):
+                        continue
+                    field_text = str(item.get("field", "")).strip()
+                    if field_text in whitelist_set:
+                        candidate_fields.append(field_text)
+
+            metrics_raw = parse_result.get("metrics")
+            if isinstance(metrics_raw, list):
+                for metric in metrics_raw:
+                    metric_text = str(metric).strip()
+                    if not metric_text:
+                        continue
+                    metric_fields = re.findall(
+                        r"\b([a-zA-Z_][a-zA-Z0-9_]*\.[a-zA-Z_][a-zA-Z0-9_]*)\b",
+                        metric_text,
+                    )
+                    for metric_field in metric_fields:
+                        if metric_field in whitelist_set:
+                            candidate_fields.append(metric_field)
 
         dedup_fields: list[str] = []
         seen_fields: set[str] = set()
@@ -855,8 +960,78 @@ def execute_chat_workflow(
             seen_fields.add(key)
             dedup_fields.append(field)
 
+        missing_tokens: list[str] = []
+        match_single = re.search(r"Unknown column '([^']+)'", error_text, flags=re.I)
+        match_tick = re.search(r"Unknown column `([^`]+)`", error_text, flags=re.I)
+        if match_single:
+            missing_tokens.append(match_single.group(1).strip())
+        elif match_tick:
+            missing_tokens.append(match_tick.group(1).strip())
+        seen_missing_tokens = {item.lower() for item in missing_tokens}
+        extra_field_tokens = re.findall(
+            r"\b([a-zA-Z_][a-zA-Z0-9_]*\.[a-zA-Z_][a-zA-Z0-9_]*)\b",
+            error_text,
+        )
+        for token in extra_field_tokens:
+            token_text = token.strip()
+            if not token_text:
+                continue
+            token_key = token_text.lower()
+            if token_key in seen_missing_tokens:
+                continue
+            seen_missing_tokens.add(token_key)
+            missing_tokens.append(token_text)
+
+        alias_lookup: dict[str, list[str]] = {}
+        for alias_item in alias_pairs:
+            if isinstance(alias_item, dict):
+                for field, aliases in alias_item.items():
+                    alias_lookup[field] = [str(alias).strip().lower() for alias in aliases if str(alias).strip()]
+
+        field_candidates: list[dict[str, Any]] = []
+        for missing_token in missing_tokens:
+            missing_suffix = missing_token.split(".")[-1].strip().lower()
+            missing_table = missing_token.split(".", 1)[0].strip().lower() if "." in missing_token else ""
+            candidates: list[str] = []
+            for field in field_whitelist:
+                field_lower = field.lower()
+                if field_lower.endswith(f".{missing_suffix}"):
+                    candidates.append(field)
+                    continue
+                aliases = alias_lookup.get(field, [])
+                if missing_suffix in aliases:
+                    candidates.append(field)
+            if not candidates and missing_table:
+                for field in field_whitelist:
+                    if field.lower().startswith(f"{missing_table}."):
+                        candidates.append(field)
+            field_candidates.append(
+                {
+                    "missing": missing_token,
+                    "candidates": candidates[:12],
+                }
+            )
+
+        probe_target_fields = list(dedup_fields)
+        seen_probe_fields = {item.lower() for item in probe_target_fields}
+        for item in field_candidates:
+            candidates = item.get("candidates")
+            if not isinstance(candidates, list):
+                continue
+            for candidate in candidates[:6]:
+                candidate_text = str(candidate).strip()
+                if not candidate_text:
+                    continue
+                candidate_key = candidate_text.lower()
+                if candidate_key in seen_probe_fields:
+                    continue
+                if candidate_text not in whitelist_set:
+                    continue
+                seen_probe_fields.add(candidate_key)
+                probe_target_fields.append(candidate_text)
+
         probe_samples: list[dict[str, Any]] = []
-        for field in dedup_fields:
+        for field in probe_target_fields[:24]:
             table_name, column_name = field.split(".", 1)
             probe_sql = (
                 f"SELECT DISTINCT {table_name}.{column_name} AS value "
@@ -885,43 +1060,12 @@ def execute_chat_workflow(
                     }
                 )
 
-        missing_token = ""
-        match_single = re.search(r"Unknown column '([^']+)'", error_text, flags=re.I)
-        match_tick = re.search(r"Unknown column `([^`]+)`", error_text, flags=re.I)
-        if match_single:
-            missing_token = match_single.group(1).strip()
-        elif match_tick:
-            missing_token = match_tick.group(1).strip()
-
-        alias_lookup: dict[str, list[str]] = {}
-        for alias_item in alias_pairs:
-            if isinstance(alias_item, dict):
-                for field, aliases in alias_item.items():
-                    alias_lookup[field] = [str(alias).strip().lower() for alias in aliases if str(alias).strip()]
-
-        field_candidates: list[dict[str, Any]] = []
-        if missing_token:
-            missing_suffix = missing_token.split(".")[-1].strip().lower()
-            candidates: list[str] = []
-            for field in field_whitelist:
-                field_lower = field.lower()
-                if field_lower.endswith(f".{missing_suffix}"):
-                    candidates.append(field)
-                    continue
-                aliases = alias_lookup.get(field, [])
-                if missing_suffix in aliases:
-                    candidates.append(field)
-            field_candidates.append(
-                {
-                    "missing": missing_token,
-                    "candidates": candidates[:12],
-                }
-            )
-
         hints: list[str] = [f"error_type={error_type}"]
-        if missing_token:
-            hints.append(f"missing_token={missing_token}")
-        if dedup_fields:
+        if missing_tokens:
+            hints.append(f"missing_tokens={','.join(missing_tokens[:3])}")
+        if field_candidates:
+            hints.append("enforce_field_replacements_from_field_candidates")
+        if probe_samples:
             hints.append("use_probe_samples_to_rewrite_filters_or_entities")
         hints.append("retry_sql_generation_with_hidden_context")
 
@@ -1161,10 +1305,12 @@ def execute_chat_workflow(
         parse_result = state.get("parse_result") or {}
         hidden_context_result = state.get("hidden_context_result")
         rewritten_query = str((state.get("intent_result") or {}).get("rewritten_query", state["message"])).strip()
+        sql_generation_model_name = settings.llm_model_sql_generation or state["model_name"]
         node_input = {
             "rewritten_query": rewritten_query,
             "parse_result": parse_result,
             "hidden_context_result": hidden_context_result,
+            "model_name": sql_generation_model_name,
         }
         _helper_emit_step_event("sql_generation", "start", None)
         try:
@@ -1172,15 +1318,37 @@ def execute_chat_workflow(
                 rewritten_query=rewritten_query,
                 parse_result=parse_result,
                 hidden_context_result=hidden_context_result,
-                model_name=state["model_name"],
+                model_name=sql_generation_model_name,
             )
             _helper_node_logger("sql_generation", node_input, sql_result, "success", None)
             _helper_emit_step_event("sql_generation", "end", None)
             return {**state, "sql_result": sql_result}
         except Exception as exc:
-            _helper_node_logger("sql_generation", node_input, None, "failed", str(exc))
-            _helper_emit_step_event("sql_generation", "error", str(exc))
-            raise
+            error_text = str(exc)
+            fallback_sql_result = {
+                "sql": "",
+                "entity_mappings": [],
+                "sql_fields": [],
+                "generation_failed": True,
+                "generation_error": error_text,
+            }
+            fallback_validate_result = {
+                "is_valid": False,
+                "error": error_text,
+                "rows": 0,
+                "result": [],
+                "executed_sql": "",
+                "empty_result": False,
+                "zero_metric_result": False,
+            }
+            _helper_node_logger("sql_generation", node_input, fallback_sql_result, "failed", error_text)
+            # SQL 生成失败不再中断工作流，交由 hidden_context 继续修复。
+            _helper_emit_step_event("sql_generation", "end", None)
+            return {
+                **state,
+                "sql_result": fallback_sql_result,
+                "sql_validate_result": fallback_validate_result,
+            }
 
     def _helper_sql_validate_node(state: UnifiedChatGraphState) -> UnifiedChatGraphState:
         """作用：图中的 SQL 验证节点。
@@ -1558,6 +1726,21 @@ def execute_chat_workflow(
                 return "task_parse"
             return "result_return"
 
+        def _helper_route_after_sql_generation(state: UnifiedChatGraphState) -> str:
+            """作用：SQL 生成后的路由决策，生成失败时优先进入隐藏上下文重试。"""
+            intent = str((state.get("intent_result") or {}).get("intent", "chat")).strip().lower()
+            retry_count = int(state.get("hidden_context_retry_count") or 0)
+            sql_result = state.get("sql_result") or {}
+            generation_failed = bool(sql_result.get("generation_failed"))
+
+            if intent != "business_query":
+                return "result_return"
+            if (not generation_failed):
+                return "sql_validate"
+            if retry_count >= HIDDEN_CONTEXT_MAX_RETRY:
+                return "result_return"
+            return "hidden_context"
+
         def _helper_route_after_sql_validate(state: UnifiedChatGraphState) -> str:
             """作用：SQL 校验后的路由决策，失败/空结果/零指标时进入隐藏上下文重试，否则直接返回结果节点。
             
@@ -1611,7 +1794,11 @@ def execute_chat_workflow(
             {"task_parse": "task_parse", "result_return": "result_return"},
         )
         graph.add_edge("task_parse", "sql_generation")
-        graph.add_edge("sql_generation", "sql_validate")
+        graph.add_conditional_edges(
+            "sql_generation",
+            _helper_route_after_sql_generation,
+            {"sql_validate": "sql_validate", "hidden_context": "hidden_context", "result_return": "result_return"},
+        )
         graph.add_conditional_edges(
             "sql_validate",
             _helper_route_after_sql_validate,
@@ -1681,6 +1868,8 @@ def execute_chat_workflow(
             error_message=None,
         )
         if not skipped:
+            sql_generation_failed = bool((sql_result or {}).get("generation_failed"))
+            sql_generation_error = str((sql_result or {}).get("generation_error") or "").strip() or None
             _helper_insert_workflow_log(
                 session_id=session_id,
                 step_name="task_parse",
@@ -1694,8 +1883,8 @@ def execute_chat_workflow(
                 step_name="sql_generation",
                 input_json={"rewritten_query": result["rewritten_query"], "task": parse_result},
                 output_json=sql_result,
-                status="success",
-                error_message=None,
+                status="failed" if sql_generation_failed else "success",
+                error_message=sql_generation_error,
             )
             _helper_insert_workflow_log(
                 session_id=session_id,

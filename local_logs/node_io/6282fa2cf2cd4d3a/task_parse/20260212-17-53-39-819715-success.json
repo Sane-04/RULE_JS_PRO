@@ -1,0 +1,42 @@
+{
+  "session_id": "6282fa2cf2cd4d3a",
+  "admin_id": 1,
+  "step_name": "task_parse",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-12T17:53:39",
+  "input": {
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": false,
+      "confidence": 0.95,
+      "merged_query": "查询本周学生出勤异常情况",
+      "rewritten_query": "查询本周学生出勤异常情况",
+      "threshold": 0.7
+    }
+  },
+  "output": {
+    "intent": "business_query",
+    "entities": [],
+    "dimensions": [
+      "student.student_no",
+      "student.real_name",
+      "course.course_name",
+      "attendance.status"
+    ],
+    "metrics": [],
+    "filters": [
+      {
+        "field": "attendance.status",
+        "op": "!=",
+        "value": "正常"
+      }
+    ],
+    "time_range": {
+      "start": "2023-10-02",
+      "end": "2023-10-08"
+    },
+    "operation": "detail",
+    "confidence": 0.95
+  }
+}

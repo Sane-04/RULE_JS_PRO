@@ -1,0 +1,63 @@
+{
+  "session_id": "6282fa2cf2cd4d3a",
+  "admin_id": 1,
+  "step_name": "sql_generation",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-12T17:53:46",
+  "input": {
+    "rewritten_query": "查询本周学生出勤异常情况",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [],
+      "dimensions": [
+        "student.student_no",
+        "student.real_name",
+        "course.course_name",
+        "attendance.status"
+      ],
+      "metrics": [],
+      "filters": [
+        {
+          "field": "attendance.status",
+          "op": "!=",
+          "value": "正常"
+        }
+      ],
+      "time_range": {
+        "start": "2023-10-02",
+        "end": "2023-10-08"
+      },
+      "operation": "detail",
+      "confidence": 0.95
+    },
+    "hidden_context_result": null
+  },
+  "output": {
+    "sql": "WITH base AS (SELECT student.student_no, student.real_name, course.course_name, attendance.status, attendance.attend_date FROM attendance JOIN student ON attendance.student_id = student.id JOIN course_class ON attendance.course_class_id = course_class.id JOIN course ON course_class.course_id = course.id WHERE attendance.status != '正常' AND attendance.attend_date BETWEEN '2023-10-02' AND '2023-10-08' AND attendance.is_deleted = 0 AND student.is_deleted = 0 AND course_class.is_deleted = 0 AND course.is_deleted = 0) SELECT base.student_no, base.real_name, base.course_name, base.status, base.attend_date FROM base ORDER BY base.attend_date, base.student_no",
+    "entity_mappings": [],
+    "sql_fields": [
+      "student.student_no",
+      "student.real_name",
+      "course.course_name",
+      "attendance.status",
+      "attendance.attend_date",
+      "attendance.student_id",
+      "student.id",
+      "attendance.course_class_id",
+      "course_class.id",
+      "course_class.course_id",
+      "course.id",
+      "attendance.is_deleted",
+      "student.is_deleted",
+      "course_class.is_deleted",
+      "course.is_deleted",
+      "base.student_no",
+      "base.real_name",
+      "base.course_name",
+      "base.status",
+      "base.attend_date"
+    ],
+    "applied_field_replacements": []
+  }
+}

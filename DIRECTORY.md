@@ -48,7 +48,7 @@ RULE_JS_PRO/
 ├─ README.md                    项目总览文档
 ├─ DEV_PLAN.md                  项目完结归档
 ├─ DEPLOY_DOCKER.md             部署与运维文档
-├─ .env.example                 环境变量示例
+├─ .env                         本地/部署环境变量文件
 ├─ .dockerignore
 └─ .gitignore
 ```

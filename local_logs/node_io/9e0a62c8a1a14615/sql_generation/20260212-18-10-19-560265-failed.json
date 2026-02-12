@@ -1,0 +1,53 @@
+{
+  "session_id": "9e0a62c8a1a14615",
+  "admin_id": 1,
+  "step_name": "sql_generation",
+  "status": "failed",
+  "error_message": "SQL 包含非白名单字段: ['s.student_id', 's.course_id', 's.score_value', 's.term', 's.is_deleted', 'ls.student_id', 'ls.score_value', 'st.enroll_year', 'st.id', 'ls.rn', 'st.is_deleted', 'rs.enroll_year', 'rs.score_value', 'ga.enroll_year', 'ga.avg_score']",
+  "timestamp": "2026-02-12T18:10:19",
+  "input": {
+    "rewritten_query": "对比各年级最近一次考试的表现",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [],
+      "dimensions": [
+        "class.grade_year"
+      ],
+      "metrics": [
+        "avg(score.score_value)"
+      ],
+      "filters": [
+        {
+          "field": "score.is_deleted",
+          "op": "=",
+          "value": false
+        },
+        {
+          "field": "student.is_deleted",
+          "op": "=",
+          "value": false
+        },
+        {
+          "field": "class.is_deleted",
+          "op": "=",
+          "value": false
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.85
+    },
+    "hidden_context_result": null,
+    "model_name": "qwen3-coder-plus"
+  },
+  "output": {
+    "sql": "",
+    "entity_mappings": [],
+    "sql_fields": [],
+    "generation_failed": true,
+    "generation_error": "SQL 包含非白名单字段: ['s.student_id', 's.course_id', 's.score_value', 's.term', 's.is_deleted', 'ls.student_id', 'ls.score_value', 'st.enroll_year', 'st.id', 'ls.rn', 'st.is_deleted', 'rs.enroll_year', 'rs.score_value', 'ga.enroll_year', 'ga.avg_score']"
+  }
+}

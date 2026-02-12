@@ -30,6 +30,9 @@ SQL_GENERATION_SYSTEM_PROMPT = """
     - 使用 `GROUP BY student.student_no, student.real_name`；或
     - 使用 `EXISTS` 子查询判定 score/attendance 条件，再从 student 主表输出名单。
 19) 若需要“原因”字段，必须按学生聚合为一行（例如 `GROUP_CONCAT(DISTINCT ...)`），不要返回同一学生多行固定文案。
+20) 若存在 retry_constraints.forbidden_fields，SQL 与 sql_fields 中严禁出现这些字段。
+21) 若存在 retry_constraints.field_replacements，必须把 from 字段替换为 to_candidates 中的合法字段，且优先选择语义最贴近字段。
+22) 若无法完成替换修复，不要使用非法字段，返回空 SQL 字符串并保持 json 格式有效。
 
 完整输出示例（必须严格输出 JSON，不要附加解释）：
 {
@@ -51,6 +54,62 @@ SQL_GENERATION_SYSTEM_PROMPT = """
 """.strip()
 
 
+def _helper_build_retry_constraints(hidden_context: dict[str, Any] | None) -> dict[str, Any] | None:
+    """作用：从隐藏上下文提炼可执行的字段修复约束，降低重试阶段字段幻觉。"""
+    if not isinstance(hidden_context, dict):
+        return None
+
+    field_candidates_raw = hidden_context.get("field_candidates")
+    if not isinstance(field_candidates_raw, list):
+        return None
+
+    field_replacements: list[dict[str, Any]] = []
+    forbidden_fields: list[str] = []
+    seen_forbidden: set[str] = set()
+    for item in field_candidates_raw:
+        if not isinstance(item, dict):
+            continue
+        missing_field = str(item.get("missing", "")).strip()
+        if not missing_field:
+            continue
+        missing_key = missing_field.lower()
+        if missing_key not in seen_forbidden:
+            seen_forbidden.add(missing_key)
+            forbidden_fields.append(missing_field)
+
+        candidates_raw = item.get("candidates")
+        if not isinstance(candidates_raw, list):
+            continue
+        candidates: list[str] = []
+        seen_candidates: set[str] = set()
+        for candidate in candidates_raw:
+            candidate_text = str(candidate).strip()
+            if not candidate_text:
+                continue
+            candidate_key = candidate_text.lower()
+            if candidate_key in seen_candidates:
+                continue
+            seen_candidates.add(candidate_key)
+            candidates.append(candidate_text)
+        if candidates:
+            field_replacements.append({"from": missing_field, "to_candidates": candidates[:8]})
+
+    hints = hidden_context.get("hints")
+    retry_hint = False
+    if isinstance(hints, list):
+        retry_hint = any(str(item).strip() == "retry_sql_generation_with_hidden_context" for item in hints)
+
+    failed_sql = str(hidden_context.get("failed_sql", "")).strip() if isinstance(hidden_context, dict) else ""
+    constraints = {
+        "enabled": True,
+        "retry_hint": retry_hint,
+        "forbidden_fields": forbidden_fields,
+        "field_replacements": field_replacements,
+        "failed_sql": failed_sql,
+    }
+    return constraints
+
+
 def build_sql_generation_user_prompt(
     rewritten_query: str,
     task: dict[str, Any],
@@ -59,6 +118,7 @@ def build_sql_generation_user_prompt(
     schema_hints: list[dict[str, Any]],
     hidden_context: dict[str, Any] | None = None,
 ) -> str:
+    retry_constraints = _helper_build_retry_constraints(hidden_context)
     payload: dict[str, Any] = {
         "rewritten_query": rewritten_query,
         "task": task,
@@ -66,6 +126,7 @@ def build_sql_generation_user_prompt(
         "alias_hints": alias_pairs,
         "kb_schema_hints": schema_hints,
         "hidden_context": hidden_context,
+        "retry_constraints": retry_constraints,
         "output_schema": {
             "sql": "WITH ... SELECT ...",
             "entity_mappings": [
@@ -80,4 +141,3 @@ def build_sql_generation_user_prompt(
         },
     }
     return json.dumps(payload, ensure_ascii=False)
-

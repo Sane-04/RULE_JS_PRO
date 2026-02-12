@@ -29,6 +29,7 @@ class Settings:
     llm_api_key = os.getenv("LLM_API_KEY", "")
     llm_base_url = os.getenv("LLM_BASE_URL", "")
     llm_model_intent = os.getenv("LLM_MODEL_INTENT", "qwen-plus")
+    llm_model_sql_generation = os.getenv("LLM_MODEL_SQL_GENERATION", "qwen3-coder-plus")
     intent_confidence_threshold = float(os.getenv("INTENT_CONFIDENCE_THRESHOLD", "0.7"))
     node_io_log_dir = os.getenv("NODE_IO_LOG_DIR", "local_logs/node_io")
     chat_export_dir = os.getenv("CHAT_EXPORT_DIR", "local_logs/chat_exports")

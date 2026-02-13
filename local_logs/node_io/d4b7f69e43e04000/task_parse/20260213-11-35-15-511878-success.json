@@ -1,0 +1,58 @@
+{
+  "session_id": "d4b7f69e43e04000",
+  "admin_id": 1,
+  "step_name": "task_parse",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-13T11:35:15",
+  "input": {
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": false,
+      "confidence": 0.95,
+      "merged_query": "查询本周学生出勤异常情况",
+      "rewritten_query": "查询本周学生出勤异常情况",
+      "threshold": 0.7
+    }
+  },
+  "output": {
+    "intent": "business_query",
+    "entities": [],
+    "dimensions": [
+      "student.student_no",
+      "student.real_name",
+      "course.course_name",
+      "attendance.status"
+    ],
+    "metrics": [],
+    "filters": [
+      {
+        "field": "attendance.status",
+        "op": "in",
+        "value": [
+          "缺勤",
+          "迟到",
+          "早退",
+          "请假未批",
+          "旷课"
+        ]
+      },
+      {
+        "field": "attendance.attend_date",
+        "op": ">=",
+        "value": "2024-06-10"
+      },
+      {
+        "field": "attendance.attend_date",
+        "op": "<=",
+        "value": "2024-06-16"
+      }
+    ],
+    "time_range": {
+      "start": "2024-06-10",
+      "end": "2024-06-16"
+    },
+    "operation": "detail",
+    "confidence": 0.95
+  }
+}

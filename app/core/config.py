@@ -37,23 +37,23 @@ class Settings:
     chat_export_dir = os.getenv("CHAT_EXPORT_DIR", "local_logs/chat_exports")
     _raw_chat_stream_mode = os.getenv("CHAT_STREAM_MODE", "stream").strip().lower()
     chat_stream_mode = _raw_chat_stream_mode if _raw_chat_stream_mode in {"stream", "sync"} else "stream"
-    chat_stream_workflow_start_message = "收到！让我帮您查一查 🔍"
-    chat_stream_workflow_end_message = "搞定啦，结果在这儿 ✨"
+    chat_stream_workflow_start_message = "收到！让我帮您查一查"
+    chat_stream_workflow_end_message = "搞定啦，结果在这儿"
     chat_stream_step_message_placeholders = {
         "intent_recognition": {
-            "start": "让我先想想您想问什么 🤔",
+            "start": "让我先想想您想问什么",
             "end": "懂了！"
         },
         "task_parse": {
-            "start": "拆解一下问题结构 🧩",
+            "start": "拆解一下问题结构",
             "end": "思路清晰了"
         },
         "sql_generation": {
-            "start": "开始拼装查询语句 🛠️",
+            "start": "开始拼装查询语句",
             "end": "语句组装完成"
         },
         "sql_validate": {
-            "start": "再帮您检查一遍 👀",
+            "start": "再帮您检查一遍",
             "end": "看起来没问题"
         },
         "hidden_context": {
@@ -61,8 +61,8 @@ class Settings:
             "end": "救场完毕！重新生成试试！"
         },
         "result_return": {
-            "start": "整理一下结果给您 ✍️",
-            "end": "整理好了"
+            "start": "整理一下结果给您",
+            "end": "整理好咯"
         },
     }
 

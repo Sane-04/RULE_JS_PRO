@@ -1,0 +1,62 @@
+{
+  "session_id": "ce5c8c41967b4827",
+  "admin_id": 1,
+  "step_name": "task_parse",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-13T12:09:16",
+  "input": {
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": true,
+      "confidence": 0.95,
+      "merged_query": "查询22级计科专业男生人数",
+      "rewritten_query": "查询22级计科专业男生人数",
+      "threshold": 0.7
+    }
+  },
+  "output": {
+    "intent": "business_query",
+    "entities": [
+      {
+        "type": "grade",
+        "value": "22级"
+      },
+      {
+        "type": "major",
+        "value": "计科"
+      },
+      {
+        "type": "gender",
+        "value": "男生"
+      }
+    ],
+    "dimensions": [],
+    "metrics": [
+      "count"
+    ],
+    "filters": [
+      {
+        "field": "student.enroll_year",
+        "op": "=",
+        "value": 2022
+      },
+      {
+        "field": "major.major_name",
+        "op": "=",
+        "value": "计算机科学与技术"
+      },
+      {
+        "field": "student.gender",
+        "op": "=",
+        "value": "男"
+      }
+    ],
+    "time_range": {
+      "start": null,
+      "end": null
+    },
+    "operation": "aggregate",
+    "confidence": 0.95
+  }
+}

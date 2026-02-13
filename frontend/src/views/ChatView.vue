@@ -7,14 +7,55 @@
           <p>选择历史会话继续对话，支持滚动加载更多记录</p>
         </div>
         <div class="header-actions">
-          <button class="btn ghost chat-mobile-toggle" type="button" @click="toggleSessionPanel">
+          <button v-if="!isEmptyState" class="btn ghost chat-mobile-toggle" type="button" @click="toggleSessionPanel">
             会话列表
           </button>
         </div>
       </header>
 
       <div class="page-body-scroll">
-        <section class="chat-shell">
+        <section v-if="isEmptyState" class="card chat-empty-shell">
+          <div class="chat-empty-hero">
+            <p class="chat-empty-eyebrow">智能问答</p>
+            <h3>开始第一段会话</h3>
+            <p>暂无历史会话。输入问题后系统会自动创建会话，也可以先试试示例问题。</p>
+            <button class="btn primary" type="button" @click="startNewSession" :disabled="sending">新会话</button>
+            <div class="chat-quick-prompts">
+              <button
+                v-for="prompt in quickPrompts"
+                :key="prompt"
+                class="chat-prompt-btn"
+                type="button"
+                @click="applyQuickPrompt(prompt)"
+              >
+                {{ prompt }}
+              </button>
+            </div>
+            <p v-if="sessionError" class="error-text chat-empty-error">{{ sessionError }}</p>
+          </div>
+          <section class="chat-composer chat-empty-composer" :class="{ 'is-focused': isComposerFocused }">
+            <label class="chat-label" for="chat-message-empty">输入问题</label>
+            <textarea
+              id="chat-message-empty"
+              ref="composerRef"
+              v-model="message"
+              class="chat-textarea"
+              placeholder="输入问题后发送，系统将自动创建新会话"
+              @keydown="handleComposerKeydown"
+              @focus="isComposerFocused = true"
+              @blur="isComposerFocused = false"
+            />
+            <div class="chat-actions">
+              <p class="chat-shortcut-tip">Enter 发送，Shift + Enter 换行</p>
+              <button class="btn primary" type="button" @click="submitMessage" :disabled="sending || !message.trim()">
+                {{ sending ? "发送中..." : "发送" }}
+              </button>
+            </div>
+            <p v-if="error" class="error-text">{{ error }}</p>
+          </section>
+        </section>
+
+        <section v-else class="chat-shell">
           <aside class="card chat-sidebar" :class="{ 'is-open': showSessionPanel }">
             <div class="chat-sidebar-head">
               <p class="chat-sidebar-title">历史会话</p>
@@ -209,9 +250,9 @@ const sending = ref(false);
 const error = ref("");
 const isComposerFocused = ref(false);
 const quickPrompts = ref([
-  "查询本周学生出勤异常情况",
-  "对比各年级最近一次考试表现",
-  "列出需要重点关注的学生",
+  "查询某年级学生个数",
+  "查询某专业学生个数",
+  "查询某学生的个人信息",
 ]);
 
 let localMessageSeed = 0;
@@ -236,6 +277,10 @@ const filteredSessions = computed(() => {
     const timeText = formatSessionTime(session.last_active_at).toLowerCase();
     return preview.includes(keyword) || timeText.includes(keyword);
   });
+});
+
+const isEmptyState = computed(() => {
+  return !sessionsLoading.value && !activeSessionId.value && timeline.value.length === 0 && sessions.value.length === 0;
 });
 
 const getAssistantMessageByIndex = (assistantIndex: number): TimelineMessage | null => {

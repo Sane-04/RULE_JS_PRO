@@ -1,0 +1,61 @@
+{
+  "session_id": "d4b7f69e43e04000",
+  "admin_id": 1,
+  "step_name": "sql_validate",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-13T11:35:40",
+  "input": {
+    "sql_result": {
+      "sql": "WITH base AS (SELECT student.student_no, student.real_name, course.course_name, attendance.status FROM student JOIN enroll ON student.id = enroll.student_id JOIN course_class ON enroll.course_class_id = course_class.id JOIN course ON course_class.course_id = course.id JOIN attendance ON student.id = attendance.student_id AND course_class.id = attendance.course_class_id WHERE attendance.status IN ('缺勤', '迟到', '早退', '请假未批', '旷课') AND attendance.attend_date >= '2024-06-10' AND attendance.attend_date <= '2024-06-16' AND student.is_deleted = 0 AND enroll.is_deleted = 0 AND course_class.is_deleted = 0 AND course.is_deleted = 0 AND attendance.is_deleted = 0) SELECT base.student_no, base.real_name, base.course_name, base.status FROM base GROUP BY base.student_no, base.real_name, base.course_name, base.status",
+      "entity_mappings": [
+        {
+          "type": "attendance_status",
+          "value": "缺勤, 迟到, 早退, 请假未批, 旷课",
+          "field": "attendance.status",
+          "reason": "根据字段描述“出勤状态（出勤/缺勤/请假等）”映射"
+        },
+        {
+          "type": "date_range",
+          "value": "2024-06-10 至 2024-06-16",
+          "field": "attendance.attend_date",
+          "reason": "根据时间范围过滤条件映射"
+        }
+      ],
+      "sql_fields": [
+        "student.student_no",
+        "student.real_name",
+        "course.course_name",
+        "attendance.status",
+        "student.id",
+        "enroll.student_id",
+        "enroll.course_class_id",
+        "course_class.id",
+        "course_class.course_id",
+        "course.id",
+        "attendance.student_id",
+        "attendance.course_class_id",
+        "attendance.attend_date",
+        "student.is_deleted",
+        "enroll.is_deleted",
+        "course_class.is_deleted",
+        "course.is_deleted",
+        "attendance.is_deleted",
+        "base.student_no",
+        "base.real_name",
+        "base.course_name",
+        "base.status"
+      ],
+      "applied_field_replacements": []
+    }
+  },
+  "output": {
+    "is_valid": true,
+    "error": null,
+    "rows": 0,
+    "result": [],
+    "executed_sql": "WITH base AS (SELECT student.student_no, student.real_name, course.course_name, attendance.status FROM student JOIN enroll ON student.id = enroll.student_id JOIN course_class ON enroll.course_class_id = course_class.id JOIN course ON course_class.course_id = course.id JOIN attendance ON student.id = attendance.student_id AND course_class.id = attendance.course_class_id WHERE attendance.status IN ('缺勤', '迟到', '早退', '请假未批', '旷课') AND attendance.attend_date >= '2024-06-10' AND attendance.attend_date <= '2024-06-16' AND student.is_deleted = 0 AND enroll.is_deleted = 0 AND course_class.is_deleted = 0 AND course.is_deleted = 0 AND attendance.is_deleted = 0) SELECT base.student_no, base.real_name, base.course_name, base.status FROM base GROUP BY base.student_no, base.real_name, base.course_name, base.status",
+    "empty_result": true,
+    "zero_metric_result": false
+  }
+}

@@ -41,7 +41,7 @@ def execute_chat_workflow(
         db: Session,
         admin_id: int,
         payload: ChatIntentRequest,
-        on_step_event: Callable[[str, str, str | None], None] | None = None,
+        on_step_event: Callable[[str, str, str | None, dict[str, Any] | None], None] | None = None,
 ) -> dict[str, Any]:
     """作用：执行统一聊天工作流。
     
@@ -59,11 +59,16 @@ def execute_chat_workflow(
     ALLOWED_FILTER_OPS = {"=", "!=", ">", "<", ">=", "<=", "like", "in", "not in", "between"}
     HIDDEN_CONTEXT_MAX_RETRY = 2
 
-    def _helper_emit_step_event(step_name: str, status: str, error_message: str | None = None) -> None:
+    def _helper_emit_step_event(
+            step_name: str,
+            status: str,
+            error_message: str | None = None,
+            step_payload: dict[str, Any] | None = None,
+    ) -> None:
         if not on_step_event:
             return
         try:
-            on_step_event(step_name, status, error_message)
+            on_step_event(step_name, status, error_message, step_payload)
         except Exception:
             return
 
@@ -906,8 +911,17 @@ def execute_chat_workflow(
         """
 
         error_text = str((sql_validate_result or {}).get("error") or "").strip()
+        validate_result = sql_validate_result if isinstance(sql_validate_result, dict) else {}
+        is_valid = bool(validate_result.get("is_valid"))
+        empty_result = bool(validate_result.get("empty_result"))
+        zero_metric_result = bool(validate_result.get("zero_metric_result"))
         failed_sql = str((sql_result or {}).get("sql") or "").strip()
         error_lower = error_text.lower()
+        retry_reason = "sql_error"
+        if is_valid and empty_result:
+            retry_reason = "empty_result"
+        elif is_valid and zero_metric_result:
+            retry_reason = "zero_metric_result"
 
         error_type = "execution_error"
         if "unknown column" in error_lower:
@@ -1072,6 +1086,101 @@ def execute_chat_workflow(
                     }
                 )
 
+        probe_value_map: dict[str, list[str]] = {}
+        for sample in probe_samples:
+            if not isinstance(sample, dict):
+                continue
+            field_text = str(sample.get("field", "")).strip()
+            values_raw = sample.get("values")
+            if not field_text or not isinstance(values_raw, list):
+                continue
+            normalized_values: list[str] = []
+            seen_values: set[str] = set()
+            for value in values_raw:
+                value_text = str(value).strip()
+                if not value_text:
+                    continue
+                value_key = value_text.lower()
+                if value_key in seen_values:
+                    continue
+                seen_values.add(value_key)
+                normalized_values.append(value_text)
+            if normalized_values:
+                probe_value_map[field_text] = normalized_values
+
+        value_candidates: list[dict[str, Any]] = []
+        filters_raw = parse_result.get("filters") if isinstance(parse_result, dict) else []
+        if isinstance(filters_raw, list):
+            for filter_item in filters_raw:
+                if not isinstance(filter_item, dict):
+                    continue
+                field_text = str(filter_item.get("field", "")).strip()
+                if not field_text:
+                    continue
+                probe_values = probe_value_map.get(field_text, [])
+                if not probe_values:
+                    continue
+                original_value_text = str(filter_item.get("value", "")).strip()
+                if not original_value_text:
+                    continue
+
+                exact_matches: list[str] = []
+                normalized_matches: list[str] = []
+                fuzzy_matches: list[str] = []
+                original_value_normalized = re.sub(r"\s+", "", original_value_text).lower()
+                for probe_value in probe_values:
+                    probe_key = probe_value.lower()
+                    if probe_key == original_value_text.lower():
+                        exact_matches.append(probe_value)
+                        continue
+
+                    probe_normalized = re.sub(r"\s+", "", probe_value).lower()
+                    if probe_normalized == original_value_normalized:
+                        normalized_matches.append(probe_value)
+                        continue
+                    if (
+                            original_value_normalized
+                            and (
+                            original_value_normalized in probe_normalized
+                            or probe_normalized in original_value_normalized
+                    )
+                    ):
+                        fuzzy_matches.append(probe_value)
+
+                candidate_values = exact_matches or normalized_matches or fuzzy_matches or probe_values[:5]
+                dedup_candidate_values: list[str] = []
+                seen_candidate_values: set[str] = set()
+                for candidate_value in candidate_values:
+                    candidate_text = str(candidate_value).strip()
+                    if not candidate_text:
+                        continue
+                    candidate_key = candidate_text.lower()
+                    if candidate_key in seen_candidate_values:
+                        continue
+                    seen_candidate_values.add(candidate_key)
+                    dedup_candidate_values.append(candidate_text)
+                    if len(dedup_candidate_values) >= 8:
+                        break
+                if not dedup_candidate_values:
+                    continue
+
+                match_strategy = "fallback_probe_topn"
+                if exact_matches:
+                    match_strategy = "exact"
+                elif normalized_matches:
+                    match_strategy = "normalized"
+                elif fuzzy_matches:
+                    match_strategy = "fuzzy"
+
+                value_candidates.append(
+                    {
+                        "field": field_text,
+                        "original_value": original_value_text,
+                        "candidates": dedup_candidate_values,
+                        "match_strategy": match_strategy,
+                    }
+                )
+
         hints: list[str] = [f"error_type={error_type}"]
         if missing_tokens:
             hints.append(f"missing_tokens={','.join(missing_tokens[:3])}")
@@ -1079,15 +1188,19 @@ def execute_chat_workflow(
             hints.append("enforce_field_replacements_from_field_candidates")
         if probe_samples:
             hints.append("use_probe_samples_to_rewrite_filters_or_entities")
+        if retry_reason == "empty_result" and value_candidates:
+            hints.append("prioritize_value_candidates_for_empty_result")
         hints.append("retry_sql_generation_with_hidden_context")
 
         hc_result = {
+            "retry_reason": retry_reason,
             "error_type": error_type,
             "error": error_text,
             "failed_sql": failed_sql,
             "rewritten_query": rewritten_query,
             "field_candidates": field_candidates,
             "probe_samples": probe_samples,
+            "value_candidates": value_candidates,
             "hints": hints,
             "kb_summary": {
                 "table_count": len(schema_hints),
@@ -1333,7 +1446,9 @@ def execute_chat_workflow(
                 model_name=sql_generation_model_name,
             )
             _helper_node_logger("sql_generation", node_input, sql_result, "success", None)
-            _helper_emit_step_event("sql_generation", "end", None)
+            sql_preview = str(sql_result.get("sql") or "").strip()
+            step_payload = {"sql": sql_preview} if sql_preview else None
+            _helper_emit_step_event("sql_generation", "end", None, step_payload)
             return {**state, "sql_result": sql_result}
         except Exception as exc:
             error_text = str(exc)

@@ -1,0 +1,27 @@
+{
+  "session_id": "b25d0316a4f34076",
+  "admin_id": 1,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-13T17:11:13",
+  "input": {
+    "message": "给我分析他的成绩变化趋势",
+    "history_user_messages": [
+      "查询22级计科专业女生人数",
+      "男生呢？",
+      "这些男生中有几个姓孙的？",
+      "把他的个人信息给我"
+    ],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "business_query",
+    "is_followup": true,
+    "confidence": 0.95,
+    "merged_query": "分析上一条查询中提到的姓孙的男生的成绩变化趋势",
+    "rewritten_query": "分析上一条查询中提到的姓孙的男生的成绩变化趋势",
+    "threshold": 0.7
+  }
+}

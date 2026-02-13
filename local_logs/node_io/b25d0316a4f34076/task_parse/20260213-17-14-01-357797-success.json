@@ -1,0 +1,55 @@
+{
+  "session_id": "b25d0316a4f34076",
+  "admin_id": 1,
+  "step_name": "task_parse",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-13T17:14:01",
+  "input": {
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": true,
+      "confidence": 0.95,
+      "merged_query": "确认之前查询的‘他的个人信息’和‘成绩变化趋势’所指的是否为同一姓孙的学生，排除重名可能",
+      "rewritten_query": "确认之前查询的‘他的个人信息’和‘成绩变化趋势’所指的是否为同一姓孙的学生，排除重名可能",
+      "threshold": 0.7
+    }
+  },
+  "output": {
+    "intent": "business_query",
+    "entities": [
+      {
+        "type": "name",
+        "value": "孙"
+      },
+      {
+        "type": "context",
+        "value": "之前查询的‘他的个人信息’和‘成绩变化趋势’"
+      }
+    ],
+    "dimensions": [
+      "student.id",
+      "student.real_name",
+      "student.student_no"
+    ],
+    "metrics": [],
+    "filters": [
+      {
+        "field": "student.real_name",
+        "op": "like",
+        "value": "孙%"
+      },
+      {
+        "field": "student.is_deleted",
+        "op": "=",
+        "value": false
+      }
+    ],
+    "time_range": {
+      "start": null,
+      "end": null
+    },
+    "operation": "detail",
+    "confidence": 0.85
+  }
+}

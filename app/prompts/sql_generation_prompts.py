@@ -32,7 +32,9 @@ SQL_GENERATION_SYSTEM_PROMPT = """
 19) 若需要“原因”字段，必须按学生聚合为一行（例如 `GROUP_CONCAT(DISTINCT ...)`），不要返回同一学生多行固定文案。
 20) 若存在 retry_constraints.forbidden_fields，SQL 与 sql_fields 中严禁出现这些字段。
 21) 若存在 retry_constraints.field_replacements，必须把 from 字段替换为 to_candidates 中的合法字段，且优先选择语义最贴近字段。
-22) 若无法完成替换修复，不要使用非法字段，返回空 SQL 字符串并保持 json 格式有效。
+22) 若 retry_constraints.retry_reason=empty_result 且存在 retry_constraints.value_replacements，SQL 过滤值必须优先从 to_candidates 选择，不得直接沿用 task.filters 的原始 value。
+23) 若 retry_constraints.retry_reason=empty_result 且无法安全采用任何候选值，返回空 SQL 字符串，并在 entity_mappings.reason 说明原因。
+24) 若无法完成字段替换修复，不要使用非法字段，返回空 SQL 字符串并保持 json 格式有效。
 
 完整输出示例（必须严格输出 JSON，不要附加解释）：
 {
@@ -60,51 +62,92 @@ def _helper_build_retry_constraints(hidden_context: dict[str, Any] | None) -> di
         return None
 
     field_candidates_raw = hidden_context.get("field_candidates")
-    if not isinstance(field_candidates_raw, list):
-        return None
+    value_candidates_raw = hidden_context.get("value_candidates")
 
     field_replacements: list[dict[str, Any]] = []
     forbidden_fields: list[str] = []
     seen_forbidden: set[str] = set()
-    for item in field_candidates_raw:
-        if not isinstance(item, dict):
-            continue
-        missing_field = str(item.get("missing", "")).strip()
-        if not missing_field:
-            continue
-        missing_key = missing_field.lower()
-        if missing_key not in seen_forbidden:
-            seen_forbidden.add(missing_key)
-            forbidden_fields.append(missing_field)
+    if isinstance(field_candidates_raw, list):
+        for item in field_candidates_raw:
+            if not isinstance(item, dict):
+                continue
+            missing_field = str(item.get("missing", "")).strip()
+            if not missing_field:
+                continue
+            missing_key = missing_field.lower()
+            if missing_key not in seen_forbidden:
+                seen_forbidden.add(missing_key)
+                forbidden_fields.append(missing_field)
 
-        candidates_raw = item.get("candidates")
-        if not isinstance(candidates_raw, list):
-            continue
-        candidates: list[str] = []
-        seen_candidates: set[str] = set()
-        for candidate in candidates_raw:
-            candidate_text = str(candidate).strip()
-            if not candidate_text:
+            candidates_raw = item.get("candidates")
+            if not isinstance(candidates_raw, list):
                 continue
-            candidate_key = candidate_text.lower()
-            if candidate_key in seen_candidates:
+            candidates: list[str] = []
+            seen_candidates: set[str] = set()
+            for candidate in candidates_raw:
+                candidate_text = str(candidate).strip()
+                if not candidate_text:
+                    continue
+                candidate_key = candidate_text.lower()
+                if candidate_key in seen_candidates:
+                    continue
+                seen_candidates.add(candidate_key)
+                candidates.append(candidate_text)
+            if candidates:
+                field_replacements.append({"from": missing_field, "to_candidates": candidates[:8]})
+
+    value_replacements: list[dict[str, Any]] = []
+    if isinstance(value_candidates_raw, list):
+        for item in value_candidates_raw:
+            if not isinstance(item, dict):
                 continue
-            seen_candidates.add(candidate_key)
-            candidates.append(candidate_text)
-        if candidates:
-            field_replacements.append({"from": missing_field, "to_candidates": candidates[:8]})
+            field = str(item.get("field", "")).strip()
+            original_value = str(item.get("original_value", "")).strip()
+            candidates_raw = item.get("candidates")
+            if not field or not original_value or not isinstance(candidates_raw, list):
+                continue
+
+            candidates: list[str] = []
+            seen_candidates: set[str] = set()
+            for candidate in candidates_raw:
+                candidate_text = str(candidate).strip()
+                if not candidate_text:
+                    continue
+                candidate_key = candidate_text.lower()
+                if candidate_key in seen_candidates:
+                    continue
+                seen_candidates.add(candidate_key)
+                candidates.append(candidate_text)
+            if not candidates:
+                continue
+
+            value_replacements.append(
+                {
+                    "field": field,
+                    "from": original_value,
+                    "to_candidates": candidates[:8],
+                    "match_strategy": str(item.get("match_strategy", "")).strip() or "unknown",
+                }
+            )
 
     hints = hidden_context.get("hints")
     retry_hint = False
     if isinstance(hints, list):
         retry_hint = any(str(item).strip() == "retry_sql_generation_with_hidden_context" for item in hints)
+    retry_reason = str(hidden_context.get("retry_reason", "")).strip() if isinstance(hidden_context, dict) else ""
 
     failed_sql = str(hidden_context.get("failed_sql", "")).strip() if isinstance(hidden_context, dict) else ""
+    if (not forbidden_fields) and (not field_replacements) and (not value_replacements) and (not retry_hint) and (
+            not retry_reason) and (not failed_sql):
+        return None
+
     constraints = {
         "enabled": True,
         "retry_hint": retry_hint,
+        "retry_reason": retry_reason,
         "forbidden_fields": forbidden_fields,
         "field_replacements": field_replacements,
+        "value_replacements": value_replacements,
         "failed_sql": failed_sql,
     }
     return constraints

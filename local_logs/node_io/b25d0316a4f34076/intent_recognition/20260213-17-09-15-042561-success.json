@@ -1,0 +1,22 @@
+{
+  "session_id": "b25d0316a4f34076",
+  "admin_id": 1,
+  "step_name": "intent_recognition",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-13T17:09:15",
+  "input": {
+    "message": "查询22级计科专业女生人数",
+    "history_user_messages": [],
+    "threshold": 0.7,
+    "model_name": "qwen-plus"
+  },
+  "output": {
+    "intent": "business_query",
+    "is_followup": false,
+    "confidence": 0.95,
+    "merged_query": "查询22级计算机科学与技术专业女生人数",
+    "rewritten_query": "查询22级计算机科学与技术专业女生人数",
+    "threshold": 0.7
+  }
+}

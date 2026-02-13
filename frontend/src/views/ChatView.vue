@@ -259,6 +259,8 @@ let localMessageSeed = 0;
 const buildLocalId = (prefix: string) => `${prefix}-${Date.now()}-${++localMessageSeed}`;
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const statusRenderQueue: Array<{ assistantIndex: number; text: string }> = [];
+let statusQueueDraining = false;
 
 const resolveSessionPreview = (session: ChatSessionItem): string => {
   const preview = (session.preview || "").trim();
@@ -294,16 +296,26 @@ const getAssistantMessageByIndex = (assistantIndex: number): TimelineMessage | n
 const appendAssistantTyping = async (assistantIndex: number, text: string) => {
   const assistantMessage = getAssistantMessageByIndex(assistantIndex);
   if (!assistantMessage) return;
-  const stepSize = 2;
+  const totalChars = text.length;
+  if (totalChars <= 0) return;
+  const minDurationMs = 1400;
+  const maxDurationMs = 6000;
+  const msPerChar = 24;
+  const targetDurationMs = Math.min(maxDurationMs, Math.max(minDurationMs, totalChars * msPerChar));
+  const preferredTickMs = 22;
+  const tickCount = Math.min(220, Math.max(20, Math.ceil(targetDurationMs / preferredTickMs)));
+  const stepSize = Math.max(1, Math.ceil(totalChars / tickCount));
+  const frameCount = Math.ceil(totalChars / stepSize);
+  const frameDelayMs = Math.max(16, Math.floor(targetDurationMs / Math.max(frameCount, 1)));
   for (let index = 0; index < text.length; index += stepSize) {
     const liveMessage = getAssistantMessageByIndex(assistantIndex);
     if (!liveMessage) return;
     liveMessage.content += text.slice(index, index + stepSize);
-    if (index % 8 === 0) {
+    if (index % (stepSize * 4) === 0) {
       await nextTick();
       scrollToMessageBottom();
     }
-    await wait(16);
+    await wait(frameDelayMs);
   }
   await nextTick();
   scrollToMessageBottom();
@@ -321,9 +333,78 @@ const appendAssistantStatus = async (assistantIndex: number, statusText: string)
   if (lastStatus === text) {
     return;
   }
-  assistantMessage.statusLines.push(text);
+  const isSqlStatus = text.startsWith("生成SQL：");
+  if (isSqlStatus) {
+    const maxSqlStatusChars = 680;
+    const compactText = text.length > maxSqlStatusChars ? `${text.slice(0, maxSqlStatusChars)} ...` : text;
+    assistantMessage.statusLines.push(compactText);
+    await nextTick();
+    scrollToMessageBottom();
+    return;
+  }
+
+  assistantMessage.statusLines.push("");
+  const lineIndex = assistantMessage.statusLines.length - 1;
+  const totalChars = text.length;
+  const minDurationMs = 420;
+  const maxDurationMs = 1500;
+  const targetDurationMs = Math.min(maxDurationMs, Math.max(minDurationMs, totalChars * 22));
+  const tickCount = Math.min(90, Math.max(12, Math.ceil(targetDurationMs / 24)));
+  const stepSize = Math.max(1, Math.ceil(totalChars / tickCount));
+  const frameCount = Math.ceil(totalChars / stepSize);
+  const frameDelayMs = Math.max(16, Math.floor(targetDurationMs / Math.max(frameCount, 1)));
+  for (let index = 0; index < totalChars; index += stepSize) {
+    const liveMessage = getAssistantMessageByIndex(assistantIndex);
+    if (!liveMessage || !liveMessage.statusLines) {
+      return;
+    }
+    liveMessage.statusLines[lineIndex] = text.slice(0, index + stepSize);
+    if (index % (stepSize * 4) === 0) {
+      await nextTick();
+      scrollToMessageBottom();
+    }
+    await wait(frameDelayMs);
+  }
+  const liveMessage = getAssistantMessageByIndex(assistantIndex);
+  if (liveMessage?.statusLines) {
+    liveMessage.statusLines[lineIndex] = text;
+  }
   await nextTick();
   scrollToMessageBottom();
+};
+
+const drainAssistantStatusQueue = async () => {
+  if (statusQueueDraining) return;
+  statusQueueDraining = true;
+  try {
+    while (statusRenderQueue.length) {
+      const item = statusRenderQueue.shift();
+      if (!item) continue;
+      await appendAssistantStatus(item.assistantIndex, item.text);
+      await wait(260);
+    }
+  } finally {
+    statusQueueDraining = false;
+  }
+};
+
+const enqueueAssistantStatus = (assistantIndex: number, statusText: string) => {
+  const text = statusText.trim();
+  if (!text) return;
+  statusRenderQueue.push({ assistantIndex, text });
+  if (!statusQueueDraining) {
+    void drainAssistantStatusQueue();
+  }
+};
+
+const waitForAssistantStatusQueueDrain = async (timeoutMs = 2600) => {
+  const startedAt = Date.now();
+  while (statusQueueDraining || statusRenderQueue.length > 0) {
+    if (Date.now() - startedAt >= timeoutMs) {
+      break;
+    }
+    await wait(50);
+  }
 };
 
 const formatSessionTime = (value: string): string => {
@@ -526,7 +607,14 @@ const submitMessage = async () => {
       {
         onEvent: (_event, data) => {
           if (data.message) {
-            void appendAssistantStatus(assistantIndex, data.message);
+            enqueueAssistantStatus(assistantIndex, data.message);
+          }
+          if (data.step === "sql_generation" && data.status === "end") {
+            const rawSql = data.step_payload?.["sql"];
+            const sqlText = typeof rawSql === "string" ? rawSql.trim() : "";
+            if (sqlText) {
+              enqueueAssistantStatus(assistantIndex, `生成SQL：${sqlText}`);
+            }
           }
         },
       }
@@ -551,13 +639,14 @@ const submitMessage = async () => {
         finalReply = `${finalReply}\n\n下载链接：${secureUrl}`;
       }
     }
+    await waitForAssistantStatusQueueDrain();
     await appendAssistantTyping(assistantIndex, finalReply);
     await refreshSessions();
     await nextTick();
     scrollToMessageBottom();
   } catch (err: any) {
     error.value = err?.message ?? err?.response?.data?.message ?? "Request failed";
-    void appendAssistantStatus(assistantIndex, error.value || "请求失败");
+    enqueueAssistantStatus(assistantIndex, error.value || "请求失败");
   } finally {
     sending.value = false;
   }

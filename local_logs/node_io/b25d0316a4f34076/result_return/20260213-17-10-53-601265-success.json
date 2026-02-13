@@ -1,0 +1,305 @@
+{
+  "session_id": "b25d0316a4f34076",
+  "admin_id": 1,
+  "step_name": "result_return",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-13T17:10:53",
+  "input": {
+    "message": "把他的个人信息给我",
+    "intent_result": {
+      "intent": "business_query",
+      "is_followup": true,
+      "confidence": 0.95,
+      "merged_query": "把22级计科专业中姓孙的男生的个人信息给我",
+      "rewritten_query": "把22级计科专业中姓孙的男生的个人信息给我",
+      "threshold": 0.7
+    },
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "grade",
+          "value": "22级"
+        },
+        {
+          "type": "major",
+          "value": "计科"
+        },
+        {
+          "type": "name_prefix",
+          "value": "孙"
+        },
+        {
+          "type": "gender",
+          "value": "男生"
+        }
+      ],
+      "dimensions": [
+        "student.student_no",
+        "student.real_name",
+        "student.gender",
+        "student.id_card",
+        "student.birth_date",
+        "student.phone",
+        "student.email",
+        "student.address"
+      ],
+      "metrics": [],
+      "filters": [
+        {
+          "field": "student.enroll_year",
+          "op": "=",
+          "value": 2022
+        },
+        {
+          "field": "major.major_name",
+          "op": "=",
+          "value": "计算机科学与技术"
+        },
+        {
+          "field": "student.real_name",
+          "op": "like",
+          "value": "孙%"
+        },
+        {
+          "field": "student.gender",
+          "op": "=",
+          "value": "男"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "detail",
+      "confidence": 0.95
+    },
+    "sql_result": {
+      "sql": "WITH base AS (SELECT student.student_no, student.real_name, student.gender, student.id_card, student.birth_date, student.phone, student.email, student.address FROM student JOIN major ON student.major_id = major.id WHERE student.enroll_year = 2022 AND major.major_name = '计算机科学与技术' AND student.real_name LIKE '孙%' AND student.gender = '男' AND student.is_deleted = 0 AND major.is_deleted = 0) SELECT base.student_no, base.real_name, base.gender, base.id_card, base.birth_date, base.phone, base.email, base.address FROM base",
+      "entity_mappings": [
+        {
+          "type": "grade",
+          "value": "22级",
+          "field": "student.enroll_year",
+          "reason": "根据字段描述“入学年份（常见问法：22级）”映射"
+        },
+        {
+          "type": "major",
+          "value": "计科",
+          "field": "major.major_name",
+          "reason": "根据字段描述“专业名称”及任务中已规范化为“计算机科学与技术”映射"
+        },
+        {
+          "type": "name_prefix",
+          "value": "孙",
+          "field": "student.real_name",
+          "reason": "根据字段描述“学生姓名”使用前缀匹配 '孙%'"
+        },
+        {
+          "type": "gender",
+          "value": "男生",
+          "field": "student.gender",
+          "reason": "根据字段描述“性别（男/女等）”映射为“男”"
+        }
+      ],
+      "sql_fields": [
+        "student.student_no",
+        "student.real_name",
+        "student.gender",
+        "student.id_card",
+        "student.birth_date",
+        "student.phone",
+        "student.email",
+        "student.address",
+        "student.major_id",
+        "major.id",
+        "student.enroll_year",
+        "major.major_name",
+        "student.is_deleted",
+        "major.is_deleted",
+        "base.student_no",
+        "base.real_name",
+        "base.gender",
+        "base.id_card",
+        "base.birth_date",
+        "base.phone",
+        "base.email",
+        "base.address"
+      ],
+      "applied_field_replacements": []
+    },
+    "sql_validate_result": {
+      "is_valid": true,
+      "error": null,
+      "rows": 1,
+      "result": [
+        {
+          "student_no": "S00092",
+          "real_name": "孙鑫",
+          "gender": "男",
+          "id_card": "11010120050418838X",
+          "birth_date": "2005-04-18",
+          "phone": "13551200393",
+          "email": "s00092@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学"
+        }
+      ],
+      "executed_sql": "WITH base AS (SELECT student.student_no, student.real_name, student.gender, student.id_card, student.birth_date, student.phone, student.email, student.address FROM student JOIN major ON student.major_id = major.id WHERE student.enroll_year = 2022 AND major.major_name = '计算机科学与技术' AND student.real_name LIKE '孙%' AND student.gender = '男' AND student.is_deleted = 0 AND major.is_deleted = 0) SELECT base.student_no, base.real_name, base.gender, base.id_card, base.birth_date, base.phone, base.email, base.address FROM base",
+      "empty_result": false,
+      "zero_metric_result": false
+    },
+    "hidden_context_result": null,
+    "hidden_context_retry_count": 0
+  },
+  "output": {
+    "session_id": "b25d0316a4f34076",
+    "intent": "business_query",
+    "is_followup": true,
+    "merged_query": "把22级计科专业中姓孙的男生的个人信息给我",
+    "rewritten_query": "把22级计科专业中姓孙的男生的个人信息给我",
+    "skipped": false,
+    "reason": null,
+    "final_status": "success",
+    "reason_code": null,
+    "summary": "22级计科专业姓孙的男生为孙鑫，学号S00092，男，身份证11010120050418838X，2005年4月18日出生，电话13551200393，邮箱s00092@student.mock.edu.cn，住址湖北省宜昌市西陵区三峡科技MOCK大学。",
+    "assistant_reply": "22级计科专业姓孙的男生为孙鑫，学号S00092，男，身份证11010120050418838X，2005年4月18日出生，电话13551200393，邮箱s00092@student.mock.edu.cn，住址湖北省宜昌市西陵区三峡科技MOCK大学。\n\n详细信息：\n1. student_no=S00092，real_name=孙鑫，gender=男，id_card=11010120050418838X，birth_date=2005-04-18，phone=13551200393，email=s00092@student.mock.edu.cn，address=湖北省宜昌市西陵区三峡科技MOCK大学",
+    "download_url": null,
+    "task": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "grade",
+          "value": "22级"
+        },
+        {
+          "type": "major",
+          "value": "计科"
+        },
+        {
+          "type": "name_prefix",
+          "value": "孙"
+        },
+        {
+          "type": "gender",
+          "value": "男生"
+        }
+      ],
+      "dimensions": [
+        "student.student_no",
+        "student.real_name",
+        "student.gender",
+        "student.id_card",
+        "student.birth_date",
+        "student.phone",
+        "student.email",
+        "student.address"
+      ],
+      "metrics": [],
+      "filters": [
+        {
+          "field": "student.enroll_year",
+          "op": "=",
+          "value": 2022
+        },
+        {
+          "field": "major.major_name",
+          "op": "=",
+          "value": "计算机科学与技术"
+        },
+        {
+          "field": "student.real_name",
+          "op": "like",
+          "value": "孙%"
+        },
+        {
+          "field": "student.gender",
+          "op": "=",
+          "value": "男"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "detail",
+      "confidence": 0.95
+    },
+    "sql_result": {
+      "sql": "WITH base AS (SELECT student.student_no, student.real_name, student.gender, student.id_card, student.birth_date, student.phone, student.email, student.address FROM student JOIN major ON student.major_id = major.id WHERE student.enroll_year = 2022 AND major.major_name = '计算机科学与技术' AND student.real_name LIKE '孙%' AND student.gender = '男' AND student.is_deleted = 0 AND major.is_deleted = 0) SELECT base.student_no, base.real_name, base.gender, base.id_card, base.birth_date, base.phone, base.email, base.address FROM base",
+      "entity_mappings": [
+        {
+          "type": "grade",
+          "value": "22级",
+          "field": "student.enroll_year",
+          "reason": "根据字段描述“入学年份（常见问法：22级）”映射"
+        },
+        {
+          "type": "major",
+          "value": "计科",
+          "field": "major.major_name",
+          "reason": "根据字段描述“专业名称”及任务中已规范化为“计算机科学与技术”映射"
+        },
+        {
+          "type": "name_prefix",
+          "value": "孙",
+          "field": "student.real_name",
+          "reason": "根据字段描述“学生姓名”使用前缀匹配 '孙%'"
+        },
+        {
+          "type": "gender",
+          "value": "男生",
+          "field": "student.gender",
+          "reason": "根据字段描述“性别（男/女等）”映射为“男”"
+        }
+      ],
+      "sql_fields": [
+        "student.student_no",
+        "student.real_name",
+        "student.gender",
+        "student.id_card",
+        "student.birth_date",
+        "student.phone",
+        "student.email",
+        "student.address",
+        "student.major_id",
+        "major.id",
+        "student.enroll_year",
+        "major.major_name",
+        "student.is_deleted",
+        "major.is_deleted",
+        "base.student_no",
+        "base.real_name",
+        "base.gender",
+        "base.id_card",
+        "base.birth_date",
+        "base.phone",
+        "base.email",
+        "base.address"
+      ],
+      "applied_field_replacements": []
+    },
+    "sql_validate_result": {
+      "is_valid": true,
+      "error": null,
+      "rows": 1,
+      "result": [
+        {
+          "student_no": "S00092",
+          "real_name": "孙鑫",
+          "gender": "男",
+          "id_card": "11010120050418838X",
+          "birth_date": "2005-04-18",
+          "phone": "13551200393",
+          "email": "s00092@student.mock.edu.cn",
+          "address": "湖北省宜昌市西陵区三峡科技MOCK大学"
+        }
+      ],
+      "executed_sql": "WITH base AS (SELECT student.student_no, student.real_name, student.gender, student.id_card, student.birth_date, student.phone, student.email, student.address FROM student JOIN major ON student.major_id = major.id WHERE student.enroll_year = 2022 AND major.major_name = '计算机科学与技术' AND student.real_name LIKE '孙%' AND student.gender = '男' AND student.is_deleted = 0 AND major.is_deleted = 0) SELECT base.student_no, base.real_name, base.gender, base.id_card, base.birth_date, base.phone, base.email, base.address FROM base",
+      "empty_result": false,
+      "zero_metric_result": false
+    },
+    "hidden_context_result": null,
+    "hidden_context_retry_count": 0
+  }
+}

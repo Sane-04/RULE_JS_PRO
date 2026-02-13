@@ -101,6 +101,7 @@ export type ChatStreamEventData = {
   timestamp: string;
   seq: number;
   result?: ChatData;
+  step_payload?: Record<string, unknown>;
 };
 
 export type PostChatStreamOptions = {

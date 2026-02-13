@@ -1,0 +1,231 @@
+{
+  "session_id": "b25d0316a4f34076",
+  "admin_id": 1,
+  "step_name": "sql_generation",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-13T17:11:33",
+  "input": {
+    "rewritten_query": "分析上一条查询中提到的姓孙的男生的成绩变化趋势",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "name",
+          "value": "孙"
+        },
+        {
+          "type": "gender",
+          "value": "男"
+        }
+      ],
+      "dimensions": [
+        "score.term"
+      ],
+      "metrics": [
+        "score.score_value"
+      ],
+      "filters": [
+        {
+          "field": "student.real_name",
+          "op": "like",
+          "value": "孙%"
+        },
+        {
+          "field": "student.gender",
+          "op": "=",
+          "value": "男"
+        },
+        {
+          "field": "score.student_id",
+          "op": "=",
+          "value": "上一条查询中提到的student.id"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "trend",
+      "confidence": 0.85
+    },
+    "hidden_context_result": {
+      "retry_reason": "sql_error",
+      "error_type": "execution_error",
+      "error": "SQL 生成缺少 sql 字段",
+      "failed_sql": "",
+      "rewritten_query": "分析上一条查询中提到的姓孙的男生的成绩变化趋势",
+      "field_candidates": [],
+      "probe_samples": [
+        {
+          "field": "score.term",
+          "probe_sql": "SELECT DISTINCT score.term AS value FROM score WHERE score.term IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "2025-2026-1"
+          ]
+        },
+        {
+          "field": "student.real_name",
+          "probe_sql": "SELECT DISTINCT student.real_name AS value FROM student WHERE student.real_name IS NOT NULL AND student.is_deleted = 0 LIMIT 20",
+          "values": [
+            "施伟",
+            "Ethan",
+            "周鹏",
+            "孔航",
+            "吴斌",
+            "沈强博",
+            "Isabella",
+            "孙芳",
+            "钱丹",
+            "施斌",
+            "周欣",
+            "Olivia",
+            "沈燕",
+            "郑涛宇",
+            "吕斌",
+            "陶洋",
+            "何勇",
+            "姜萍",
+            "冯峰",
+            "郑航"
+          ]
+        },
+        {
+          "field": "student.gender",
+          "probe_sql": "SELECT DISTINCT student.gender AS value FROM student WHERE student.gender IS NOT NULL AND student.is_deleted = 0 LIMIT 20",
+          "values": [
+            "男",
+            "女"
+          ]
+        },
+        {
+          "field": "score.student_id",
+          "probe_sql": "SELECT DISTINCT score.student_id AS value FROM score WHERE score.student_id IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20"
+          ]
+        },
+        {
+          "field": "score.score_value",
+          "probe_sql": "SELECT DISTINCT score.score_value AS value FROM score WHERE score.score_value IS NOT NULL AND score.is_deleted = 0 LIMIT 20",
+          "values": [
+            "59.8",
+            "90.7",
+            "87.1",
+            "99.5",
+            "66.5",
+            "61.6",
+            "95.5",
+            "99.1",
+            "66.0",
+            "51.2",
+            "98.6",
+            "85.9",
+            "90.8",
+            "78.2",
+            "63.1",
+            "94.5",
+            "62.5",
+            "60.9",
+            "92.0",
+            "57.3"
+          ]
+        }
+      ],
+      "value_candidates": [
+        {
+          "field": "student.real_name",
+          "original_value": "孙%",
+          "candidates": [
+            "施伟",
+            "Ethan",
+            "周鹏",
+            "孔航",
+            "吴斌"
+          ],
+          "match_strategy": "fallback_probe_topn"
+        },
+        {
+          "field": "student.gender",
+          "original_value": "男",
+          "candidates": [
+            "男"
+          ],
+          "match_strategy": "exact"
+        },
+        {
+          "field": "score.student_id",
+          "original_value": "上一条查询中提到的student.id",
+          "candidates": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ],
+          "match_strategy": "fallback_probe_topn"
+        }
+      ],
+      "hints": [
+        "error_type=execution_error",
+        "use_probe_samples_to_rewrite_filters_or_entities",
+        "retry_sql_generation_with_hidden_context"
+      ],
+      "kb_summary": {
+        "table_count": 10,
+        "field_count": 84
+      },
+      "retry_count": 1
+    },
+    "model_name": "qwen3-max-2026-01-23"
+  },
+  "output": {
+    "sql": "WITH base AS (SELECT student.id AS student_id, student.real_name, score.term, score.score_value FROM student JOIN score ON student.id = score.student_id WHERE student.real_name LIKE '孙%' AND student.gender = '男' AND student.is_deleted = 0 AND score.is_deleted = 0) SELECT base.term, base.score_value FROM base ORDER BY base.term",
+    "entity_mappings": [
+      {
+        "type": "name",
+        "value": "孙",
+        "field": "student.real_name",
+        "reason": "原始实体值“孙”通过 LIKE '孙%' 匹配姓孙的学生；probe_samples 中存在“孙芳”，说明“孙”作为姓氏有效，保留模糊匹配"
+      },
+      {
+        "type": "gender",
+        "value": "男",
+        "field": "student.gender",
+        "reason": "probe_samples 显示 gender 候选值包含“男”，与原始值完全一致，采用精确匹配"
+      }
+    ],
+    "sql_fields": [
+      "student.id",
+      "student.real_name",
+      "score.term",
+      "score.score_value",
+      "score.student_id",
+      "student.gender",
+      "student.is_deleted",
+      "score.is_deleted",
+      "base.term",
+      "base.score_value"
+    ],
+    "applied_field_replacements": []
+  }
+}

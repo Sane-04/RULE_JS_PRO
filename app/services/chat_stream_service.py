@@ -87,6 +87,7 @@ def generate_chat_stream(admin_id: int, payload: ChatIntentRequest) -> Iterator[
             status: str,
             message: str,
             result: dict[str, Any] | None = None,
+            step_payload: dict[str, Any] | None = None,
         ) -> None:
             """作用：构建统一事件 payload 并入队。
 
@@ -96,6 +97,7 @@ def generate_chat_stream(admin_id: int, payload: ChatIntentRequest) -> Iterator[
             - status: str，状态（start/end/error）。
             - message: str，状态文案。
             - result: dict[str, Any] | None，可选最终结果。
+            - step_payload: dict[str, Any] | None，可选步骤附加数据。
 
             输出参数：
             - None
@@ -112,15 +114,23 @@ def generate_chat_stream(admin_id: int, payload: ChatIntentRequest) -> Iterator[
             }
             if result is not None:
                 payload_data["result"] = result
+            if step_payload is not None:
+                payload_data["step_payload"] = step_payload
             event_queue.put({"event": event_name, "data": payload_data})
 
-        def _helper_step_callback(step_name: str, status: str, _error_message: str | None) -> None:
+        def _helper_step_callback(
+                step_name: str,
+                status: str,
+                _error_message: str | None,
+                step_payload: dict[str, Any] | None,
+        ) -> None:
             """作用：接收节点回调并转换为 SSE 事件。
 
             输入参数：
             - step_name: str，节点名。
             - status: str，节点状态（start/end/error）。
             - _error_message: str | None，预留错误信息字段。
+            - step_payload: dict[str, Any] | None，步骤附加信息。
 
             输出参数：
             - None
@@ -129,7 +139,13 @@ def generate_chat_stream(admin_id: int, payload: ChatIntentRequest) -> Iterator[
                 _helper_emit_event("step_start", step_name, "start", _helper_get_step_message(step_name, "start"))
                 return
             if status == "end":
-                _helper_emit_event("step_end", step_name, "end", _helper_get_step_message(step_name, "end"))
+                _helper_emit_event(
+                    "step_end",
+                    step_name,
+                    "end",
+                    _helper_get_step_message(step_name, "end"),
+                    step_payload=step_payload,
+                )
                 return
             step_label = STEP_DISPLAY_NAMES.get(step_name, step_name)
             _helper_emit_event(

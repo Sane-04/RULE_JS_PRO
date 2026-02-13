@@ -13,6 +13,7 @@ class ChatStreamEventData(BaseModel):
     timestamp: str = Field(..., description="event timestamp")
     seq: int = Field(..., ge=1, description="event sequence")
     result: dict[str, Any] | None = Field(default=None, description="final result, only for workflow_end")
+    step_payload: dict[str, Any] | None = Field(default=None, description="step payload for incremental UI updates")
 
 
 class ChatStreamEvent(BaseModel):

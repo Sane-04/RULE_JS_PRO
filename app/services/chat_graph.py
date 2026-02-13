@@ -422,7 +422,13 @@ def execute_chat_workflow(
 
         return fields, alias_pairs, schema_hints
 
-    def _helper_call_llm(system_prompt: str, user_prompt: str, model_name: str, timeout: float) -> dict[str, Any]:
+    def _helper_call_llm(
+            system_prompt: str,
+            user_prompt: str,
+            model_name: str,
+            timeout: float,
+            response_format: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """作用：调用大模型并解析 JSON。
         
         输入参数：
@@ -449,14 +455,17 @@ def execute_chat_workflow(
                 kwargs["base_url"] = settings.llm_base_url
             with httpx.Client(trust_env=False, timeout=timeout) as http_client:
                 client = OpenAI(**kwargs, http_client=http_client)
-                response = client.chat.completions.create(
-                    model=model_name,
-                    messages=[
+                completion_payload: dict[str, Any] = {
+                    "model": model_name,
+                    "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt},
                     ],
-                    temperature=0.1,
-                )
+                    "temperature": 0.1,
+                }
+                if response_format:
+                    completion_payload["response_format"] = response_format
+                response = client.chat.completions.create(**completion_payload)
         except Exception as exc:
             raise RuntimeError(f"大模型调用失败: {exc}") from exc
 
@@ -614,6 +623,8 @@ def execute_chat_workflow(
         field_whitelist, alias_pairs, schema_hints = _helper_build_kb_hints()
         whitelist_set = set(field_whitelist)
 
+        sql_response_format = {"type": "json_object"} if settings.llm_response_format_sql == "json_object" else None
+
         llm_output = _helper_call_llm(
             system_prompt=SQL_GENERATION_SYSTEM_PROMPT,
             user_prompt=build_sql_generation_user_prompt(
@@ -626,6 +637,7 @@ def execute_chat_workflow(
             ),
             model_name=model_name,
             timeout=30.0,
+            response_format=sql_response_format,
         )
 
         sql = str(llm_output.get("sql", "")).strip()

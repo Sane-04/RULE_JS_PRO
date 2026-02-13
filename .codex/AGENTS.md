@@ -594,6 +594,8 @@ MUST 仍定义在当前业务函数内部且位于函数开头
 
 MUST NOT 将该 target 提升为模块级函数
 
+Rule 7：函数需要加上中文注释，包括输入参数、输出参数和函数作用
+
 3️⃣ 正例（符合规范 ✅）
 正例 1：需要复用 → 使用嵌套 _helper
 def create_order(user, items):

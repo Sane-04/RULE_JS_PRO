@@ -1,0 +1,135 @@
+{
+  "session_id": "b62993be94d24ffe",
+  "admin_id": 1,
+  "step_name": "hidden_context",
+  "status": "success",
+  "error_message": null,
+  "timestamp": "2026-02-13T10:45:45",
+  "input": {
+    "rewritten_query": "查询22级计算机科学与技术专业男生人数",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "grade",
+          "value": "22级"
+        },
+        {
+          "type": "major",
+          "value": "计算机科学与技术"
+        },
+        {
+          "type": "gender",
+          "value": "男生"
+        }
+      ],
+      "dimensions": [],
+      "metrics": [
+        "count"
+      ],
+      "filters": [
+        {
+          "field": "student.enroll_year",
+          "op": "=",
+          "value": 2022
+        },
+        {
+          "field": "student.gender",
+          "op": "=",
+          "value": "男"
+        },
+        {
+          "field": "major.major_name",
+          "op": "=",
+          "value": "计算机科学与技术"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.95
+    },
+    "sql_result": {
+      "sql": "",
+      "entity_mappings": [],
+      "sql_fields": [],
+      "generation_failed": true,
+      "generation_error": "模型输出不是有效 JSON"
+    },
+    "sql_validate_result": {
+      "is_valid": false,
+      "error": "模型输出不是有效 JSON",
+      "rows": 0,
+      "result": [],
+      "executed_sql": "",
+      "empty_result": false,
+      "zero_metric_result": false
+    },
+    "hidden_context_retry_count": 1
+  },
+  "output": {
+    "error_type": "execution_error",
+    "error": "模型输出不是有效 JSON",
+    "failed_sql": "",
+    "rewritten_query": "查询22级计算机科学与技术专业男生人数",
+    "field_candidates": [],
+    "probe_samples": [
+      {
+        "field": "student.enroll_year",
+        "probe_sql": "SELECT DISTINCT student.enroll_year AS value FROM student WHERE student.enroll_year IS NOT NULL AND student.is_deleted = 0 LIMIT 20",
+        "values": [
+          "2022",
+          "2024",
+          "2023",
+          "2025"
+        ]
+      },
+      {
+        "field": "student.gender",
+        "probe_sql": "SELECT DISTINCT student.gender AS value FROM student WHERE student.gender IS NOT NULL AND student.is_deleted = 0 LIMIT 20",
+        "values": [
+          "男",
+          "女"
+        ]
+      },
+      {
+        "field": "major.major_name",
+        "probe_sql": "SELECT DISTINCT major.major_name AS value FROM major WHERE major.major_name IS NOT NULL AND major.is_deleted = 0 LIMIT 20",
+        "values": [
+          "计算机科学与技术",
+          "软件工程",
+          "人工智能",
+          "数据科学与大数据技术",
+          "网络工程",
+          "信息安全",
+          "自动化",
+          "机械设计制造及其自动化",
+          "电气工程及其自动化",
+          "土木工程",
+          "财务管理",
+          "市场营销",
+          "人力资源管理",
+          "工商管理",
+          "会计学",
+          "汉语言文学",
+          "新闻传播学",
+          "英语",
+          "日语",
+          "数学与应用数学"
+        ]
+      }
+    ],
+    "hints": [
+      "error_type=execution_error",
+      "use_probe_samples_to_rewrite_filters_or_entities",
+      "retry_sql_generation_with_hidden_context"
+    ],
+    "kb_summary": {
+      "table_count": 10,
+      "field_count": 84
+    },
+    "retry_count": 2
+  }
+}

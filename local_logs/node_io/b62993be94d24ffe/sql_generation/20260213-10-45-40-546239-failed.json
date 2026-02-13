@@ -1,0 +1,64 @@
+{
+  "session_id": "b62993be94d24ffe",
+  "admin_id": 1,
+  "step_name": "sql_generation",
+  "status": "failed",
+  "error_message": "模型输出不是有效 JSON",
+  "timestamp": "2026-02-13T10:45:40",
+  "input": {
+    "rewritten_query": "查询22级计算机科学与技术专业男生人数",
+    "parse_result": {
+      "intent": "business_query",
+      "entities": [
+        {
+          "type": "grade",
+          "value": "22级"
+        },
+        {
+          "type": "major",
+          "value": "计算机科学与技术"
+        },
+        {
+          "type": "gender",
+          "value": "男生"
+        }
+      ],
+      "dimensions": [],
+      "metrics": [
+        "count"
+      ],
+      "filters": [
+        {
+          "field": "student.enroll_year",
+          "op": "=",
+          "value": 2022
+        },
+        {
+          "field": "student.gender",
+          "op": "=",
+          "value": "男"
+        },
+        {
+          "field": "major.major_name",
+          "op": "=",
+          "value": "计算机科学与技术"
+        }
+      ],
+      "time_range": {
+        "start": null,
+        "end": null
+      },
+      "operation": "aggregate",
+      "confidence": 0.95
+    },
+    "hidden_context_result": null,
+    "model_name": "qwen3-coder-plus"
+  },
+  "output": {
+    "sql": "",
+    "entity_mappings": [],
+    "sql_fields": [],
+    "generation_failed": true,
+    "generation_error": "模型输出不是有效 JSON"
+  }
+}

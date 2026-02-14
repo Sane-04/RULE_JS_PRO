@@ -10,7 +10,23 @@
           <button class="btn ghost" type="button" @click="fetchData" :disabled="loading">
             {{ loading ? "加载中..." : "刷新" }}
           </button>
+          <button
+            class="btn ghost"
+            type="button"
+            :disabled="loading || importing || !isImportSupported"
+            :title="importButtonTitle"
+            @click="triggerImport"
+          >
+            {{ importing ? "导入中..." : "导入文件" }}
+          </button>
           <button class="btn primary" type="button" @click="openCreate">新增</button>
+          <input
+            ref="importInputRef"
+            class="hidden-file-input"
+            type="file"
+            accept=".csv,.xlsx"
+            @change="onImportFileChange"
+          />
         </div>
       </header>
 
@@ -234,12 +250,21 @@ type ScoreRow = {
   score_level?: string | null;
 };
 
+type ImportErrorItem = {
+  row?: number;
+  field?: string;
+  message?: string;
+};
+
 type NameMaps = {
   colleges: Record<number, string>;
   majors: Record<number, string>;
   classes: Record<number, string>;
   teachers: Record<number, string>;
 };
+
+const IMPORT_SUPPORTED_TABLES = new Set(["student", "teacher", "course"]);
+const IMPORT_MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 const route = useRoute();
 
@@ -421,6 +446,8 @@ const editingId = ref<number | null>(null);
 const formState = ref<Record<string, any>>({});
 const formLoading = ref(false);
 const formError = ref("");
+const importInputRef = ref<HTMLInputElement | null>(null);
+const importing = ref(false);
 
 const scoreModalVisible = ref(false);
 const scoreLoading = ref(false);
@@ -435,6 +462,19 @@ const modalTitle = computed(() => {
   return modalMode.value === "create"
     ? `新增${currentTable.value.label}`
     : `编辑${currentTable.value.label}`;
+});
+const isImportSupported = computed(() => IMPORT_SUPPORTED_TABLES.has(tableKey.value));
+const importButtonTitle = computed(() => {
+  if (loading.value) {
+    return "数据加载中，请稍后再试";
+  }
+  if (importing.value) {
+    return "文件正在导入中";
+  }
+  if (!isImportSupported.value) {
+    return "当前表暂不支持导入，仅支持学生/教师/课程";
+  }
+  return "支持 CSV/XLSX，最大 10MB";
 });
 
 const buildEmptyForm = () => {
@@ -455,6 +495,95 @@ const showFeedback = (message: string, type: "success" | "error" = "success") =>
     feedbackMessage.value = "";
     feedbackTimer = null;
   }, 2200);
+};
+
+const triggerImport = () => {
+  if (!isImportSupported.value) {
+    showFeedback("当前表暂不支持导入，仅支持学生/教师/课程", "error");
+    return;
+  }
+  if (loading.value || importing.value) {
+    return;
+  }
+  if (!importInputRef.value) {
+    return;
+  }
+  importInputRef.value.value = "";
+  importInputRef.value.click();
+};
+
+const validateImportFile = (file: File): string | null => {
+  const lowerName = file.name.toLowerCase();
+  if (!lowerName.endsWith(".csv") && !lowerName.endsWith(".xlsx")) {
+    return "仅支持 CSV 或 XLSX 文件";
+  }
+  if (file.size <= 0) {
+    return "文件为空，请重新选择";
+  }
+  if (file.size > IMPORT_MAX_FILE_SIZE) {
+    return "文件过大，最大支持 10MB";
+  }
+  return null;
+};
+
+const toImportErrorMessage = (item: ImportErrorItem) => {
+  const row = item.row ? `第${item.row}行` : "未知行";
+  const field = item.field ? `[${item.field}]` : "";
+  const messageMap: Record<string, string> = {
+    required: "必填项为空",
+    "invalid type": "字段类型不正确",
+  };
+  const rawMessage = String(item.message || "数据错误");
+  const message = messageMap[rawMessage] || rawMessage;
+  return `${row}${field}${message}`;
+};
+
+const uploadImportFile = async (file: File) => {
+  importing.value = true;
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await api.post(`/import/${tableKey.value}`, formData);
+    const payload = res?.data?.data || {};
+    const summary = payload.summary || {};
+    const errors: ImportErrorItem[] = Array.isArray(payload.errors) ? payload.errors : [];
+    const total = Number(summary.total || 0);
+    const success = Number(summary.success || 0);
+    const failed = Number(summary.failed || 0);
+
+    let message = `导入完成：总计${total}，成功${success}，失败${failed}`;
+    if (failed > 0 && errors.length > 0) {
+      const details = errors.slice(0, 3).map(toImportErrorMessage).join("；");
+      message += `；${details}`;
+    }
+    showFeedback(message, failed > 0 ? "error" : "success");
+    await fetchData();
+  } catch (err: any) {
+    const message = err?.response?.data?.message || "导入失败";
+    showFeedback(message, "error");
+  } finally {
+    importing.value = false;
+  }
+};
+
+const onImportFileChange = async (event: Event) => {
+  const inputEl = event.target as HTMLInputElement | null;
+  const file = inputEl?.files?.[0];
+  if (!file) {
+    return;
+  }
+  const fileError = validateImportFile(file);
+  if (fileError) {
+    showFeedback(fileError, "error");
+    if (inputEl) {
+      inputEl.value = "";
+    }
+    return;
+  }
+  await uploadImportFile(file);
+  if (inputEl) {
+    inputEl.value = "";
+  }
 };
 
 const updateFormState = (value: Record<string, any>) => {

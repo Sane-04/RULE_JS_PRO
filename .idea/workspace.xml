@@ -5,8 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6c8e0914-6428-4a24-8e3e-eeee2006fd1f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/app/prompts/result_summary_prompts.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/prompts/result_summary_prompts.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/chat_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/chat_graph.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/css/datouwang.com.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/css/font-awesome.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/css/normalize.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/fonts/FontAwesome.otf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/fonts/fontawesome-webfont.eot" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/fonts/fontawesome-webfont.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/fonts/fontawesome-webfont.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/fonts/fontawesome-webfont.woff" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/fonts/fontawesome-webfont.woff2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/js/datouwang.com.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JIEMIAN/js/jquery.min.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

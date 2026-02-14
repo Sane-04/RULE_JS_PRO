@@ -438,6 +438,10 @@ select:focus-visible {
   align-items: center;
 }
 
+.hidden-file-input {
+  display: none;
+}
+
 .card {
   background: var(--panel);
   border-radius: 12px;

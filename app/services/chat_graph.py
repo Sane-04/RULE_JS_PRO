@@ -865,6 +865,13 @@ def execute_chat_workflow(
             result_rows = _helper_to_json_safe([dict(row) for row in rows])
             metric_aliases = _helper_extract_metric_aliases(sql)
             empty_result = len(result_rows) == 0
+            if (not empty_result) and len(result_rows) == 1 and isinstance(result_rows[0], dict):
+                # 聚合查询在无命中数据时常返回 1 行全 NULL，这里按空结果处理以触发重试链路。
+                has_aggregate = bool(re.search(r"(?is)\b(min|max|sum|avg|count)\s*\(", sql))
+                if has_aggregate:
+                    first_row = result_rows[0]
+                    if all(value is None for value in first_row.values()):
+                        empty_result = True
             zero_metric_result = _helper_has_zero_metric(result_rows, metric_aliases)
             v_result = {
                 "is_valid": True,

@@ -11,6 +11,8 @@ services:
       - ./local_logs:/app/local_logs
       - ./app:/app/app
       - ./main.py:/app/main.py
+      - ./.env:/app/.env
+      - ./frontend:/app/frontend
     healthcheck:
       test:
         - CMD-SHELL
